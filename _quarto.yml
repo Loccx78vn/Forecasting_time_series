@@ -6,21 +6,26 @@ website:
   title: "MY WEB SITE"
   navbar:
     left:
-      - href: index.qmd
-        text: Home
-      - projects.qmd
+      - href: Forecasting.qmd
+        text: ARIMA model
+      - href: EnsembleML.qmd
+        text: Ensemble Machine Learning
     tools:
-      - icon: twitter
-        href: https://twitter.com/
       - icon: github
-        href: https://github.com/YOURUSERNAME/YOURREPO
+        text: Github
+        href: https://github.com/Loccx78vn/Quarto
+      - icon: twitter
+        text: Another projects
+        href: https://rpubs.com/loccx
   page-footer:
     right: "Built with [Quarto](https://quarto.org/)"
-    left: "&copy; Copyright 2023, YOUR NAME"
+    left: "&copy; Copyright 2023, Loc cao"
 
 format:
   html:
-    theme: cerulean
+    theme: 
+      light: flatly
+      dark: darkly
     toc: true
 
 editor: source

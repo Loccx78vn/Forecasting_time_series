@@ -1,0 +1,295 @@
+---
+title: "Ensemble Machine Learning"
+subtitle: "Việt Nam, 2024"
+categories: ["Machine Learning", "Forecasting"]
+---
+
+## Dự đoán bằng Ensemble Machine Learning:
+
+### Định nghĩa về Machine Learning:
+
+Theo [Topdev](https://topdev.vn/blog/machine-learning-la-gi/), Machine learning (ML) hay máy học là "*một nhánh của trí tuệ nhân tạo (AI), nó là một lĩnh vực nghiên cứu cho phép máy tính có khả năng cải thiện chính bản thân chúng dựa trên dữ liệu mẫu (training data) hoặc dựa vào kinh nghiệm (những gì đã được học). Machine learning có thể tự dự đoán hoặc đưa ra quyết định mà không cần được lập trình cụ thể.*"
+
+Phương pháp ML "gây bão" trong giới khoa học khi ra mắt vì khả năng xây dựng mô hình nhanh chóng và sự chuẩn xác của mô hình trong việc dự đoán và phân loại kết quả. Khác với các mô hình khoa học truyền thống đòi hỏi nhiều về đáp ứng giả định và quy tắc rắc rối, Machine Learning giúp con người nhanh chóng đưa ra quyết định và có thể tự cải thiện performance của mình mà không cần người dùng.
+
+### Thuật toán Ensemble ML:
+
+Trong machine learning tồn tại định lý “*không có bữa trưa miễn phí”* (No free lunch theorem), tức là không tồn tại một thuật toán mà tốt cho mọi ứng dụng và mọi tập dữ liệu. Vì ML có nhiều thuật toán khác nhau và tùy vào đặc tính của bộ dữ liệu mà thuật toán ML sẽ tính ra kết quả khác nhau. Muốn tìm ra thuật toán phù hợp, người sử dụng phải cần nhiều thời gian để test và điều chỉnh hệ số (tuning hyperparameters) để đạt độ chính xác cao.
+
+Và thuật toán Ensemble ML có thể giúp người dùng giảm thời gian trong việc testing bằng cách kết hợp các mô hình này với nhau. Theo [Cuong Sai](https://svcuong.github.io/post/ensemble-learning/), "Ý tưởng của việc combine các mô hình khác nhau xuất phát từ một suy nghĩ hợp lý là: các mô hình khác nhau có khả năng khác nhau, có thể thực hiện tốt nhất các loại công việc khác nhau (subtasks), khi kết hợp các mô hình này với nhau một cách hợp lý thì sẽ tạo thành một mô hình kết hợp (combined model) mạnh có khả năng cải thiện hiệu suât tổng thể (overall performance) so với việc chỉ dùng các mô hình một cách đơn lẻ."
+
+Thuật toán Ensemble ML chia thành 3 loại:
+
+-   Bagging: chia bộ dữ liệu thành subsamples và xây dựng thành model cùng kiểu với nhau để đưa ra dự đoán.
+-   Boosting: cũng chia dữ liệu thành subsamples nhưng việc xây dựng mô hình không diễn ra cùng lúc như bagging mà là theo chuỗi nối tiếp nhau.
+
+Bạn có thể tưởng tượng như hình dưới đây:
+
+![Bagging vs Boosting method.](img/Bagging_Boosting.png){fig-align="center"}
+
+-   Stacking xây dựng các mô hình khác loại từ training data và một mô hình supervisor model. Sau đó, mô hình này sẽ kết hợp các kết quả dự báo để tìm ra mô hình tốt nhất.
+
+![Staking method.](img/Staking.png){fig-align="center"}
+
+Vậy tiếp theo, chúng ta sẽ thử dùng Ensemble ML trong R để dự đoán.
+
+### So sánh với mô hình ARIMA:
+
+Machine Learning làm tốt về mặt performance ở các vấn đề như: phân loại nhãn (Classification), tự học và bổ sung (AI), phân tích lớp ảnh (Neural network),... nhưng ở lĩnh vực dự đoán chuỗi thời gian (Time series forecast), theo bài nghiên cứu của [JOHN A. MILLER,etc](https://arxiv.org/pdf/2401.13912), ML lại không tốt bằng các phương pháp thống kê truyền thống. Tuy nhiên họ cũng nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA.
+
+## Thực hành trong R:
+
+### Chuẩn bị dữ liệu:
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#Call packages:
+pacman::p_load(rio,
+               here,
+               janitor,
+               tidyverse,
+               dplyr,
+               magrittr,
+               lubridate,
+               stringr
+               )
+#Import file:
+product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
+
+#Change to suitable class (I change the name dataset to product_demand to shortly write)
+product_demand <-product_demand %>% 
+    mutate(Date = as.Date(Date,format = "%Y/%m/%d"),
+           Product_Category = as.factor(Product_Category))
+
+product_demand$Order_Demand <- 
+  gsub("[(]", "-", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  gsub("[)]", "", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  as.numeric(product_demand$Order_Demand)
+
+#Then I will create a lot of cols contain year, month, week data and just select from 2012 to 2016:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+
+#Sum by daily and remove negative value:
+daily_df<-product_demand %>% 
+  group_by(Date) %>%   
+  summarise(daily_demand = round(sum(Order_Demand,na.rm = T),3)) %>% 
+  ungroup() %>% 
+    mutate(daily_demand = ifelse(daily_demand < 0, 0, daily_demand))
+```
+
+Giống ý tưởng của ARIMA, Ensemble ML cũng phân tích mối tương quan giữa giá trị tại thời điểm t với thời điểm t-1, t-2,... Và vì ta đã có dữ liệu tại thời điểm t nên ta cần tính giá trị tại các thời điểm t-1, t-2 bằng hàm `lag`.
+
+```{r}
+#| warning: false
+#| message: false
+df<-data.frame(datetime = daily_df$Date,
+                lag0 = daily_df$daily_demand,
+                lag1 = lag(daily_df$daily_demand,1),
+                lag2 = lag(daily_df$daily_demand,2),
+                lag3 = lag(daily_df$daily_demand,3))
+library(gt)
+library(gtExtras)
+gt(df[1:10,]) %>% 
+  cols_align(
+    align = "center",
+    columns = "datetime"
+  ) %>% 
+  cols_align(
+    align = "right",
+    columns = "lag3"
+  ) %>%
+   tab_header(
+    title = md("**Table of lag 1,2,3 series**"),
+    subtitle = glue::glue("Time from {min(df$datetime)} to {min(df$datetime)+10}")) %>%
+   tab_source_note(
+    source_note = "Created by function lag() in Rstudio") %>% 
+  gt_theme_538()
+```
+
+### Xử lí missing value:
+
+Gía trị NA xuất hiện là do ta đang lấy dữ liệu từ quá khứ thời điểm cách 1 tháng, 2 tháng và 3 tháng. Vì Machine Learning bắt buộc phải có đầy đủ giá trị nên ta có thể sử dụng cách khác để tạo ra giá trị thay thế cho NA. Mình kham khảo được cách này ở [Sauravkaushik8 Kaushik](https://www.analyticsvidhya.com/blog/2017/02/introduction-to-ensembling-along-with-implementation-in-r/)
+
+```{r}
+#| warning: false
+#| message: false
+library(mice)
+#Gán giá trị imputed vào object flights còn missing data:
+df[is.na(df)] <- mean(daily_df$daily_demand)
+
+#First we will divde the data into training data and testing data in 70-30:
+#Create ts object for month demand variable:
+training_df<-df[df$datetime <= as.Date("2015-03-01"),]
+testing_df <-df[df$datetime >= as.Date("2015-03-01"),]
+```
+
+```{r}
+library(RANN)
+## Sau đó chúng ta chuẩn hóa giá trị của các thuộc tính (data normalization) về khoảng [0,1]:
+process_train <- predict(preProcess(training_df, 
+                            method = c("range")), 
+                         training_df) 
+process_test <- predict(preProcess(testing_df, 
+                            method = c("range")), 
+                        testing_df) 
+```
+
+### Dự đoán:
+
+#### Mô hình Boosting:
+
+Đầu tiên, chúng ta sẽ thử với hai thuật toán boosting khá phổ biến là: *Stochastic Gradient Boosting*.
+
+```{r}
+library(caret)
+# Tạo một đối tượng control cho cross-validation
+fitControl <- trainControl(method="repeatedcv", 
+                        number=10, 
+                        repeats=10)
+# Trong đó
+# method = 'repeatedcv': sử dụng cross-validation với các tham số sau:
+# number = 10 có nhĩa là quá trình cross-validation cần chia dữ liệu gốc thành 10 phần bằng nhau
+# repeats = 3 có nhĩa là quá trình cross-validation sẽ hoàn thành sau 3 lần
+
+# Stochastic Gradient Boosting
+set.seed(825)
+gbmFit1 <- train(lag0~., 
+                 data = process_train %>% select(-datetime), 
+                 method = "gbm", 
+                 trControl = fitControl,
+                 ## This last option is actually one
+                 ## for gbm() that passes through
+                 verbose = FALSE)
+```
+
+Sau khi đã training model, ta sẽ dùng mô hình đó để dự đoán và so sánh với giá trị thực tế ở testing data. Ta sẽ có kết quả như dưới đây:
+
+```{r}
+#| warning: false
+#| message: false
+predict<-data.frame(
+  Predicted = predict(gbmFit1, 
+                      newdata = process_test %>% 
+                        select(-datetime)),
+  Observed = process_test$lag0)
+
+ggplot(data = predict,
+       aes(x = Observed, 
+           y = Predicted)) + 
+  geom_point() +
+  geom_smooth(method='lm') +
+  geom_abline(intercept = 0, 
+              slope = 1, color="red", 
+              linetype="dashed", 
+              size=1)+
+  xlab('Observed value') +
+  ylab('Predicted value') +
+  theme_bw()+
+  labs(title = "Evaluating model builded by gbm method",
+       subtitle = "Observed vs Predicted value",
+       caption = "The red line is abline Y = X and the blue line is the linear lines between observed and predicted value.So it should be overlap each other")
+```
+
+Trong mô hình này, mình nên quan tâm tới 3 tham số: - number of iterations, i.e. trees, (called n.trees in the gbm function) - complexity of the tree, called interaction.depth learning rate: how quickly the algorithm adapts, called shrinkage - the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
+
+```{r}
+## Tuning parameters:
+gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
+                        n.trees = (1:30)*50, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 20)
+
+gbmFit2 <- train(Class ~ ., data = training, 
+                 method = "gbm", 
+                 trControl = fitControl, 
+                 verbose = FALSE, 
+                 ## Now specify the exact models 
+                 ## to evaluate:
+                 tuneGrid = gbmGrid)
+```
+
+#### Thuật toán Bagging
+
+Chúng ta cùng test hai thuậ toán thuộc kỹ thuật Bagging là: *Bagged CART* và *Random Forest*
+
+```{r}
+fitControl <- trainControl(
+  method = "cv",
+  number = 5,
+savePredictions = 'final',
+classProbs = T)
+
+model_rf<-train(lag0~., 
+                data = process_df,
+                method='rf',
+                trControl=fitControl,
+                tuneLength=3)
+
+#Predicting using random forest model
+testSet$pred_rf<-predict(object = model_rf,
+                         testSet %>% select(-lag0))
+```
+
+```{r}
+matplot(1:12, 
+        cbind(testSet$lag0, testSet$pred_rf), 
+        type = "l", 
+        lty = 1, 
+        col = c("red", "blue"), 
+        xlab = "Time", 
+        ylab = "Order Demand", 
+        main = "Multiple Lines Plot")
+legend("topright", 
+       legend = c("Actual", 
+                  "Predicted"), 
+       col = c("red", "blue"), 
+       lty = 1)
+```
+
+```{r}
+control <- trainControl(method="repeatedcv", 
+                        number=10, 
+                        repeats=3)
+
+# Bagged CART
+set.seed(seed)
+fit.treebag <- train(lag0~., 
+                     data = process_df, 
+                     method="treebag", 
+                     metric = "Accuracy", 
+                     trControl=control)
+
+# Random Forest
+set.seed(seed)
+fit.rf <- train(Class~., data=dataset, method="rf", metric = "Accuracy", trControl=control)
+```
+
+#### Thuật toán Staking:
+
+```{r}
+library(caretEnsemble)
+control <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+algorithmList <- c('lda', 'rpart', 'glm', 'knn', 'svmRadial')
+set.seed(seed)
+models <- caretList(Class~., 
+                    data=dataset, 
+                    trControl=control, 
+                    methodList=algorithmList)
+
+
+# So sành các kết quả với nhau:
+results <- resamples(models)
+summary(results)
+
+# Hiển thị hóa kết quả:
+dotplot(results)
+```
