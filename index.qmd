@@ -1,19 +1,205 @@
 ---
-title: "About Me"
-about:
-  id: me
-  template: broadside
-  image: img/profile.png
+title: "Giới thiệu"
+subtitle: "Việt Nam, 2024"
+categories: ["SupplyChainManagement", "Forecasting"]
+description: "Đây là bài viết của tôi về cách sử dụng R trong việc dự đoán dữ liệu trong tương lai"
+author: "Cao Xuân Lộc"
+date: "2024-08-21"
 ---
 
-:::{#me}
+# Giới thiệu:
 
-## Goals
+## Định nghĩa:
 
-## Education
+Trong quản lí chuỗi cung ứng, thuật ngữ *Demand Planning* là một trong những hoạt động quan trọng mà các nhà quản lí và doanh nghiệp cần quan tâm sâu sắc. Về định nghĩa, theo [Vilas](https://vilas.edu.vn/demand-planning-va-supply-planning-hoat-dong-nao-co-truoc.html) "*Demand Planning* là một quá trình quản lý chuỗi cung ứng nhằm dự báo nhu cầu về sản phẩm để đảm bảo chúng có thể được cung cấp và làm hài lòng khách hàng. Mục tiêu của Demand planning là đạt được sự cân bằng trong việc có đủ lượng hàng tồn kho để đáp ứng nhu cầu của khách hàng mà không bị thiếu hoặc thừa. Để có thể dự báo được nhu cầu mua hàng, nhà Hoạch định nhu cầu cần thu thập và phân tích dữ liệu từ nhiều nguồn khác nhau như: hàng tồn kho, nhà cung ứng, kho, khách hàng,..."
 
-## Experience
+![Definition of Demand Planning](img/DemandPlanning.jpg){fig-align="center" width="469"}
 
-:::
+## Lợi ích của Demand Planning:
 
-Thanks for checking out my web site!
+Việc dự đoán trước nhu cầu của khách hàng sẽ giúp doanh nghiệp chuẩn bị tốt hơn về hàng hóa, dịch vụ và chiếm được lòng tin của khách hàng. Ngoài ra, việc chuẩn bị sớm cũng tránh các hiện tượng như out-stock, tranh chấp hoặc tệ hơn đứt gãy chuỗi cung ứng và ảnh hưởng nặng nề tới kết quả kinh doanh của công ty.
+
+Ở vị trí nhân viên, bạn có thể ứng tuyển vị trí Demand Planner để có thể làm việc về Demand Planning. Còn ở vị trí cấp cao hơn sẽ là Supply Chain Planning - là người có thể xử lí luôn cả 4 vấn đề như sau:
+
+-   Demand planning: Dự đoán nhu cầu khách hàng bao nhiêu.
+-   Supply planning: Lên kế hoạch phân phối, tồn kho.
+-   Prodcution planning: Chuẩn bị nguyên vật liệu để sản xuất ở nhà máy. Thông thường hoạt động này chỉ xảy ra ở công ti lớn có cả chuỗi cung ứng từ nhà máy đến nhà kho và có thể cả cửa hàng.
+-   Fulfillment planning: Hoạt động này cũng giống Supply planning nhưng ở mức độ cao cấp hơn. Việc lên kế hoạch còn đòi hỏi phải thỏa mãn các nhu cầu khác của khách hàng như: hàng hóa đúng số lượng, đúng sản phẩm và nhận hàng với thời gian ngắn nhất.
+
+![4 chức năng của SCP](img/SCP.jpg){fig-align="center"}
+
+Ở phần bài tập này, chúng ta sẽ học về cách sử dụng R trong việc phân tích và dự đoán dữ liệu bằng 2 cách: mô hình ARIMA và Machine Learning.
+
+Bài tập này dựa vào bộ dữ liệu từ [Historical Product Demand](https://www.kaggle.com/datasets/felixzhao/productdemandforecasting) của *Frank Corrigan*. Bạn có thể kham khảo thêm phần phân tích của anh ấy thông qua [Building a Forecasting Framework for Supply Chain with R](https://frank-corrigan.com/2019/10/02/building-a-forecasting-framework-for-supply-chain-with-r/)
+
+# Chuẩn bị dữ liệu:
+
+Việc đầu tiên, rất quen thuộc, chúng ta gọi các packages vào R. Nếu các bạn chưa có các packages này, bạn có thể tải xuống từ CRAN R bằng cú pháp: `install.packages(*"name_of_package"*)`
+
+```{r}
+#Call packages:
+pacman::p_load(rio,
+               here,
+               janitor,
+               tidyverse,
+               dplyr,
+               magrittr,
+               lubridate,
+               stringr
+               )
+```
+
+```{r}
+library(downloadthis)
+product_demand %>%
+  download_this(
+    output_name = "product_demand",
+    output_extension = ".csv",
+    button_label = "Download data",
+    button_type = "warning",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+```
+
+Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
+
+```{r}
+#| echo: false
+#Import file:
+product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
+```
+
+Thông thường khi phân tích, việc xử lí dữ liệu khá tốn thời gian và công sức. Bạn có thể xem phần code xử lí của mình dưới đây.
+
+```{r}
+#| warning: false
+#| message: false
+#Change to suitable class (I change the name dataset to product_demand to shortly write)
+product_demand <-product_demand %>% 
+    mutate(Date = as.Date(Date,format = "%Y/%m/%d"),
+           Product_Category = as.factor(Product_Category))
+
+product_demand$Order_Demand <- 
+  gsub("[(]", "-", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  gsub("[)]", "", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  as.numeric(product_demand$Order_Demand)
+
+#Then I will create a lot of cols contain year, month, week data and just select from 2012 to 2016:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+
+#So I will calculate the total order demand divided by year and month:
+month_df<-product_demand %>% 
+  group_by(Year,Month) %>%   
+  summarise(month_demand = round(sum(Order_Demand,
+                               na.rm = T)/10^6,3)) %>% 
+  mutate(datetime = as.Date(str_c(Year,
+                                    Month,
+                                    "1",
+                                    sep = "-"))) %>% 
+  ungroup() %>% 
+  select(-c(Year,Month))
+```
+
+# Phân tích cơ bản:
+
+Bộ dữ liệu gồm Có 2160 sản phẩm khác nhau và 4 kho hàng.
+
+```{r}
+#Some informations of this dataset:
+length(unique(product_demand$Product_Code)) 
+length(unique(product_demand$Warehouse)) 
+```
+
+Đầu tiên, chúng ta sẽ muốn biết về xu hướng tiêu dùng trong 5 năm từ 2012 đến 2016 ở tất cả các kho và từng kho riêng lẻ. Sau đó chúng ta kết hợp hai đồ thị trong 1 đồ thị theo hàm `cowplot::plot_grid`
+
+```{r}
+#Plot the demand of each month:
+#Prepare data by creating new ggplot object:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+df1<-product_demand %>% 
+  group_by(Year,Month) %>% 
+  summarise(month_demand = sum(Order_Demand,na.rm = T))
+
+df1$Month_Year = as.Date(str_c(df1$Year,df1$Month,"1",sep = "-"))
+
+#Plot demand line base on month:
+p1<-ggplot(data = df1,
+       mapping = aes(x = Month_Year, 
+                     y = month_demand))+
+  geom_line()+
+  labs(x="Month_Year",y="Total Orders",title="Total Orders by Month") +
+  theme_bw() +
+  geom_smooth(size=0.2,se=FALSE,color='red')
+
+#Plot histogram of demand product in each warehouse:
+df2<-product_demand %>% 
+  group_by(Year,Month,Warehouse) %>% 
+  summarise(Month_Demand = sum(Order_Demand,na.rm = T))
+df2$Month_Year = as.Date(str_c(df2$Year,df2$Month,"1",sep = "-"))
+
+p2<-ggplot(data = df2,
+       mapping = aes(x = Month_Year,
+                     y = Month_Demand))+
+  geom_line()+
+  theme_bw()+
+  facet_grid(~Warehouse)+
+  labs(x = "Daily demand order", 
+       y = "Names of Warehouse",
+       title = "Plot of daily demand in each warehouse")
+
+#Combine two graphs:
+cowplot::plot_grid(p1, p2,
+                  # 1 column and two rows - stacked on top of each other
+                   ncol = 1,
+                   nrow = 2,
+                   # top plot is 2/3 as tall as second
+                   rel_heights = c(2, 3))
+```
+
+Bạn có thể tìm ngày trong tuần mà người tiêu dùng đi mua sắm nhiều nhất vào ngày nào trong tuần.
+
+```{r}
+#We will calculate the total demand in the week and compare between weekday in the week:
+#First, counting total demand:
+product_demand$Month_Year = as.Date(str_c(product_demand$Year,product_demand$Month,"1",sep = "-"))
+
+Demand_weekday <-product_demand %>%
+  drop_na(Date) %>%
+  group_by(Month_Year,Week_day) %>% 
+  summarise(Daily_demand = sum(Order_Demand)) %>% 
+  mutate(pct = Daily_demand/sum(Daily_demand))
+
+#Then, we will plot the daily demand weekday for 5 years to compare each weekday which has the most demand:
+ggplot(data = Demand_weekday,
+       mapping = aes(x = as.factor(Week_day),
+                     y = pct,
+                     group = Month_Year))+
+  geom_line()+
+  labs(x = "Week day",
+       y = "Percentage of daily demand")+
+  theme_bw()
+
+#Or comparing each years to find different:
+ggplot(data = Demand_weekday,
+       mapping = aes(x = as.factor(Week_day),
+                     y = pct,
+                     group = Month_Year))+
+  geom_line()+
+  labs(x = "Week day",
+       y = "Percentage of daily demand")+
+  theme_bw()+
+  facet_wrap(~year(Month_Year))
+```

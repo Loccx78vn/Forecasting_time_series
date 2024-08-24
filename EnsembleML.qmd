@@ -35,11 +35,13 @@ Vậy tiếp theo, chúng ta sẽ thử dùng Ensemble ML trong R để dự đo
 
 ### So sánh với mô hình ARIMA:
 
-Machine Learning làm tốt về mặt performance ở các vấn đề như: phân loại nhãn (Classification), tự học và bổ sung (AI), phân tích lớp ảnh (Neural network),... nhưng ở lĩnh vực dự đoán chuỗi thời gian (Time series forecast), theo bài nghiên cứu của [JOHN A. MILLER,etc](https://arxiv.org/pdf/2401.13912), ML lại không tốt bằng các phương pháp thống kê truyền thống. Tuy nhiên họ cũng nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA.
+Machine Learning làm tốt về mặt performance ở các vấn đề như: phân loại nhãn (Classification), tự học và bổ sung (AI), phân tích lớp ảnh (Neural network),... nhưng ở lĩnh vực dự đoán chuỗi thời gian (Time series forecast), ML lại không tốt bằng các phương pháp thống kê truyền thống.
 
 ## Thực hành trong R:
 
 ### Chuẩn bị dữ liệu:
+
+Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
 
 ```{r}
 #| warning: false

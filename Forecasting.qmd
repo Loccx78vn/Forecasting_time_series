@@ -1,82 +1,20 @@
 ---
-title: "Forecasting in Rstudio"
+title: "Mô hình ARIMA"
 subtitle: "Việt Nam, 2024"
 categories: ["SupplyChainManagement", "Forecasting"]
-description: "Đây là bài viết của tôi về cách sử dụng R trong việc dự đoán dữ liệu trong tương lai"
-author: "Cao Xuân Lộc"
-date: "2023-09-20"
 ---
-
-# Giới thiệu:
-
-## Định nghĩa:
-
-Trong quản lí chuỗi cung ứng, thuật ngữ *Demand Planning* là một trong những hoạt động quan trọng mà các nhà quản lí và doanh nghiệp cần quan tâm sâu sắc. Về định nghĩa, theo [Vilas](https://vilas.edu.vn/demand-planning-va-supply-planning-hoat-dong-nao-co-truoc.html) "*Demand Planning* là một quá trình quản lý chuỗi cung ứng nhằm dự báo nhu cầu về sản phẩm để đảm bảo chúng có thể được cung cấp và làm hài lòng khách hàng. Mục tiêu của Demand planning là đạt được sự cân bằng trong việc có đủ lượng hàng tồn kho để đáp ứng nhu cầu của khách hàng mà không bị thiếu hoặc thừa. Để có thể dự báo được nhu cầu mua hàng, nhà Hoạch định nhu cầu cần thu thập và phân tích dữ liệu từ nhiều nguồn khác nhau như: hàng tồn kho, nhà cung ứng, kho, khách hàng,..."
-
-![Definition of Demand Planning](img/DemandPlanning.jpg){fig-align="center"}
-
-## Lợi ích của Demand Planning:
-
-Việc dự đoán trước nhu cầu của khách hàng sẽ giúp doanh nghiệp chuẩn bị tốt hơn về hàng hóa, dịch vụ và chiếm được lòng tin của khách hàng. Ngoài ra, việc chuẩn bị sớm cũng tránh các hiện tượng như out-stock, tranh chấp hoặc tệ hơn đứt gãy chuỗi cung ứng và ảnh hưởng nặng nề tới kết quả kinh doanh của công ty.
-
-Ở vị trí nhân viên, bạn có thể ứng tuyển vị trí Demand Planner để có thể làm việc về Demand Planning. Còn ở vị trí cấp cao hơn sẽ là Supply Chain Planning - là người có thể xử lí luôn cả 4 vấn đề như sau:
-
--   Demand planning: Dự đoán nhu cầu khách hàng bao nhiêu.
--   Supply planning: Lên kế hoạch phân phối, tồn kho.
--   Prodcution planning: Chuẩn bị nguyên vật liệu để sản xuất ở nhà máy. Thông thường hoạt động này chỉ xảy ra ở công ti lớn có cả chuỗi cung ứng từ nhà máy đến nhà kho và có thể cả cửa hàng.
--   Fulfillment planning: Hoạt động này cũng giống Supply planning nhưng ở mức độ cao cấp hơn. Việc lên kế hoạch còn đòi hỏi phải thỏa mãn các nhu cầu khác của khách hàng như: hàng hóa đúng số lượng, đúng sản phẩm và nhận hàng với thời gian ngắn nhất.
-
-![4 chức năng của SCP](img/SCP.jpg){fig-align="center" }
-
-Ở phần bài tập này, chúng ta sẽ học về cách sử dụng R trong việc phân tích và dự đoán dữ liệu bằng 2 cách: mô hình ARIMA và Machine Learning.
-
-Bài tập này dựa vào bộ dữ liệu từ [Historical Product Demand](https://www.kaggle.com/datasets/felixzhao/productdemandforecasting) của *Frank Corrigan*. Bạn có thể kham khảo thêm phần phân tích của anh ấy thông qua [Building a Forecasting Framework for Supply Chain with R](https://frank-corrigan.com/2019/10/02/building-a-forecasting-framework-for-supply-chain-with-r/)
 
 # Thực hành trong Rstudio:
 
-## Chuẩn bị:
-
-Việc đầu tiên, rất quen thuộc, chúng ta gọi các packages vào R. Nếu các bạn chưa có các packages này, bạn có thể tải xuống từ CRAN R bằng cú pháp: `install.packages(*"name_of_package"*)`
-
-```{r}
-#Call packages:
-pacman::p_load(rio,
-               here,
-               janitor,
-               tidyverse,
-               dplyr,
-               magrittr,
-               lubridate,
-               stringr
-               )
-```
-
-Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
-
-```{r}
-#| echo: false
-#Import file:
-product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
-```
-
-```{r}
-library(downloadthis)
-product_demand %>%
-  download_this(
-    output_name = "product_demand",
-    output_extension = ".csv",
-    button_label = "Download data",
-    button_type = "warning",
-    has_icon = TRUE,
-    icon = "fa fa-save"
-  )
-```
-
-Thông thường khi phân tích, việc xử lí dữ liệu khá tốn thời gian và công sức. Bạn có thể xem phần code xử lí của mình dưới đây.
+Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
 
 ```{r}
 #| warning: false
 #| message: false
+#| echo: false
+#Import file:
+product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
+
 #Change to suitable class (I change the name dataset to product_demand to shortly write)
 product_demand <-product_demand %>% 
     mutate(Date = as.Date(Date,format = "%Y/%m/%d"),
@@ -209,6 +147,8 @@ Mô hình được xây dựng "dựa trên giả thuyết: *Stationary series* 
 Và để thỏa mãn giả định này, cần tính toán các chỉ số trên và đánh giá và điều này khá phức tạp. Trong R, ta có hàm `adf.test()` có thể kiểm tra vấn đề này nhanh hơn.
 
 ```{r}
+#| warning: false
+#| message: false
 library(tseries)
 adf.test(demand_training)    ## p-value = 0.3779 > 0.05 means this series is not stationary
 ```
@@ -231,7 +171,7 @@ Này tùy thuộc vào công thức toán học bạn muốn định nghĩa, mi�
 #First we will calculate the different in demand product monthly:
 #Check stationary assumption:
 test<-lapply(1:3, function(x) {
-         a<-diff(demand_training, lag = x)/demand_training
+         a<-diff(demand_training, lag = x)
          adf.test(a)$p.value}
        ) #p<0,05 is accepted
 
@@ -263,7 +203,15 @@ Kết quả testing cho thấy chỉ có chuỗi 1 và 2 đạt yêu cầu, chu�
 
 #### Tính toán giá trị PACF và ACF:
 
+##### Định nghĩa về PACF và ACF:
+
+
+
+##### Thực hành trên R:
+
 Sau khi đã xác định được chuỗi dừng, bước tiếp theo là xác định các tham số (p, d, q) cho mô hình ARIMA.
+
+Trong R có hàm `ggtsdisplay` của package **forecast** sẽ hiển thị cả ACF, PACF và Time series plot của đối tượng mà bạn gán. Còn nếu bạn muốn hiển thị riêng giá trị ACF hoặc PACF thì dùng hàm `Acf` hoặc `Pacf` để tính và dùng hàm `autoplot()` để hiển thị biểu đồ.
 
 ```{r}
 #| warning: false
@@ -271,38 +219,23 @@ Sau khi đã xác định được chuỗi dừng, bước tiếp theo là xác 
 #| layout-ncol: 2
 
 #Rename of two time series:
-ts1<-diff(demand_training, lag = 1)/demand_training
-ts2<-diff(demand_training, lag = 2)/demand_training
+ts1<-diff(demand_training, lag = 1)
+ts2<-diff(demand_training, lag = 2)
 #Plot value ACF for 2 series:
 library(forecast)
-p1<-Acf(ts1,plot =F)
-p2<-Acf(ts2,plot =F)
-#Plot value PACF for 2 series
-p3<-Pacf(ts1,plot =F)
-p4<-Pacf(ts2,plot =F)
-
-## Finally plot the result:
-cowplot::plot_grid(autoplot(p1,
-                            main = "Time series lag 1",
-                            xlab = ""), 
-                   autoplot(p3,
-                            main = ""), 
-                   nrow = 2)
-
-
-cowplot::plot_grid(autoplot(p2,
-                            main = "Time series lag 2",
-                            xlab = ""), 
-                   autoplot(p4,
-                            main = ""), 
-                   nrow = 2)
+ggtsdisplay(ts1,
+            main = "Time series lag 1",
+            theme=theme_bw())
+ggtsdisplay(ts2,
+            main = "Time series lag 2",
+            theme=theme_bw())
 ```
 
 Dựa vào tricks từ [Tavish Srivastava](https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/), ta sẽ dựa vào giá trị PACF để xác định bậc của AR và ACF để xác định bậc của MA.
 
 Ví dụ ở trên, đối với chuỗi lag 1, giá trị PACF có sự đứt gãy (*cut off*) ở bậc 2 đến bậc 3 nên có thể thuộc AR(3). Còn giá trị ACF thì có thể thuộc MA(2) hoặc rõ ràng hơn là MA(3). Còn lại, đối với chuỗi lag 2, các bạn có thể làm tương tự.
 
-Vậy mô hình cuối cùng là ARIMA(2,0,2).
+Vậy mô hình tự chọn cuối cùng là ARIMA(3,0,2).
 
 #### Lựa chọn mô hình tốt nhất:
 
@@ -311,40 +244,36 @@ Thực tế, trong R có hàm `auto.arima`để chúng ta lựa chọn và so s�
 Ngoài ra, bạn có thể tham khảo thêm bài [N-days Ahead Forecasting using Automated ARIMA](https://rpubs.com/chidungkt/1126172) của anh Chí Dũng.
 
 ```{r}
-#Look the graphs, we choose optimal value for arima (p,d,q) model is (3,1,2) or we will use function in forecast package to find suitable model.
+#Select the best model:
 model<-auto.arima(ts1,trace = T)
 ```
 
 #### So sánh giá trị dự đoán từ training data với testing data:
 
-##### a) ARIMA(2,0,0):
-
 Sau khi đã xây dựng mô hình, ta sẽ dùng nó để dự đoán và so sánh với dữ liệu thực tế từ bộ dữ liệu testing data.
 
 ```{r}
-#Create model for training data:
-model_training<-Arima(ts1, 
-             order = c(model[["arma"]][c(1,2,6)]),
-             seasonal = list(order = c(model[["arma"]][c(3,4,7)]),period = model[["arma"]][5]), 
-             include.drift = FALSE)
 #Forecast by training model:
-training_forecast<-forecast(model_training,h = 21)
+training_forecast<-forecast(model,h = 21)
 ```
 
-Bảng trình bày các giá trị dự đoán theo từng tháng. Ta thấy chỉ có 3/21 thời điểm mà giá trị thực tế vượt ra khoảng 80% khoảng tin cậy của giá trị dự đoán.
+Bảng trình bày các giá trị dự đoán theo từng tháng. Ta thấy chỉ có 4/21 thời điểm mà giá trị thực tế vượt ra giá trị dự đoán trong khoảng tin cậy 80%. Còn đối với giá trị dự đoán trong khoảng tin cậy 95% thì đều đạt yêu cầu.
 
 ```{r}
 ## 
 #Calculate RMSE:
-actual<- diff(demand_testing,1)/demand_testing
+actual<- diff(demand_testing,1)
 
 accuracy<-data_frame(Period = paste(month(testing_df$datetime),
                                     year(testing_df$datetime),
                                     sep = "/")[-1],
                      Actual = actual %>% as.vector(), 
                      High.80 = training_forecast$upper[,1],
-                     Low.80 = training_forecast$lower[,1]) %>% 
-  mutate(Check = ifelse(Actual < High.80 & Actual > Low.80,"Pass","Fail"))
+                     Low.80 = training_forecast$lower[,1],
+                     High.95 = training_forecast$upper[,2],
+                     Low.95 = training_forecast$lower[,2]) %>% 
+  mutate(Check.80 = ifelse(Actual <= High.80 & Actual >= Low.80,"Pass","Fail"),
+         Check.95 = ifelse(Actual <= High.95 & Actual >= Low.95,"Pass","Fail"))
 
 ## Finally plot the result
 gt(accuracy) %>% 
@@ -352,21 +281,25 @@ gt(accuracy) %>%
     title = md("**Comparing the accuracy of forecasting**"),
     subtitle = glue::glue("Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}")) %>%
    tab_source_note(
-    source_note = "Method: ARIMA(2,0,0) model") %>% 
+    source_note = str_glue("Method: Model {training_forecast$method}")) %>% 
   gt_theme_538() %>% 
    data_color(
-    columns = Check,
+    columns = Check.80,
     method = "factor",
     palette = c("red","darkgreen")
-  )
+  ) %>% data_color(
+    columns = Check.95,
+    method = "factor",
+    palette = c("darkgreen","red")
+  ) 
 ```
 
-Và dưới đây là hình hiển thị kết quả dự đoán.
+Và dưới đây là biểu đồ hiển thị giá trị trung bình (*đường màu xanh dương*), giá trị dự đoán trong khoảng tin cậy 80% (*đường màu xám đậm*) và khoảng tin cậy 95% (*đường màu xám nhạt*).
 
 ```{r}
 #Use chart for presenting the differents:
 plot(training_forecast,
-      main = "Model ARIMA(2,0,0)",
+      main = str_glue("Method: Model {training_forecast$method}"),
       xlab = "Time",
       ylab = "Order Demand")
 lines(actual, 
@@ -381,91 +314,7 @@ legend("topleft",
        lwd = 2)
 ```
 
-Măc dù vậy, hình ảnh cho thấy giá trị trung bình của kết quả dự đoán khá tệ, chệch nhiều so với giá trị thực tế. Nên ta sẽ sử dụng mô hình khác là: ARIMA(2,0,2)(1,0,1)\[12\] và kết quả cho ra giá trị tốt hơn.
-
-##### b) ARIMA(2,0,2)(1,0,1)\[12\]:
-
-```{r}
-#| echo: false
-model_training1<-Arima(ts1, 
-             order = c(2,0,2),
-             seasonal = list(order = c(1,0,1),
-                             period = 12),
-             include.drift = FALSE)
-#Forecast by training model:
-training_forecast1<-forecast(model_training1,h = 21)
-
-#Use chart for presenting the differents:
-plot(training_forecast1,
-      main = "Model ARIMA(2,0,2)(1,0,1)[12]",
-      xlab = "Time",
-      ylab = "Order Demand")
-lines(actual, 
-      col = "red",
-      lwd = "2")
-legend("topleft",
-       legend = c("Actual","Forecast"),
-       col = c("red","blue"),
-       box.lty = 0,
-       lty = 1,
-       cex = 1,
-       lwd = 2)
-```
-
-Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai.
-
-#### Dự đoán số đơn hàng trong 18 tháng ở tương lai:
-
-```{r}
-#| warning: false
-#| message: false
-
-demand_full<-ts(month_df$month_demand,
-                      frequency = 12,
-                      start = c(2012,1))
-fit<-Arima(demand_full, 
-             order = c(2,0,2),
-             seasonal = list(order = c(1,0,1),
-                             period = 12),
-             include.drift = FALSE)
-#Predicting for 18 months with 99.5% range:
-predict_fit<-forecast:::forecast.Arima(fit,
-                                       h = 18, 
-                                      level = c(99.5)) 
-
-#Transform to data.frame object:
-df<-predict_fit %>% 
-  as.data.frame() %>% 
-  mutate(Period = seq(max(month_df$datetime),
-                    max(month_df$datetime)+months(18), 
-                    by= "1 month")[-1])
-df<-df[,c(4,1,2,3)]
-```
-
-
-```{r}
-#| warning: false
-#| message: false
-#| layout: [[50,50], [100]]
-gt(df[1:9,]) %>% 
-  tab_header(
-    title = md("**Forecasting Order Demand**"),
-    subtitle = glue::glue("Time from {max(month_df$datetime)} to {max(month_df$datetime)+months(9)}")) %>%
-   tab_source_note(
-    source_note = "Method: ARIMA(2,0,2)(1,0,1)[12] model") %>% 
-  gt_theme_538() 
-
-gt(df[10:18,]) %>% 
-  tab_header(
-    title = md("**Forecasting Order Demand**"),
-    subtitle = glue::glue("Time from {max(month_df$datetime)+months(9)} to {max(month_df$datetime)+months(18)}")) %>%
-  gt_theme_538() 
-
-#Plot the forecast value
-forecast:::plot.forecast(predict_fit, 
-     xlab ="Time",
-     ylab = "Order demand")
-```
+Ta thấy kết quả dự đoán cũng ổn nhưng vẫn chưa bám sát thực tế. Vì vậy tiếp theo chúng ta sẽ làm cho mô hình tốt hơn ở trang sau [SARIMA and SARIMAX model](SARIMA.qmd)
 
 # Tài liệu tham khảo:
 

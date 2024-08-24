@@ -1,0 +1,253 @@
+---
+title: "Mô hình SARIMA"
+---
+
+# Mô hình SARIMA và SARIMAX:
+
+## Chuẩn bị dữ liệu
+
+Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#Import file:
+product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
+
+#Change to suitable class (I change the name dataset to product_demand to shortly write)
+product_demand <-product_demand %>% 
+    mutate(Date = as.Date(Date,format = "%Y/%m/%d"),
+           Product_Category = as.factor(Product_Category))
+
+product_demand$Order_Demand <- 
+  gsub("[(]", "-", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  gsub("[)]", "", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  as.numeric(product_demand$Order_Demand)
+
+#Then I will create a lot of cols contain year, month, week data and just select from 2012 to 2016:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+
+#So I will calculate the total order demand divided by year and month:
+month_df<-product_demand %>% 
+  group_by(Year,Month) %>%   
+  summarise(month_demand = round(sum(Order_Demand,
+                               na.rm = T)/10^6,3)) %>% 
+  mutate(datetime = as.Date(str_c(Year,
+                                    Month,
+                                    "1",
+                                    sep = "-"))) %>% 
+  ungroup() %>% 
+  select(-c(Year,Month))
+
+#First we will divde the data into training data and testing data in 70-30:
+#Create ts object for month demand variable:
+training_df<-month_df[month_df$datetime <= as.Date("2015-03-01"),]
+testing_df <-month_df[month_df$datetime >= as.Date("2015-03-01"),]
+#Transform it to ts object:
+demand_training<-ts(training_df$month_demand,
+                      frequency = 12,
+                      start = c(2012,1))
+demand_testing<-ts(testing_df$month_demand,
+                frequency = 12,
+                start = c(2015,3))
+```
+
+### Giới thiệu:
+
+Theo nghiên cứu của [JOHN A. MILLER,etc](https://arxiv.org/pdf/2401.13912),họ nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA. Vậy SARIMAX là gì:
+
+-   Định nghĩa: ARIMA đóng vai trò là nền tảng để lập mô hình dữ liệu không theo mùa (*non-seasonal*), trong khi SARIMA mở rộng khả năng xử lý các mẫu theo mùa.
+
+-   Thành phần: SARIMAX cũng xây dựng dựa trên lý thuyết như ARIMA nhưng thêm 2 yếu tố mới là Seasonal và Exogenous variables. Còn mô hình SARMA thì chỉ có thêm yếu tố Seasonal.
+
+Thực tế, mô hình mà R đề xuất trên bằng hàm `auto.arima()` cũng đã bao gồm thành phần *seasonal* nên ta có thể xem mô hình trên SARIMA.
+
+![Stationary and non-stationary series](img/SARIMAX.png){fig-align="center"}
+
+Dưới đây là ví dụ về mô hình SARIMA và cách để code trong R.
+
+Giải thích lại các thông số ta sử dụng sẽ là:
+
+-   (p,d,q) là bậc AR, mức độ khác biệt - Difference và bậc MA.
+
+-   (P,D,Q) là bậc seasonal của mô hình.
+
+-   \[s\] (period arguments) là thông số cho pattern. Ví dụ trong dữ liệu này là dữ liệu của 12 tháng nên `period = 12`. Bạn có thể gặp dữ liệu theo quý thì `period = 4`, dữ liệu theo năm thì `period = 1`.
+
+Và để thêm thành phần *seasonal*, ta cần tính thêm *seasonal difference* bằng hàm `lag`.
+
+```{r}
+#| warning: false
+#| message: false
+#| layout: [[40,60]]
+ts3<-diff(demand_training, 
+          lag = 1, 
+          differences = 1)   # Requires seasonal differencing
+
+# Check the stationary hypothesis:
+adf.test(ts3)
+
+ggtsdisplay(ts3,
+            main = "Time series plot")
+
+actual<- diff(demand_testing,
+              lag = 1,
+              differences = 1)
+```
+
+Dựa vào biểu đồ ACF và PACF để lựa chọn mô hình phù hợp là Arima(3,0,2)(1,1,0)\[12\].
+
+### Mô hình SARIMA:
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+model_training1<-Arima(ts3,
+             order = c(3,1,3),
+             seasonal = list(order = c(1,1,0),
+                             period = 12),
+             lambda = NULL,
+             include.constant = TRUE)
+
+checkresiduals(model_training1,
+               theme = theme_bw())
+```
+
+```{r}
+#Forecast by training model:
+training_forecast1<-forecast(model_training1,h = 21)
+
+#Use chart for presenting the differents:
+plot(training_forecast1,
+      main = str_glue("Model ARIMA(3,1,3)(1,1,0)[12]"),
+      xlab = "Time",
+      ylab = "Order Demand")
+lines(actual, 
+      col = "red",
+      lwd = "2")
+legend("topleft",
+       legend = c("Actual","Forecast"),
+       col = c("red","blue"),
+       box.lty = 0,
+       lty = 1,
+       cex = 1,
+       lwd = 2)
+```
+
+Kết quả cho thấy mô hình có vẻ dữ đoán ổn hơn và sát với dữ liệu thực tế. Vậy thì còn mô hình SARIMAX thì khác gì với SARIMA.
+
+### Mô hình SARIMAX:
+
+Để xây dựng mô hình SARIMAX thì ta cần thêm 1 biến khác không phải là biến quá khứ của dữ liệu. Gỉa sử ta tạo thêm 1 biến là thu nhập bình quân của người dân trong khoảng thời gian đó.
+
+```{r}
+# Tạo biến mới thu nhập bình quân:
+income<-ts(data = runif(nrow(month_df),100,500),
+           frequency = 12,
+           start = c(2012,1))
+
+ggtsdisplay(income,
+            main = "Time-series plot of median income")
+```
+
+Sau đó ta xây dựng mô hình như các bước cũ:
+
+```{r}
+#Forecast by training model:
+model_training2<-Arima(ts3,
+             xreg = income[1:length(ts3)],
+             order = c(3,1,3),
+             seasonal = list(order = c(1,1,0),
+                             period = 12),
+             lambda = NULL,
+             include.constant = TRUE)
+
+checkresiduals(model_training2,
+               theme = theme_bw())
+```
+
+```{r}
+training_forecast2<-forecast(model_training2,
+                             xreg = income[39:nrow(month_df)],
+                             h = 21)
+
+#Use chart for presenting the differents:
+plot(training_forecast2,
+      main = str_glue("Model ARIMA(2,0,0)"),
+      xlab = "Time",
+      ylab = "Order Demand")
+lines(actual, 
+      col = "red",
+      lwd = "2")
+legend("topleft",
+       legend = c("Actual","Forecast"),
+       col = c("red","blue"),
+       box.lty = 0,
+       lty = 1,
+       cex = 1,
+       lwd = 2)
+
+```
+
+Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai.
+
+## Dự đoán số đơn hàng trong 18 tháng ở tương lai:
+
+```{r}
+#| warning: false
+#| message: false
+
+demand_full<-ts(month_df$month_demand,
+                      frequency = 12,
+                      start = c(2012,1))
+fit<-Arima(demand_full, 
+             order = c(2,0,2),
+             seasonal = list(order = c(1,0,1),
+                             period = 12),
+             include.drift = FALSE)
+#Predicting for 18 months with 99.5% range:
+predict_fit<-forecast:::forecast.Arima(fit,
+                                       h = 18, 
+                                      level = c(99.5)) 
+
+#Transform to data.frame object:
+df<-predict_fit %>% 
+  as.data.frame() %>% 
+  mutate(Period = seq(max(month_df$datetime),
+                    max(month_df$datetime)+months(18), 
+                    by= "1 month")[-1])
+df<-df[,c(4,1,2,3)]
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| layout: [[50,50], [100]]
+gt(df[1:9,]) %>% 
+  tab_header(
+    title = md("**Forecasting Order Demand**"),
+    subtitle = glue::glue("Time from {max(month_df$datetime)} to {max(month_df$datetime)+months(9)}")) %>%
+   tab_source_note(
+    source_note = "Method: ARIMA(2,0,2)(1,0,1)[12] model") %>% 
+  gt_theme_538() 
+
+gt(df[10:18,]) %>% 
+  tab_header(
+    title = md("**Forecasting Order Demand**"),
+    subtitle = glue::glue("Time from {max(month_df$datetime)+months(9)} to {max(month_df$datetime)+months(18)}")) %>%
+  gt_theme_538() 
+
+#Plot the forecast value
+forecast:::plot.forecast(predict_fit, 
+     xlab ="Time",
+     ylab = "Order demand")
+```

@@ -6,10 +6,14 @@ website:
   title: "MY WEB SITE"
   navbar:
     left:
+      - href: index.qmd
+        text: Introduction
       - href: Forecasting.qmd
         text: ARIMA model
+      - href: SARIMA.qmd
+        text: SARMIA and SARIMAX model
       - href: EnsembleML.qmd
-        text: Ensemble Machine Learning
+        text: Ensemble ML
     tools:
       - icon: github
         text: Github
