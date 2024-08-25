@@ -1,6 +1,11 @@
 ---
 title: "Mô hình SARIMA"
 bibliography: references.bib
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+number-sections: true
 ---
 
 # Mô hình SARIMA và SARIMAX:
@@ -82,7 +87,7 @@ Theo nghiên cứu của [@johna.miller2024],họ nhắc đến mô hình SARIMA
 
 Thực tế, mô hình mà R đề xuất trên bằng hàm `auto.arima()` cũng đã bao gồm thành phần *seasonal* nên ta có thể xem mô hình trên SARIMA.
 
-![Stationary and non-stationary series](img/SARIMAX.png){fig-align="center"}
+![Hình 5: Stationary and non-stationary series](img/SARIMAX.png){fig-align="center"}
 
 Dưới đây là ví dụ về mô hình SARIMA và cách để code trong R.
 
@@ -108,6 +113,7 @@ income<-ts(data = runif(nrow(month_df),100,500),
            frequency = 12,
            start = c(2012,1))
 
+library(forecast)
 ggtsdisplay(income,
             main = "Time-series plot of median income")
 ```
@@ -314,18 +320,9 @@ Sau khi đã xây dựng mô hình, ta cần kiểm tra lại các giả thuyế
 ```{r}
 #| warining: false
 #| message: false
-## Diagnostics the ARRIMA model in a short command with package {astsa}:
-library(astsa)
-sarima(diff(demand_training,lag = 1),
-       p = 2,
-       d = 1,
-       q = 1,
-       P = 0,
-       D = 1,
-       Q = 0,
-       S = 12,
-       gg=TRUE, 
-       col=4)
+## Diagnostics the ARRIMA model in a short command:
+checkresiduals(model_training3,
+               theme = theme_bw())
 ```
 
 Nếu so sánh với mô hình ban đầu theo cách `auto.arima` thì có vẻ mô hình này tệ hơn. Nhưng có thể ở trong tương lai, mô hình này có thể sẽ tốt hơn chăng.
@@ -368,7 +365,9 @@ gt(data.frame(Metric = c("MAE","RMSE"),
                     alpha = 0.5)
 ```
 
-## Dự đoán số đơn hàng trong 18 tháng ở tương lai:
+# Dự đoán số đơn hàng trong 18 tháng ở tương lai:
+
+Dưới đây là kết quả dự đoán từ mô hình trong 3 năm tiếp theo ~ 18 tháng.
 
 ```{r}
 #| warning: false
@@ -415,3 +414,5 @@ forecast:::plot.forecast(predict_fit,
      xlab ="Time",
      ylab = "Order demand")
 ```
+
+Vậy tiếp theo ta sẽ vào phần phân tích ở trang [Machine Learning](EnsembleML.qmd).

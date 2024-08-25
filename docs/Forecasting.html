@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Time series model - Mô hình ARIMA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/dygraphs-1.1.1/dygraph.css" rel="stylesheet">
+<script src="site_libs/dygraphs-1.1.1/dygraph-combined.js"></script>
+<script src="site_libs/dygraphs-1.1.1/shapes.js"></script>
+<script src="site_libs/moment-2.8.4/moment.js"></script>
+<script src="site_libs/moment-timezone-0.2.5/moment-timezone-with-data.js"></script>
+<script src="site_libs/moment-fquarter-1.0.0/moment-fquarter.min.js"></script>
+<script src="site_libs/dygraphs-binding-1.1.1.6/dygraphs.js"></script>
+<script src="site_libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Time series model</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Giới thiệu</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./Forecasting.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Mô hình ARIMA</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./SARIMA.html" rel="" target="">
+ <span class="menu-text">Mô hình SARIMA</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./EnsembleML.html" rel="" target="">
+ <span class="menu-text">Machine Learning</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto tools-wide">
+    <a href="https://github.com/Loccx78vn/Forecasting_time_series" rel="" title="Github" class="quarto-navigation-tool px-1" aria-label="Github"><i class="bi bi-github"></i></a>
+    <a href="https://rpubs.com/loccx" rel="" title="Another projects" class="quarto-navigation-tool px-1" aria-label="Another projects"><i class="bi bi-twitter"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#thực-hành-trong-rstudio" id="toc-thực-hành-trong-rstudio" class="nav-link active" data-scroll-target="#thực-hành-trong-rstudio"><span class="header-section-number">1</span> Thực hành trong Rstudio:</a>
+  <ul class="collapse">
+  <li><a href="#phân-tích-thành-phần-trong-time-series-dữ-liệu" id="toc-phân-tích-thành-phần-trong-time-series-dữ-liệu" class="nav-link" data-scroll-target="#phân-tích-thành-phần-trong-time-series-dữ-liệu"><span class="header-section-number">1.1</span> Phân tích thành phần trong time-series dữ liệu:</a></li>
+  <li><a href="#dự-đoán-bằng-mô-hình-arima" id="toc-dự-đoán-bằng-mô-hình-arima" class="nav-link" data-scroll-target="#dự-đoán-bằng-mô-hình-arima"><span class="header-section-number">1.2</span> Dự đoán bằng mô hình ARIMA:</a>
+  <ul class="collapse">
+  <li><a href="#định-nghĩa-về-arima" id="toc-định-nghĩa-về-arima" class="nav-link" data-scroll-target="#định-nghĩa-về-arima"><span class="header-section-number">1.2.1</span> Định nghĩa về ARIMA:</a></li>
+  <li><a href="#phân-tích-arima-bằng-r" id="toc-phân-tích-arima-bằng-r" class="nav-link" data-scroll-target="#phân-tích-arima-bằng-r"><span class="header-section-number">1.2.2</span> Phân tích ARIMA bằng R:</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Mô hình ARIMA</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Việt Nam, 2024</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">SupplyChainManagement</div>
+    <div class="quarto-category">Forecasting</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="thực-hành-trong-rstudio" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Thực hành trong Rstudio:</h1>
+<p>Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở <a href="./index.html">Giới thiệu</a>.</p>
+<p>Sau khi đã chuyển đổi dữ liệu, tiếp theo chúng ta sẽ chia dữ liệu theo tỉ lệ 70:30. Lý do chia ra là vì ở phần cuối, chúng ta sẽ sử dụng phần 30% bộ dữ liệu để đánh giá mô hình được xây dựng trên 70% bộ dữ liệu.</p>
+<p>Việc chia dữ liệu này cũng khá phổ biến vì ta có thể đánh giá mô hình bằng chính dữ liệu thực tế và không cần tốn thời gian và công sức để theo dõi mô hình trong tương lai nữa.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#First we will divde the data into training data and testing data in 70-30:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Create ts object for month demand variable:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>training_df<span class="ot">&lt;-</span>month_df[month_df<span class="sc">$</span>datetime <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2015-03-01"</span>),]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>testing_df <span class="ot">&lt;-</span>month_df[month_df<span class="sc">$</span>datetime <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2015-03-01"</span>),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Nhìn hình dưới đây, các bạn có thể hiểu là nhiệm vụ của mình sẽ là xây dựng mô hình dựa vào dữ liệu đã thu được trước ngày <code>01-03-2015</code> và dự đoán giá trị cho khoảng thời gian từ <code>01-03-2015</code> đến <code>01-12-2016</code>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>demand_training<span class="ot">&lt;-</span><span class="fu">ts</span>(training_df<span class="sc">$</span>month_demand,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">frequency =</span> <span class="dv">12</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2012</span>,<span class="dv">1</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>demand_testing<span class="ot">&lt;-</span><span class="fu">ts</span>(testing_df<span class="sc">$</span>month_demand,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">frequency =</span> <span class="dv">12</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2015</span>,<span class="dv">3</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Hiển thị hóa dữ liệu về demand:</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dygraphs)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>lines<span class="ot">&lt;-</span><span class="fu">cbind</span>(demand_training,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>             demand_testing)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">dygraph</span>(lines,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Training and testing data"</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Quantity order (Unit: Millions)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dySeries</span>(<span class="st">"demand_training"</span>, <span class="at">label =</span> <span class="st">"Training data"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dySeries</span>(<span class="st">"demand_testing"</span>, <span class="at">label =</span> <span class="st">"Testing data"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dyOptions</span>(<span class="at">fillGraph =</span> <span class="cn">TRUE</span>, <span class="at">fillAlpha =</span> <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dyRangeSelector</span>(<span class="at">height =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="dygraphs html-widget html-fill-item" id="htmlwidget-f2f58a6f3f386a0859aa" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-f2f58a6f3f386a0859aa">{"x":{"attrs":{"title":"Training and testing data","ylabel":"Quantity order (Unit: Millions)","labels":["month","Training data","Testing data"],"legend":"auto","retainDateWindow":false,"axes":{"x":{"pixelsPerLabel":60,"drawAxis":true},"y":{"drawAxis":true}},"series":{"Training data":{"axis":"y"},"Testing data":{"axis":"y"}},"stackedGraph":false,"fillGraph":true,"fillAlpha":0.4,"stepPlot":false,"drawPoints":false,"pointSize":1,"drawGapEdgePoints":false,"connectSeparatedPoints":false,"strokeWidth":1,"strokeBorderColor":"white","colorValue":0.5,"colorSaturation":1,"includeZero":false,"drawAxesAtZero":false,"logscale":false,"axisTickSize":3,"axisLineColor":"black","axisLineWidth":0.3,"axisLabelColor":"black","axisLabelFontSize":14,"axisLabelWidth":60,"drawGrid":true,"gridLineWidth":0.3,"rightGap":5,"digitsAfterDecimal":2,"labelsKMB":false,"labelsKMG2":false,"labelsUTC":false,"maxNumberWidth":6,"animatedZooms":false,"mobileDisableYTouch":true,"disableZoom":false,"showRangeSelector":true,"rangeSelectorHeight":20,"rangeSelectorPlotFillColor":" #A7B1C4","rangeSelectorPlotStrokeColor":"#808FAB","interactionModel":"Dygraph.Interaction.defaultModel"},"scale":"monthly","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2012-01-01T00:00:00.000Z","2012-02-01T00:00:00.000Z","2012-03-01T00:00:00.000Z","2012-04-01T00:00:00.000Z","2012-05-01T00:00:00.000Z","2012-06-01T00:00:00.000Z","2012-07-01T00:00:00.000Z","2012-08-01T00:00:00.000Z","2012-09-01T00:00:00.000Z","2012-10-01T00:00:00.000Z","2012-11-01T00:00:00.000Z","2012-12-01T00:00:00.000Z","2013-01-01T00:00:00.000Z","2013-02-01T00:00:00.000Z","2013-03-01T00:00:00.000Z","2013-04-01T00:00:00.000Z","2013-05-01T00:00:00.000Z","2013-06-01T00:00:00.000Z","2013-07-01T00:00:00.000Z","2013-08-01T00:00:00.000Z","2013-09-01T00:00:00.000Z","2013-10-01T00:00:00.000Z","2013-11-01T00:00:00.000Z","2013-12-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2014-02-01T00:00:00.000Z","2014-03-01T00:00:00.000Z","2014-04-01T00:00:00.000Z","2014-05-01T00:00:00.000Z","2014-06-01T00:00:00.000Z","2014-07-01T00:00:00.000Z","2014-08-01T00:00:00.000Z","2014-09-01T00:00:00.000Z","2014-10-01T00:00:00.000Z","2014-11-01T00:00:00.000Z","2014-12-01T00:00:00.000Z","2015-01-01T00:00:00.000Z","2015-02-01T00:00:00.000Z","2015-03-01T00:00:00.000Z","2015-04-01T00:00:00.000Z","2015-05-01T00:00:00.000Z","2015-06-01T00:00:00.000Z","2015-07-01T00:00:00.000Z","2015-08-01T00:00:00.000Z","2015-09-01T00:00:00.000Z","2015-10-01T00:00:00.000Z","2015-11-01T00:00:00.000Z","2015-12-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2016-02-01T00:00:00.000Z","2016-03-01T00:00:00.000Z","2016-04-01T00:00:00.000Z","2016-05-01T00:00:00.000Z","2016-06-01T00:00:00.000Z","2016-07-01T00:00:00.000Z","2016-08-01T00:00:00.000Z","2016-09-01T00:00:00.000Z","2016-10-01T00:00:00.000Z","2016-11-01T00:00:00.000Z","2016-12-01T00:00:00.000Z"],[74.099,86.47199999999999,85.52500000000001,74.292,85.943,83.17700000000001,86.756,74.73399999999999,61.469,82.467,75.712,71.09699999999999,83.795,73.226,81.571,86.05200000000001,82.532,76.922,87.059,79.078,82.283,97.34999999999999,93.691,85.66,87.346,82.408,96.979,90.137,83.64100000000001,92.468,93.78,68.991,89.241,96.375,89.206,93.702,103.642,88.69799999999999,104.655,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,104.655,93.498,80.877,94.69,102.983,82.268,86.93899999999999,88.39100000000001,80.336,88.468,78.48999999999999,73.794,93.068,78.732,79.245,81.996,88.373,80.04900000000001,77.61,83.854,89.84999999999999,80.306]],"fixedtz":false,"tzone":""},"evals":["attrs.interactionModel"],"jsHooks":[]}</script>
+</div>
+</div>
+<section id="phân-tích-thành-phần-trong-time-series-dữ-liệu" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="phân-tích-thành-phần-trong-time-series-dữ-liệu"><span class="header-section-number">1.1</span> Phân tích thành phần trong time-series dữ liệu:</h2>
+<p>Về thông tin của dữ liệu, đây là dữ liệu thuộc dạng time-series nghĩa là chuỗi dữ liệu theo thời gian nên nó sẽ có các đặt tính chung như:</p>
+<ul>
+<li><p>Trend: Tăng, giảm dài hạn hoặc chuyển động đứng yên.</p></li>
+<li><p>Seasonal: Các mô hình có thể dự đoán được ở những khoảng thời gian cố định.</p></li>
+<li><p>Cycle: Biến động không có chu kỳ nhất quán.</p></li>
+<li><p>Noise: Sai số còn sót lại không giải thích được.</p></li>
+</ul>
+<p>Vậy mục tiêu của việc phân tích time series là để tìm ra thành phần <em>seasonal</em> trong vì nó có tính lặp lại và có thể dùng để dự đoán cho tương lai. Ngoài ra, thành phần <em>trend</em> cũng cần được quan tâm vì nó thể hiện xu hướng của dữ liệu trong tương lai.</p>
+<p>Trong R, ta có thể phân tích dễ dàng với hàm <code>decompose()</code> như code dưới đây.</p>
+<p>Về công thức tính, hàm <code>decompose()</code> dựa vào kĩ thuật Moving Averages để tính trung bình giá trị theo 1 khoảng thời gian (Vd: 3 tháng 6 tháng hoặc 1 năm).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="img/decompose.png" class="img-fluid figure-img" alt="(Nguồn: R documentation)" width="609"></p>
+<figcaption class="figure-caption">Hình 3: Additive and multiplicative model</figcaption>
+</figure>
+</div>
+<p>Có 2 mô hình gồm <em>Additive</em> và <em>Multiplicative</em> có thể sử dụng. Ở mặc định, hàm <code>decompose()</code> tính theo mô hình <em>Additive</em>, còn bạn muốn tính theo mô hình <em>Multiplicative</em> thì phải thêm đối số <code>type = "multiplicative"</code>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TSstudio)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ts_decompose</span>(demand_training, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">type =</span> <span class="st">"both"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-efd98f8786b409e324e6" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-efd98f8786b409e324e6">{"x":{"data":[{"x":[2012,2012.0833333333333,2012.1666666666667,2012.25,2012.3333333333333,2012.4166666666667,2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667,2014.75,2014.8333333333335,2014.9166666666667,2015,2015.0833333333335,2015.1666666666667],"y":[74.099000000000004,86.471999999999994,85.525000000000006,74.292000000000002,85.942999999999998,83.177000000000007,86.756,74.733999999999995,61.469000000000001,82.466999999999999,75.712000000000003,71.096999999999994,83.795000000000002,73.225999999999999,81.570999999999998,86.052000000000007,82.531999999999996,76.921999999999997,87.058999999999997,79.078000000000003,82.283000000000001,97.349999999999994,93.691000000000003,85.659999999999997,87.346000000000004,82.408000000000001,96.978999999999999,90.137,83.641000000000005,92.468000000000004,93.780000000000001,68.991,89.241,96.375,89.206000000000003,93.701999999999998,103.642,88.697999999999993,104.655],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y4","frame":null},{"x":[2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667],"y":[78.882583333333343,78.734666666666669,78.018000000000001,78.343250000000012,78.691125,78.288375000000002,78.040375000000012,78.234000000000009,79.282250000000005,80.769625000000005,82.138875000000013,83.494791666666657,84.249541666666659,84.780083333333337,85.804666666666662,86.616874999999993,86.833291666666653,87.527250000000009,88.455041666666659,88.314791666666665,88.184416666666678,88.433708333333357,88.206208333333336,88.354416666666665,89.368499999999997,90.309583333333336,90.891499999999994],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x2","yaxis":"y3","frame":null},{"x":[2012,2012.0833333333333,2012.1666666666667,2012.25,2012.3333333333333,2012.4166666666667,2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667,2014.75,2014.8333333333335,2014.9166666666667,2015,2015.0833333333335,2015.1666666666667],"y":[2.7500173611111141,-5.0301701388888898,5.968892361111104,3.9200590277777696,-1.6588159722222267,-0.80237847222221403,5.4586840277777799,-9.9132187500000022,-6.8131631944444377,7.8556631944444408,2.3665173611111232,-4.1020868055555635,2.7500173611111141,-5.0301701388888898,5.968892361111104,3.9200590277777696,-1.6588159722222267,-0.80237847222221403,5.4586840277777799,-9.9132187500000022,-6.8131631944444377,7.8556631944444408,2.3665173611111232,-4.1020868055555635,2.7500173611111141,-5.0301701388888898,5.968892361111104,3.9200590277777696,-1.6588159722222267,-0.80237847222221403,5.4586840277777799,-9.9132187500000022,-6.8131631944444377,7.8556631944444408,2.3665173611111232,-4.1020868055555635,2.7500173611111141,-5.0301701388888898,5.968892361111104],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"xaxis":"x3","yaxis":"y2","frame":null},{"x":[2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667],"y":[2.4147326388888786,5.912552083333324,-9.7358368055555644,-3.7319131944444592,-5.3456423611111177,-3.0892881944444497,3.0046076388888707,0.022170138888881752,-3.680142361111109,1.362315972222234,2.0519409722222122,-5.7704131944444441,-2.6492256944444392,4.2111354166666644,3.291496527777781,2.877461805555555,4.4911909722222276,2.2348368055555454,-3.859059027777775,-0.8766215277777718,2.825690972222219,-2.216767361111124,-2.9063923611111022,4.9159618055555541,-1.0471840277777744,-11.405364583333338,5.1626631944444483],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"xaxis":"x4","yaxis":"y","frame":null},{"x":[2012,2012.0833333333333,2012.1666666666667,2012.25,2012.3333333333333,2012.4166666666667,2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667,2014.75,2014.8333333333335,2014.9166666666667,2015,2015.0833333333335,2015.1666666666667],"y":[74.099000000000004,86.471999999999994,85.525000000000006,74.292000000000002,85.942999999999998,83.177000000000007,86.756,74.733999999999995,61.469000000000001,82.466999999999999,75.712000000000003,71.096999999999994,83.795000000000002,73.225999999999999,81.570999999999998,86.052000000000007,82.531999999999996,76.921999999999997,87.058999999999997,79.078000000000003,82.283000000000001,97.349999999999994,93.691000000000003,85.659999999999997,87.346000000000004,82.408000000000001,96.978999999999999,90.137,83.641000000000005,92.468000000000004,93.780000000000001,68.991,89.241,96.375,89.206000000000003,93.701999999999998,103.642,88.697999999999993,104.655],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"xaxis":"x5","yaxis":"y8","frame":null},{"x":[2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667],"y":[78.882583333333343,78.734666666666669,78.018000000000001,78.343250000000012,78.691125,78.288375000000002,78.040375000000012,78.234000000000009,79.282250000000005,80.769625000000005,82.138875000000013,83.494791666666657,84.249541666666659,84.780083333333337,85.804666666666662,86.616874999999993,86.833291666666653,87.527250000000009,88.455041666666659,88.314791666666665,88.184416666666678,88.433708333333357,88.206208333333336,88.354416666666665,89.368499999999997,90.309583333333336,90.891499999999994],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"xaxis":"x6","yaxis":"y7","frame":null},{"x":[2012,2012.0833333333333,2012.1666666666667,2012.25,2012.3333333333333,2012.4166666666667,2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667,2014.75,2014.8333333333335,2014.9166666666667,2015,2015.0833333333335,2015.1666666666667],"y":[1.0360561463272735,0.93949889011957932,1.0699328648506008,1.0478482472499919,0.98168426624067007,0.98912683886244501,1.0664562270895397,0.88662520787944721,0.91437497423163716,1.0940368226252302,1.025960959394876,0.94839855512870863,1.0360561463272735,0.93949889011957932,1.0699328648506008,1.0478482472499919,0.98168426624067007,0.98912683886244501,1.0664562270895397,0.88662520787944721,0.91437497423163716,1.0940368226252302,1.025960959394876,0.94839855512870863,1.0360561463272735,0.93949889011957932,1.0699328648506008,1.0478482472499919,0.98168426624067007,0.98912683886244501,1.0664562270895397,0.88662520787944721,0.91437497423163716,1.0940368226252302,1.025960959394876,0.94839855512870863,1.0360561463272735,0.93949889011957932,1.0699328648506008],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(227,119,194,1)","line":{"color":"rgba(227,119,194,1)"}},"error_y":{"color":"rgba(227,119,194,1)"},"error_x":{"color":"rgba(227,119,194,1)"},"xaxis":"x7","yaxis":"y6","frame":null},{"x":[2012.5,2012.5833333333333,2012.6666666666667,2012.75,2012.8333333333333,2012.9166666666667,2013,2013.0833333333333,2013.1666666666667,2013.25,2013.3333333333333,2013.4166666666667,2013.5,2013.5833333333335,2013.6666666666667,2013.75,2013.8333333333335,2013.9166666666667,2014,2014.0833333333335,2014.1666666666667,2014.25,2014.3333333333335,2014.4166666666667,2014.5,2014.5833333333335,2014.6666666666667],"y":[1.0312770681268526,1.070562828134213,0.86166212525408881,0.96215861444322726,0.93779546750949649,0.9575536439915876,1.0363715113041361,0.99626185927963606,0.96161956724908071,1.016750771796022,1.0235328568877815,0.93140635325860155,0.96895385071865603,1.0520145902476439,1.0487570124966712,1.0273099755636705,1.0516731224974016,1.0319149460153105,0.95309707870276195,0.99320673072726207,1.0278490227578172,0.97271781821087555,0.96593573311911662,1.0580622367482966,0.98397196616483817,0.86162546662848982,1.073783747259587],"mode":"lines","line":{"color":"#00526d","width":2,"dash":[]},"type":"scatter","marker":{"color":"rgba(127,127,127,1)","line":{"color":"rgba(127,127,127,1)"}},"error_y":{"color":"rgba(127,127,127,1)"},"error_x":{"color":"rgba(127,127,127,1)"},"xaxis":"x8","yaxis":"y5","frame":null}],"layout":{"xaxis":{"domain":[0,0.47999999999999998],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y4"},"xaxis2":{"domain":[0,0.47999999999999998],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y3"},"xaxis3":{"domain":[0,0.47999999999999998],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y2"},"xaxis4":{"domain":[0,0.47999999999999998],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"anchor":"y"},"xaxis5":{"domain":[0.52000000000000002,1],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y8"},"xaxis6":{"domain":[0.52000000000000002,1],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y7"},"xaxis7":{"domain":[0.52000000000000002,1],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"showticklabels":false,"anchor":"y6"},"xaxis8":{"domain":[0.52000000000000002,1],"automargin":true,"showgrid":false,"range":[2012,2015.1666666666667],"showline":true,"anchor":"y5"},"yaxis5":{"domain":[0,0.23000000000000001],"automargin":true,"showgrid":false,"anchor":"x8"},"yaxis6":{"domain":[0.27000000000000002,0.47999999999999998],"automargin":true,"showgrid":false,"anchor":"x7"},"yaxis7":{"domain":[0.52000000000000002,0.72999999999999998],"automargin":true,"showgrid":false,"anchor":"x6"},"yaxis8":{"domain":[0.77000000000000002,1],"automargin":true,"showgrid":false,"anchor":"x5","showlegend":false},"yaxis":{"domain":[0,0.23000000000000001],"automargin":true,"title":"Random","showgrid":false,"anchor":"x4"},"yaxis2":{"domain":[0.27000000000000002,0.47999999999999998],"automargin":true,"title":"Seasonal","showgrid":false,"anchor":"x3"},"yaxis3":{"domain":[0.52000000000000002,0.72999999999999998],"automargin":true,"title":"Trend","showgrid":false,"anchor":"x2"},"yaxis4":{"domain":[0.77000000000000002,1],"automargin":true,"title":"Observed","showgrid":false,"anchor":"x"},"annotations":[],"shapes":[],"images":[],"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Decomposition of additive and multiplicative time series - demand_training","hovermode":"closest","showlegend":false},"attrs":{"3e5053fa3ee1":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e503ac513a7":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e5043684434":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e507557ad8":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e507d197ce1":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e50b087aa2":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e50172421fc":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"3e5059d04ee9":{"x":{},"y":{},"mode":"lines","line":{"width":2,"dash":null,"color":"#00526d"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"subplot":true,"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>Khi mức độ biến động của seasonal hoặc sự biến đổi xung quanh trend-cycle không thay đổi theo mức độ của chuỗi thời gian, mô hình Additive sẽ phù hợp hơn mô hình Multiplicative.</p>
+</div>
+</div>
+<p>Nhìn sơ bộ, ta có thể thấy xu hướng tăng (trend) của số lượng đơn đặt hàng. Về phần random thì sẽ có 1 khoảng từ (-10,5) số đơn là tự nhiên xảy ra, nghĩa là giá trị dự đoán có thể lệch từ -10 đến 5 đơn hàng và sai lệch này là do tự nhiên.</p>
+</section>
+<section id="dự-đoán-bằng-mô-hình-arima" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="dự-đoán-bằng-mô-hình-arima"><span class="header-section-number">1.2</span> Dự đoán bằng mô hình ARIMA:</h2>
+<p>Trên thực tế, phần phân tích thành các thành phần của time series chỉ đưa ra dự đoán định tính, không thể dự đoán bằng các dữ liệu trên mà phải cần thông qua mô hình cụ thể. Dưới đây là giới thiệu về mô hình ARIMA.</p>
+<section id="định-nghĩa-về-arima" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="định-nghĩa-về-arima"><span class="header-section-number">1.2.1</span> Định nghĩa về ARIMA:</h3>
+<p>Theo <span class="citation" data-cites="phamdinhkhanh2019">(<a href="#ref-phamdinhkhanh2019" role="doc-biblioref">phamdinhkhanh 2019</a>)</span>, Mô hình ARIMA “sử dụng đầu vào chính là những tín hiệu quá khứ của chuỗi được dự báo để dự báo nó. Các tín hiệu đó bao gồm: Chuỗi tự hồi qui AR (auto regression) và chuỗi trung bình trượt MA (moving average).</p>
+<p>Hầu hết các chuỗi thời gian sẽ có xu hướng tăng hoặc giảm theo thời gian, do đó yếu tố chuỗi dừng thường không đạt được. Trong trường hợp chuỗi không dừng thì ta sẽ cần biến đổi sang chuỗi dừng bằng sai phân. Khi đó tham số đặc trưng của mô hình sẽ có thêm thành phần bậc của sai phân d và mô hình được đặc tả bởi 3 tham số ARIMA(p, d, q)“.</p>
+<p>Mô hình được xây dựng “dựa trên giả thuyết: <em>Stationary series</em> (Chuỗi dừng) đòi hỏi <em>Phương sai sai số không đổi</em> và Nhiễu trắng (<em>White noise</em>), cụ thể trong đó:</p>
+<ul>
+<li><p>Stationary series: điều kiện là trung bình của chuỗi là constant (bất biến), phương sai (variance) của chuỗi phải có tính đồng nhất (homoscedasticity) và hiệp phương sai (covariance) giữa giá trị t và t+1 phải không liên quan tới nhau.</p>
+<div class="callout callout-style-simple callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lưu ý
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nếu chuỗi dữ liệu không phải là chuỗi dùng thì bạn sẽ không xây dựng được mô hình chuỗi thời gian (time-series model)</p>
+</div>
+</div></li>
+<li><p>Nhiễu trắng là: một thành phần ngẫu nhiên thể hiện cho yếu tố không thể dự báo của model và không có tính qui luật.</p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/"><img src="img/stationary.png" class="img-fluid figure-img" alt="A Complete Tutorial on Time Series Modeling in R"></a></p>
+<figcaption class="figure-caption">Hình 4: Stationary and non-stationary series</figcaption>
+</figure>
+</div>
+</section>
+<section id="phân-tích-arima-bằng-r" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="phân-tích-arima-bằng-r"><span class="header-section-number">1.2.2</span> Phân tích ARIMA bằng R:</h3>
+<section id="kiểm-tra-chuỗi-dừng" class="level4" data-number="1.2.2.1">
+<h4 data-number="1.2.2.1" class="anchored" data-anchor-id="kiểm-tra-chuỗi-dừng"><span class="header-section-number">1.2.2.1</span> Kiểm tra chuỗi dừng:</h4>
+<p>Và để thỏa mãn giả định này, cần tính toán các chỉ số trên và đánh giá và điều này khá phức tạp. Trong R, ta có hàm <code>adf.test()</code> có thể kiểm tra vấn đề này nhanh hơn.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tseries)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">adf.test</span>(demand_training)    <span class="do">## p-value = 0.3779 &gt; 0.05 means this series is not stationary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Augmented Dickey-Fuller Test
+
+data:  demand_training
+Dickey-Fuller = -2.4991, Lag order = 3, p-value = 0.3779
+alternative hypothesis: stationary</code></pre>
+</div>
+</div>
+<p>Như vậy, ta thấy chuỗi dữ liệu này không phải chuỗi dừng vì giá trị p = 0.3779 &gt; 0.05 nghĩa là chấp nhận giả thuyết H0: Chuỗi này là chuỗi không dừng.</p>
+<p>Trong time-series analyst, ta sẽ có cách để xử lí chuỗi thành chuỗi dừng. Đó là tính sự khác nhau (<em>Difference</em>) giữa giá trị t và giá trị của nó ở quá khứ t-1,t-2,…</p>
+<p>Trong R, bạn có thể tính bằng cách:</p>
+<ul>
+<li><p><code>diff(series, lag = n)</code>: tính sự khác nhau giữa các thời điểm t và t-n.</p></li>
+<li><p><code>log(series)</code>: chuyển time-series sang dạng log.</p></li>
+</ul>
+<p>Này tùy thuộc vào công thức toán học bạn muốn định nghĩa, miễn sao bạn có thể xác định được chuỗi dừng là đạt.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#First we will calculate the different in demand product monthly:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Check stationary assumption:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>test<span class="ot">&lt;-</span><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>         a<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> x)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>         <span class="fu">adf.test</span>(a)<span class="sc">$</span>p.value}</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>       ) <span class="co">#p&lt;0,05 is accepted</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Second transform it to dataframe object:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>test<span class="ot">&lt;-</span><span class="fu">data.frame</span>(test)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(test)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"Lag 1"</span>,<span class="st">"Lag 2"</span>,<span class="st">"Lag 3"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Finally plot the result:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtExtras)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(test) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"left"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="st">"Lag 1"</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"center"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="st">"Lag 2"</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_header</span>(</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Checking stationary assumption**"</span>),</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Time from {min(month_df$datetime)} to 01-03-2015"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_source_note</span>(</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Alternative hypothesis: stationary"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_538</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div id="qriphvjddw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#qriphvjddw table {
+  font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qriphvjddw thead, #qriphvjddw tbody, #qriphvjddw tfoot, #qriphvjddw tr, #qriphvjddw td, #qriphvjddw th {
+  border-style: none;
+}
+
+#qriphvjddw p {
+  margin: 0;
+  padding: 0;
+}
+
+#qriphvjddw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 3px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qriphvjddw .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qriphvjddw .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qriphvjddw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qriphvjddw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qriphvjddw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qriphvjddw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qriphvjddw .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qriphvjddw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qriphvjddw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qriphvjddw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  vertical-align: middle;
+}
+
+#qriphvjddw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qriphvjddw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qriphvjddw .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qriphvjddw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 0px;
+  border-right-color: #FFFFFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qriphvjddw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qriphvjddw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qriphvjddw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qriphvjddw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qriphvjddw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qriphvjddw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qriphvjddw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qriphvjddw .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qriphvjddw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qriphvjddw .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qriphvjddw .gt_left {
+  text-align: left;
+}
+
+#qriphvjddw .gt_center {
+  text-align: center;
+}
+
+#qriphvjddw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qriphvjddw .gt_font_normal {
+  font-weight: normal;
+}
+
+#qriphvjddw .gt_font_bold {
+  font-weight: bold;
+}
+
+#qriphvjddw .gt_font_italic {
+  font-style: italic;
+}
+
+#qriphvjddw .gt_super {
+  font-size: 65%;
+}
+
+#qriphvjddw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qriphvjddw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qriphvjddw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qriphvjddw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qriphvjddw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qriphvjddw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qriphvjddw .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#qriphvjddw .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#qriphvjddw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+
+tbody tr:last-child {
+  border-bottom: 2px solid #ffffff00;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" style="font-family: Chivo; font-weight: 700;"><div data-qmd-base64="KipDaGVja2luZyBzdGF0aW9uYXJ5IGFzc3VtcHRpb24qKg=="><div class="gt_from_md"><p><strong>Checking stationary assumption</strong></p>
+</div></div></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="font-family: Chivo; font-weight: 300;">Time from 2012-01-01 to 01-03-2015</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Lag 1">Lag 1</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Lag 2">Lag 2</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Lag 3">Lag 3</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Lag 1" class="gt_row gt_left">0.01</td>
+<td headers="Lag 2" class="gt_row gt_center">0.01</td>
+<td headers="Lag 3" class="gt_row gt_right">0.152641</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">Alternative hypothesis: stationary</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+<p>Kết quả testing cho thấy chỉ có chuỗi 1 và 2 đạt yêu cầu, chuỗi 3 không phải chuỗi dừng vì p-value = 0.107 &gt; 0.05.</p>
+</section>
+<section id="tính-toán-giá-trị-pacf-và-acf" class="level4" data-number="1.2.2.2">
+<h4 data-number="1.2.2.2" class="anchored" data-anchor-id="tính-toán-giá-trị-pacf-và-acf"><span class="header-section-number">1.2.2.2</span> Tính toán giá trị PACF và ACF:</h4>
+<section id="định-nghĩa-về-pacf-và-acf" class="level5" data-number="1.2.2.2.1">
+<h5 data-number="1.2.2.2.1" class="anchored" data-anchor-id="định-nghĩa-về-pacf-và-acf"><span class="header-section-number">1.2.2.2.1</span> Định nghĩa về PACF và ACF:</h5>
+<p>PACF (<em>Partial Autocorrelation Function</em>) và ACF (<em>Autocorrelation Function</em>) là 2 công thức tính thuộc <strong>Autocorrelation Analyst</strong> - 1 bước quan trọng trong việc phân tích chuỗi dữ liệu thời gian. Mục tiêu của Autocorrelation analyst là tìm ra các mẫu (<em>pattern</em>) giữa nhiều chuỗi thời gian và kiểm tra tính ngẫu nhiên.</p>
+</section>
+<section id="thực-hành-trên-r" class="level5" data-number="1.2.2.2.2">
+<h5 data-number="1.2.2.2.2" class="anchored" data-anchor-id="thực-hành-trên-r"><span class="header-section-number">1.2.2.2.2</span> Thực hành trên R:</h5>
+<p>Sau khi đã xác định được chuỗi dừng, bước tiếp theo là xác định các tham số (p, d, q) cho mô hình ARIMA.</p>
+<p>Trong R có hàm <code>ggtsdisplay</code> của package <strong>forecast</strong> sẽ hiển thị cả ACF, PACF và Time series plot của đối tượng mà bạn gán. Còn nếu bạn muốn hiển thị riêng giá trị ACF hoặc PACF thì dùng hàm <code>Acf</code> hoặc <code>Pacf</code> để tính và dùng hàm <code>autoplot()</code> để hiển thị biểu đồ.</p>
+<div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename of two time series:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ts1<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> <span class="dv">1</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ts2<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> <span class="dv">2</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot value ACF for 2 series:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forecast)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggtsdisplay</span>(ts1,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main =</span> <span class="st">"Time series lag 1"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">theme=</span><span class="fu">theme_bw</span>())</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggtsdisplay</span>(ts2,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">main =</span> <span class="st">"Time series lag 2"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">theme=</span><span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell quarto-layout-panel">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="Forecasting_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="Forecasting_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+<p>Dựa vào tricks từ <span class="citation" data-cites="tavishsrivastava2023">(<a href="#ref-tavishsrivastava2023" role="doc-biblioref">Tavish Srivastava 2023</a>)</span>, ta sẽ dựa vào giá trị PACF để xác định bậc của AR và ACF để xác định bậc của MA.</p>
+<p>Ví dụ ở trên, đối với chuỗi lag 1, giá trị PACF có sự đứt gãy (<em>cut off</em>) ở bậc 2 đến bậc 3 nên có thể thuộc AR(3). Còn giá trị ACF thì có thể thuộc MA(2) hoặc rõ ràng hơn là MA(3). Còn lại, đối với chuỗi lag 2, các bạn có thể làm tương tự.</p>
+<p>Vậy mô hình tự chọn cuối cùng là ARIMA(3,0,2).</p>
+</section>
+</section>
+<section id="lựa-chọn-mô-hình-tốt-nhất" class="level4" data-number="1.2.2.3">
+<h4 data-number="1.2.2.3" class="anchored" data-anchor-id="lựa-chọn-mô-hình-tốt-nhất"><span class="header-section-number">1.2.2.3</span> Lựa chọn mô hình tốt nhất:</h4>
+<p>Thực tế, trong R có hàm <code>auto.arima</code>để chúng ta lựa chọn và so sánh nhiều mô hình ARIMA một cách tự động và không nặng về code như dưới đây. Nó sẽ tự liệt kê ra các mô hình phù hợp và chọn ra mô hình tốt nhất.</p>
+<p>Ngoài ra, nếu bạn muốn tìm hiểu sâu về cách xây dựng mô hình ARIMA, bạn có thể tham khảo thêm bài blog <span class="citation" data-cites="dung">(<a href="#ref-dung" role="doc-biblioref">Dũng, n.d.</a>)</span>. Anh Chí Dũng có khá nhiều bài viết hay về cách sử dụng R trong nghiên cứu và phân tích kinh tế, bạn có thể tham khảo trang blog của ảnh thông qua đường link <a href="https://rpubs.com/chidungkt/">chidungkt</a>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Select the best model:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>model<span class="ot">&lt;-</span><span class="fu">auto.arima</span>(ts1,<span class="at">trace =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ ARIMA(2,0,2)(1,0,1)[12] with non-zero mean : 279.6301
+ ARIMA(0,0,0)            with non-zero mean : 291.5234
+ ARIMA(1,0,0)(1,0,0)[12] with non-zero mean : 285.1005
+ ARIMA(0,0,1)(0,0,1)[12] with non-zero mean : Inf
+ ARIMA(0,0,0)            with zero mean     : 289.5102
+ ARIMA(2,0,2)(0,0,1)[12] with non-zero mean : 278.2485
+ ARIMA(2,0,2)            with non-zero mean : 276.6431
+ ARIMA(2,0,2)(1,0,0)[12] with non-zero mean : 277.2391
+ ARIMA(1,0,2)            with non-zero mean : Inf
+ ARIMA(2,0,1)            with non-zero mean : 274.6588
+ ARIMA(2,0,1)(1,0,0)[12] with non-zero mean : 274.4807
+ ARIMA(2,0,1)(1,0,1)[12] with non-zero mean : 276.6914
+ ARIMA(2,0,1)(0,0,1)[12] with non-zero mean : 275.6882
+ ARIMA(1,0,1)(1,0,0)[12] with non-zero mean : Inf
+ ARIMA(2,0,0)(1,0,0)[12] with non-zero mean : 271.6811
+ ARIMA(2,0,0)            with non-zero mean : 272.1458
+ ARIMA(2,0,0)(1,0,1)[12] with non-zero mean : 273.7323
+ ARIMA(2,0,0)(0,0,1)[12] with non-zero mean : 272.8549
+ ARIMA(3,0,0)(1,0,0)[12] with non-zero mean : 274.4922
+ ARIMA(3,0,1)(1,0,0)[12] with non-zero mean : 277.4715
+ ARIMA(2,0,0)(1,0,0)[12] with zero mean     : 269.4654
+ ARIMA(2,0,0)            with zero mean     : 270.5103
+ ARIMA(2,0,0)(1,0,1)[12] with zero mean     : 271.365
+ ARIMA(2,0,0)(0,0,1)[12] with zero mean     : 270.7772
+ ARIMA(1,0,0)(1,0,0)[12] with zero mean     : 282.7531
+ ARIMA(3,0,0)(1,0,0)[12] with zero mean     : 272.0724
+ ARIMA(2,0,1)(1,0,0)[12] with zero mean     : 272.0509
+ ARIMA(1,0,1)(1,0,0)[12] with zero mean     : 275.1242
+ ARIMA(3,0,1)(1,0,0)[12] with zero mean     : 274.8562
+
+ Best model: ARIMA(2,0,0)(1,0,0)[12] with zero mean     </code></pre>
+</div>
+</div>
+</section>
+<section id="so-sánh-giá-trị-dự-đoán-từ-training-data-với-testing-data" class="level4" data-number="1.2.2.4">
+<h4 data-number="1.2.2.4" class="anchored" data-anchor-id="so-sánh-giá-trị-dự-đoán-từ-training-data-với-testing-data"><span class="header-section-number">1.2.2.4</span> So sánh giá trị dự đoán từ training data với testing data:</h4>
+<p>Sau khi đã xây dựng mô hình, ta sẽ dùng nó để dự đoán và so sánh với dữ liệu thực tế từ bộ dữ liệu testing data.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Forecast by training model:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>training_forecast<span class="ot">&lt;-</span><span class="fu">forecast</span>(model,<span class="at">h =</span> <span class="dv">21</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Bảng trình bày các giá trị dự đoán theo từng tháng. Ta thấy chỉ có 4/21 thời điểm mà giá trị thực tế vượt ra giá trị dự đoán trong khoảng tin cậy 80%. Còn đối với giá trị dự đoán trong khoảng tin cậy 95% thì đều đạt yêu cầu.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate RMSE:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>actual<span class="ot">&lt;-</span> <span class="fu">diff</span>(demand_testing,<span class="dv">1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>accuracy<span class="ot">&lt;-</span><span class="fu">data_frame</span>(<span class="at">Period =</span> <span class="fu">paste</span>(<span class="fu">month</span>(testing_df<span class="sc">$</span>datetime),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                                    <span class="fu">year</span>(testing_df<span class="sc">$</span>datetime),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sep =</span> <span class="st">"/"</span>)[<span class="sc">-</span><span class="dv">1</span>],</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Actual =</span> actual <span class="sc">%&gt;%</span> <span class="fu">as.vector</span>(), </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">High.80 =</span> training_forecast<span class="sc">$</span>upper[,<span class="dv">1</span>],</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Low.80 =</span> training_forecast<span class="sc">$</span>lower[,<span class="dv">1</span>],</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">High.95 =</span> training_forecast<span class="sc">$</span>upper[,<span class="dv">2</span>],</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Low.95 =</span> training_forecast<span class="sc">$</span>lower[,<span class="dv">2</span>]) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Check.80 =</span> <span class="fu">ifelse</span>(Actual <span class="sc">&lt;=</span> High<span class="fl">.80</span> <span class="sc">&amp;</span> Actual <span class="sc">&gt;=</span> Low<span class="fl">.80</span>,<span class="st">"Pass"</span>,<span class="st">"Fail"</span>),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">Check.95 =</span> <span class="fu">ifelse</span>(Actual <span class="sc">&lt;=</span> High<span class="fl">.95</span> <span class="sc">&amp;</span> Actual <span class="sc">&gt;=</span> Low<span class="fl">.95</span>,<span class="st">"Pass"</span>,<span class="st">"Fail"</span>))</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Finally plot the result</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(accuracy) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_header</span>(</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Comparing the accuracy of forecasting**"</span>),</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_source_note</span>(</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">str_glue</span>(<span class="st">"Method: Model {training_forecast$method}"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_538</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>   <span class="fu">data_color</span>(</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Check<span class="fl">.80</span>,</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"factor"</span>,</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"red"</span>,<span class="st">"darkgreen"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="fu">data_color</span>(</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Check<span class="fl">.95</span>,</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"factor"</span>,</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"darkgreen"</span>,<span class="st">"red"</span>)</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div id="rqjffughdc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#rqjffughdc table {
+  font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#rqjffughdc thead, #rqjffughdc tbody, #rqjffughdc tfoot, #rqjffughdc tr, #rqjffughdc td, #rqjffughdc th {
+  border-style: none;
+}
+
+#rqjffughdc p {
+  margin: 0;
+  padding: 0;
+}
+
+#rqjffughdc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 3px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#rqjffughdc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#rqjffughdc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#rqjffughdc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#rqjffughdc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#rqjffughdc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#rqjffughdc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#rqjffughdc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#rqjffughdc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#rqjffughdc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#rqjffughdc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #FFFFFF;
+  vertical-align: middle;
+}
+
+#rqjffughdc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#rqjffughdc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#rqjffughdc .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#rqjffughdc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 0px;
+  border-right-color: #FFFFFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqjffughdc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#rqjffughdc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#rqjffughdc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#rqjffughdc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqjffughdc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#rqjffughdc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqjffughdc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#rqjffughdc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqjffughdc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rqjffughdc .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rqjffughdc .gt_left {
+  text-align: left;
+}
+
+#rqjffughdc .gt_center {
+  text-align: center;
+}
+
+#rqjffughdc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#rqjffughdc .gt_font_normal {
+  font-weight: normal;
+}
+
+#rqjffughdc .gt_font_bold {
+  font-weight: bold;
+}
+
+#rqjffughdc .gt_font_italic {
+  font-style: italic;
+}
+
+#rqjffughdc .gt_super {
+  font-size: 65%;
+}
+
+#rqjffughdc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#rqjffughdc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#rqjffughdc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#rqjffughdc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#rqjffughdc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#rqjffughdc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#rqjffughdc .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#rqjffughdc .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#rqjffughdc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+
+tbody tr:last-child {
+  border-bottom: 2px solid #ffffff00;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="8" class="gt_heading gt_title gt_font_normal" style="font-family: Chivo; font-weight: 700;"><div data-qmd-base64="KipDb21wYXJpbmcgdGhlIGFjY3VyYWN5IG9mIGZvcmVjYXN0aW5nKio="><div class="gt_from_md"><p><strong>Comparing the accuracy of forecasting</strong></p>
+</div></div></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="8" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="font-family: Chivo; font-weight: 300;">Forecasting from 2015-03-01 to 2016-12-01</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Period">Period</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Actual">Actual</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="High.80">High.80</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Low.80">Low.80</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="High.95">High.95</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Low.95">Low.95</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Check.80">Check.80</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-top-width: 0px; border-top-style: solid; border-top-color: black; font-family: Chivo; font-size: 14px; vertical-align: bottom; font-weight: 200; text-transform: uppercase;" scope="col" id="Check.95">Check.95</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Period" class="gt_row gt_right">4/2015</td>
+<td headers="Actual" class="gt_row gt_right">-11.157</td>
+<td headers="High.80" class="gt_row gt_center">8.2151971</td>
+<td headers="Low.80" class="gt_row gt_center">-10.812921</td>
+<td headers="High.95" class="gt_row gt_center">13.251636</td>
+<td headers="Low.95" class="gt_row gt_center">-15.84936</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #FF0000; color: #FFFFFF;">Fail</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">5/2015</td>
+<td headers="Actual" class="gt_row gt_right">-12.621</td>
+<td headers="High.80" class="gt_row gt_center">1.6260371</td>
+<td headers="Low.80" class="gt_row gt_center">-20.888910</td>
+<td headers="High.95" class="gt_row gt_center">7.585384</td>
+<td headers="Low.95" class="gt_row gt_center">-26.84826</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">6/2015</td>
+<td headers="Actual" class="gt_row gt_right">13.813</td>
+<td headers="High.80" class="gt_row gt_center">18.5336717</td>
+<td headers="Low.80" class="gt_row gt_center">-4.315841</td>
+<td headers="High.95" class="gt_row gt_center">24.581572</td>
+<td headers="Low.95" class="gt_row gt_center">-10.36374</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">7/2015</td>
+<td headers="Actual" class="gt_row gt_right">8.293</td>
+<td headers="High.80" class="gt_row gt_center">14.9318430</td>
+<td headers="Low.80" class="gt_row gt_center">-9.908314</td>
+<td headers="High.95" class="gt_row gt_center">21.506636</td>
+<td headers="Low.95" class="gt_row gt_center">-16.48311</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">8/2015</td>
+<td headers="Actual" class="gt_row gt_right">-20.715</td>
+<td headers="High.80" class="gt_row gt_center">-0.7494574</td>
+<td headers="Low.80" class="gt_row gt_center">-25.879586</td>
+<td headers="High.95" class="gt_row gt_center">5.902086</td>
+<td headers="Low.95" class="gt_row gt_center">-32.53113</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">9/2015</td>
+<td headers="Actual" class="gt_row gt_right">4.671</td>
+<td headers="High.80" class="gt_row gt_center">21.7271249</td>
+<td headers="Low.80" class="gt_row gt_center">-3.643527</td>
+<td headers="High.95" class="gt_row gt_center">28.442331</td>
+<td headers="Low.95" class="gt_row gt_center">-10.35873</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">10/2015</td>
+<td headers="Actual" class="gt_row gt_right">1.452</td>
+<td headers="High.80" class="gt_row gt_center">17.1916812</td>
+<td headers="Low.80" class="gt_row gt_center">-8.576132</td>
+<td headers="High.95" class="gt_row gt_center">24.012009</td>
+<td headers="Low.95" class="gt_row gt_center">-15.39646</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">11/2015</td>
+<td headers="Actual" class="gt_row gt_right">-8.055</td>
+<td headers="High.80" class="gt_row gt_center">8.5209607</td>
+<td headers="Low.80" class="gt_row gt_center">-17.257552</td>
+<td headers="High.95" class="gt_row gt_center">15.344121</td>
+<td headers="Low.95" class="gt_row gt_center">-24.08071</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">12/2015</td>
+<td headers="Actual" class="gt_row gt_right">8.132</td>
+<td headers="High.80" class="gt_row gt_center">14.8015863</td>
+<td headers="Low.80" class="gt_row gt_center">-11.075451</td>
+<td headers="High.95" class="gt_row gt_center">21.650824</td>
+<td headers="Low.95" class="gt_row gt_center">-17.92469</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">1/2016</td>
+<td headers="Actual" class="gt_row gt_right">-9.978</td>
+<td headers="High.80" class="gt_row gt_center">17.8052582</td>
+<td headers="Low.80" class="gt_row gt_center">-8.139698</td>
+<td headers="High.95" class="gt_row gt_center">24.672473</td>
+<td headers="Low.95" class="gt_row gt_center">-15.00691</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #FF0000; color: #FFFFFF;">Fail</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">2/2016</td>
+<td headers="Actual" class="gt_row gt_right">-4.696</td>
+<td headers="High.80" class="gt_row gt_center">6.4211445</td>
+<td headers="Low.80" class="gt_row gt_center">-19.524421</td>
+<td headers="High.95" class="gt_row gt_center">13.288521</td>
+<td headers="Low.95" class="gt_row gt_center">-26.39180</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">3/2016</td>
+<td headers="Actual" class="gt_row gt_right">19.274</td>
+<td headers="High.80" class="gt_row gt_center">19.2007071</td>
+<td headers="Low.80" class="gt_row gt_center">-6.774814</td>
+<td headers="High.95" class="gt_row gt_center">26.076012</td>
+<td headers="Low.95" class="gt_row gt_center">-13.65012</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #FF0000; color: #FFFFFF;">Fail</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">4/2016</td>
+<td headers="Actual" class="gt_row gt_right">-14.336</td>
+<td headers="High.80" class="gt_row gt_center">13.5655001</td>
+<td headers="Low.80" class="gt_row gt_center">-13.694775</td>
+<td headers="High.95" class="gt_row gt_center">20.780859</td>
+<td headers="Low.95" class="gt_row gt_center">-20.91013</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #FF0000; color: #FFFFFF;">Fail</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">5/2016</td>
+<td headers="Actual" class="gt_row gt_right">0.513</td>
+<td headers="High.80" class="gt_row gt_center">9.7760700</td>
+<td headers="Low.80" class="gt_row gt_center">-17.849339</td>
+<td headers="High.95" class="gt_row gt_center">17.088074</td>
+<td headers="Low.95" class="gt_row gt_center">-25.16134</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">6/2016</td>
+<td headers="Actual" class="gt_row gt_right">2.751</td>
+<td headers="High.80" class="gt_row gt_center">16.5398455</td>
+<td headers="Low.80" class="gt_row gt_center">-11.170685</td>
+<td headers="High.95" class="gt_row gt_center">23.874380</td>
+<td headers="Low.95" class="gt_row gt_center">-18.50522</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">7/2016</td>
+<td headers="Actual" class="gt_row gt_right">6.377</td>
+<td headers="High.80" class="gt_row gt_center">15.2198557</td>
+<td headers="Low.80" class="gt_row gt_center">-12.789469</td>
+<td headers="High.95" class="gt_row gt_center">22.633476</td>
+<td headers="Low.95" class="gt_row gt_center">-20.20309</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">8/2016</td>
+<td headers="Actual" class="gt_row gt_right">-8.324</td>
+<td headers="High.80" class="gt_row gt_center">8.6649731</td>
+<td headers="Low.80" class="gt_row gt_center">-19.373047</td>
+<td headers="High.95" class="gt_row gt_center">16.086189</td>
+<td headers="Low.95" class="gt_row gt_center">-26.79426</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">9/2016</td>
+<td headers="Actual" class="gt_row gt_right">-2.439</td>
+<td headers="High.80" class="gt_row gt_center">17.5484745</td>
+<td headers="Low.80" class="gt_row gt_center">-10.538978</td>
+<td headers="High.95" class="gt_row gt_center">24.982774</td>
+<td headers="Low.95" class="gt_row gt_center">-17.97328</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">10/2016</td>
+<td headers="Actual" class="gt_row gt_right">6.244</td>
+<td headers="High.80" class="gt_row gt_center">15.8818767</td>
+<td headers="Low.80" class="gt_row gt_center">-12.264517</td>
+<td headers="High.95" class="gt_row gt_center">23.331777</td>
+<td headers="Low.95" class="gt_row gt_center">-19.71442</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">11/2016</td>
+<td headers="Actual" class="gt_row gt_right">5.996</td>
+<td headers="High.80" class="gt_row gt_center">12.3351533</td>
+<td headers="Low.80" class="gt_row gt_center">-15.811609</td>
+<td headers="High.95" class="gt_row gt_center">19.785151</td>
+<td headers="Low.95" class="gt_row gt_center">-23.26161</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+    <tr><td headers="Period" class="gt_row gt_right">12/2016</td>
+<td headers="Actual" class="gt_row gt_right">-9.544</td>
+<td headers="High.80" class="gt_row gt_center">14.7681518</td>
+<td headers="Low.80" class="gt_row gt_center">-13.396724</td>
+<td headers="High.95" class="gt_row gt_center">22.222944</td>
+<td headers="Low.95" class="gt_row gt_center">-20.85152</td>
+<td headers="Check.80" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td>
+<td headers="Check.95" class="gt_row gt_center" style="background-color: #006400; color: #FFFFFF;">Pass</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="8">Method: Model ARIMA(2,0,0)(1,0,0)[12] with zero mean</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+<p>Và dưới đây là biểu đồ hiển thị giá trị trung bình (<em>đường màu xanh dương</em>), giá trị dự đoán trong khoảng tin cậy 80% (<em>đường màu xám đậm</em>) và khoảng tin cậy 95% (<em>đường màu xám nhạt</em>).</p>
+<p>Ngoài ra ta cũng tính các chỉ số MAE và RMSE của mô hình như sau:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculating MAE metric:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sum <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(accuracy)){ </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  sum <span class="ot">=</span> <span class="fu">abs</span>(accuracy<span class="sc">$</span>Actual[i]<span class="sc">-</span>training_forecast<span class="sc">$</span>mean[i]) <span class="sc">+</span> sum</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>} </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>MAE <span class="ot">=</span> sum<span class="sc">/</span><span class="fu">nrow</span>(accuracy) </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculating RMSE metric:</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>RMSE<span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((accuracy<span class="sc">$</span>Actual <span class="sc">-</span> training_forecast<span class="sc">$</span>mean)<span class="sc">^</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Use chart for presenting the differents:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(training_forecast,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="fu">str_glue</span>(<span class="st">"Method: Model {training_forecast$method}"</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">"Time"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">"Order Demand"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(actual, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">"red"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">lwd =</span> <span class="st">"2"</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Actual"</span>,<span class="st">"Forecast"</span>),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>,<span class="st">"blue"</span>),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">box.lty =</span> <span class="dv">0</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="dv">1</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Forecasting_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Ta thấy kết quả dự đoán cũng ổn nhưng vẫn chưa bám sát thực tế. Vì vậy tiếp theo chúng ta sẽ làm cho mô hình tốt hơn ở trang sau <a href="./SARIMA.html">Mô hình SARIMA</a></p>
+
+
+<!-- -->
+
+
+</section>
+</section>
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-dung" class="csl-entry" role="listitem">
+Dũng, Nguyễn Chí. n.d. <span>“N-Days Ahead Forecasting Using Automated ARIMA.”</span> <a href="https://rpubs.com/chidungkt/1126172">https://rpubs.com/chidungkt/1126172</a>.
+</div>
+<div id="ref-phamdinhkhanh2019" class="csl-entry" role="listitem">
+phamdinhkhanh. 2019. <span>“Bài 19 - Mô Hình ARIMA Trong Time Series.”</span> <a href="https://phamdinhkhanh.github.io/2019/12/12/ARIMAmodel.html">https://phamdinhkhanh.github.io/2019/12/12/ARIMAmodel.html</a>.
+</div>
+<div id="ref-tavishsrivastava2023" class="csl-entry" role="listitem">
+Tavish Srivastava. 2023. <span>“A Complete Tutorial on Time Series Modeling in r.”</span> <a href="https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/">https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Mô hình ARIMA"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Việt Nam, 2024"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> ["SupplyChainManagement", "Forecasting"]</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> references.bib</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="an">number-sections:</span><span class="co"> true</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="fu"># Thực hành trong Rstudio:</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở <span class="co">[</span><span class="ot">Giới thiệu</span><span class="co">](index.qmd)</span>.</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#Call packages:</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(rio,</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>               here,</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>               janitor,</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>               tidyverse,</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>               dplyr,</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>               magrittr,</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>               lubridate,</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>               stringr</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>               )</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="co">#Import file:</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>product_demand<span class="ot">&lt;-</span><span class="fu">import</span>(<span class="st">"C:</span><span class="sc">\\</span><span class="st">Users</span><span class="sc">\\</span><span class="st">locca</span><span class="sc">\\</span><span class="st">Downloads</span><span class="sc">\\</span><span class="st">Historical Product Demand.csv"</span>)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="co">#Change to suitable class (I change the name dataset to product_demand to shortly write)</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>product_demand <span class="ot">&lt;-</span>product_demand <span class="sc">%&gt;%</span> </span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Date =</span> <span class="fu">as.Date</span>(Date,<span class="at">format =</span> <span class="st">"%Y/%m/%d"</span>),</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>           <span class="at">Product_Category =</span> <span class="fu">as.factor</span>(Product_Category))</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>product_demand<span class="sc">$</span>Order_Demand <span class="ot">&lt;-</span> </span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"[(]"</span>, <span class="st">"-"</span>, product_demand<span class="sc">$</span>Order_Demand)</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>product_demand<span class="sc">$</span>Order_Demand <span class="ot">&lt;-</span> </span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"[)]"</span>, <span class="st">""</span>, product_demand<span class="sc">$</span>Order_Demand)</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>product_demand<span class="sc">$</span>Order_Demand <span class="ot">&lt;-</span> </span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(product_demand<span class="sc">$</span>Order_Demand)</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="co">#Then I will create a lot of cols contain year, month, week data and just select from 2012 to 2016:</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>product_demand <span class="ot">&lt;-</span>product_demand <span class="sc">%&gt;%</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Month =</span> <span class="fu">month</span>(Date),</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>         <span class="at">Year =</span> <span class="fu">year</span>(Date),</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>         <span class="at">Week_day =</span> <span class="fu">wday</span>(Date)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Year <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">2016</span><span class="sc">:</span><span class="dv">2012</span>))</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="co">#So I will calculate the total order demand divided by year and month:</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>month_df<span class="ot">&lt;-</span>product_demand <span class="sc">%&gt;%</span> </span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Year,Month) <span class="sc">%&gt;%</span>   </span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">month_demand =</span> <span class="fu">round</span>(<span class="fu">sum</span>(Order_Demand,</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>                               <span class="at">na.rm =</span> T)<span class="sc">/</span><span class="dv">10</span><span class="sc">^</span><span class="dv">6</span>,<span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">datetime =</span> <span class="fu">as.Date</span>(<span class="fu">str_c</span>(Year,</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>                                    Month,</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"1"</span>,</span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sep =</span> <span class="st">"-"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Year,Month))</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>Sau khi đã chuyển đổi dữ liệu, tiếp theo chúng ta sẽ chia dữ liệu theo tỉ lệ 70:30. Lý do chia ra là vì ở phần cuối, chúng ta sẽ sử dụng phần 30% bộ dữ liệu để đánh giá mô hình được xây dựng trên 70% bộ dữ liệu.</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>Việc chia dữ liệu này cũng khá phổ biến vì ta có thể đánh giá mô hình bằng chính dữ liệu thực tế và không cần tốn thời gian và công sức để theo dõi mô hình trong tương lai nữa.</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a><span class="co">#First we will divde the data into training data and testing data in 70-30:</span></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="co">#Create ts object for month demand variable:</span></span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>training_df<span class="ot">&lt;-</span>month_df[month_df<span class="sc">$</span>datetime <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2015-03-01"</span>),]</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>testing_df <span class="ot">&lt;-</span>month_df[month_df<span class="sc">$</span>datetime <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2015-03-01"</span>),]</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>Nhìn hình dưới đây, các bạn có thể hiểu là nhiệm vụ của mình sẽ là xây dựng mô hình dựa vào dữ liệu đã thu được trước ngày <span class="in">`01-03-2015`</span> và dự đoán giá trị cho khoảng thời gian từ <span class="in">`01-03-2015`</span> đến <span class="in">`01-12-2016`</span>.</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>demand_training<span class="ot">&lt;-</span><span class="fu">ts</span>(training_df<span class="sc">$</span>month_demand,</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>                      <span class="at">frequency =</span> <span class="dv">12</span>,</span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>                      <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2012</span>,<span class="dv">1</span>))</span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>demand_testing<span class="ot">&lt;-</span><span class="fu">ts</span>(testing_df<span class="sc">$</span>month_demand,</span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>                <span class="at">frequency =</span> <span class="dv">12</span>,</span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>                <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2015</span>,<span class="dv">3</span>))</span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="do">## Hiển thị hóa dữ liệu về demand:</span></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dygraphs)</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>lines<span class="ot">&lt;-</span><span class="fu">cbind</span>(demand_training,</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a>             demand_testing)</span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a><span class="fu">dygraph</span>(lines,</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Training and testing data"</span>, </span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Quantity order (Unit: Millions)"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dySeries</span>(<span class="st">"demand_training"</span>, <span class="at">label =</span> <span class="st">"Training data"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dySeries</span>(<span class="st">"demand_testing"</span>, <span class="at">label =</span> <span class="st">"Testing data"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dyOptions</span>(<span class="at">fillGraph =</span> <span class="cn">TRUE</span>, <span class="at">fillAlpha =</span> <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dyRangeSelector</span>(<span class="at">height =</span> <span class="dv">20</span>)</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a><span class="fu">## Phân tích thành phần trong time-series dữ liệu:</span></span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>Về thông tin của dữ liệu, đây là dữ liệu thuộc dạng time-series nghĩa là chuỗi dữ liệu theo thời gian nên nó sẽ có các đặt tính chung như:</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Trend: Tăng, giảm dài hạn hoặc chuyển động đứng yên.</span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Seasonal: Các mô hình có thể dự đoán được ở những khoảng thời gian cố định.</span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Cycle: Biến động không có chu kỳ nhất quán.</span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Noise: Sai số còn sót lại không giải thích được.</span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a>Vậy mục tiêu của việc phân tích time series là để tìm ra thành phần *seasonal* trong vì nó có tính lặp lại và có thể dùng để dự đoán cho tương lai. Ngoài ra, thành phần *trend* cũng cần được quan tâm vì nó thể hiện xu hướng của dữ liệu trong tương lai.</span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>Trong R, ta có thể phân tích dễ dàng với hàm <span class="in">`decompose()`</span> như code dưới đây.</span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>Về công thức tính, hàm <span class="in">`decompose()`</span> dựa vào kĩ thuật Moving Averages để tính trung bình giá trị theo 1 khoảng thời gian (Vd: 3 tháng 6 tháng hoặc 1 năm).</span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a><span class="al">![Hình 3: Additive and multiplicative model](img/decompose.png)</span>{fig-alt="(Nguồn: R documentation)" fig-align="center" width="609"}</span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>Có 2 mô hình gồm *Additive* và *Multiplicative* có thể sử dụng. Ở mặc định, hàm `decompose()` tính theo mô hình *Additive*, còn bạn muốn tính theo mô hình *Multiplicative* thì phải thêm đối số <span class="in">`type = "multiplicative"`</span>.</span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Khi mức độ biến động của seasonal hoặc sự biến đổi xung quanh trend-cycle không thay đổi theo mức độ của chuỗi thời gian, mô hình Additive sẽ phù hợp hơn mô hình Multiplicative."</span></span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TSstudio)</span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a><span class="fu">ts_decompose</span>(demand_training, </span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>             <span class="at">type =</span> <span class="st">"both"</span>)</span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>Nhìn sơ bộ, ta có thể thấy xu hướng tăng (trend) của số lượng đơn đặt hàng. Về phần random thì sẽ có 1 khoảng từ (-10,5) số đơn là tự nhiên xảy ra, nghĩa là giá trị dự đoán có thể lệch từ -10 đến 5 đơn hàng và sai lệch này là do tự nhiên.</span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dự đoán bằng mô hình ARIMA:</span></span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a>Trên thực tế, phần phân tích thành các thành phần của time series chỉ đưa ra dự đoán định tính, không thể dự đoán bằng các dữ liệu trên mà phải cần thông qua mô hình cụ thể. Dưới đây là giới thiệu về mô hình ARIMA.</span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a><span class="fu">### Định nghĩa về ARIMA:</span></span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>Theo <span class="co">[</span><span class="ot">@phamdinhkhanh2019</span><span class="co">]</span>, Mô hình ARIMA "sử dụng đầu vào chính là những tín hiệu quá khứ của chuỗi được dự báo để dự báo nó. Các tín hiệu đó bao gồm: Chuỗi tự hồi qui AR (auto regression) và chuỗi trung bình trượt MA (moving average).</span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a>Hầu hết các chuỗi thời gian sẽ có xu hướng tăng hoặc giảm theo thời gian, do đó yếu tố chuỗi dừng thường không đạt được. Trong trường hợp chuỗi không dừng thì ta sẽ cần biến đổi sang chuỗi dừng bằng sai phân. Khi đó tham số đặc trưng của mô hình sẽ có thêm thành phần bậc của sai phân d và mô hình được đặc tả bởi 3 tham số ARIMA(p, d, q)".</span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a>Mô hình được xây dựng "dựa trên giả thuyết: *Stationary series* (Chuỗi dừng) đòi hỏi *Phương sai sai số không đổi* và Nhiễu trắng (*White noise*), cụ thể trong đó:</span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Stationary series: điều kiện là trung bình của chuỗi là constant (bất biến), phương sai (variance) của chuỗi phải có tính đồng nhất (homoscedasticity) và hiệp phương sai (covariance) giữa giá trị t và t+1 phải không liên quan tới nhau.</span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a>    ::: {.callout-warning appearance="minimal"}</span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>    ## Lưu ý</span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a>    Nếu chuỗi dữ liệu không phải là chuỗi dùng thì bạn sẽ không xây dựng được mô hình chuỗi thời gian (time-series model)</span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>    :::</span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Nhiễu trắng là: một thành phần ngẫu nhiên thể hiện cho yếu tố không thể dự báo của model và không có tính qui luật.</span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="al">![Hình 4: Stationary and non-stationary series](img/stationary.png)</span><span class="ot">{fig-alt="A Complete Tutorial on Time Series Modeling in R" fig-align="center"}</span><span class="co">](https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/)</span></span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a><span class="fu">### Phân tích ARIMA bằng R:</span></span>
+<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Kiểm tra chuỗi dừng:</span></span>
+<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a>Và để thỏa mãn giả định này, cần tính toán các chỉ số trên và đánh giá và điều này khá phức tạp. Trong R, ta có hàm <span class="in">`adf.test()`</span> có thể kiểm tra vấn đề này nhanh hơn.</span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tseries)</span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a><span class="fu">adf.test</span>(demand_training)    <span class="do">## p-value = 0.3779 &gt; 0.05 means this series is not stationary</span></span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a>Như vậy, ta thấy chuỗi dữ liệu này không phải chuỗi dừng vì giá trị p = 0.3779 <span class="sc">\&gt;</span> 0.05 nghĩa là chấp nhận giả thuyết H0: Chuỗi này là chuỗi không dừng.</span>
+<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a>Trong time-series analyst, ta sẽ có cách để xử lí chuỗi thành chuỗi dừng. Đó là tính sự khác nhau (*Difference*) giữa giá trị t và giá trị của nó ở quá khứ t-1,t-2,...</span>
+<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a>Trong R, bạn có thể tính bằng cách:</span>
+<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`diff(series, lag = n)`</span>: tính sự khác nhau giữa các thời điểm t và t-n.</span>
+<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`log(series)`</span>: chuyển time-series sang dạng log.</span>
+<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a>Này tùy thuộc vào công thức toán học bạn muốn định nghĩa, miễn sao bạn có thể xác định được chuỗi dừng là đạt.</span>
+<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, out.width="100%"}</span></span>
+<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a><span class="co">#First we will calculate the different in demand product monthly:</span></span>
+<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a><span class="co">#Check stationary assumption:</span></span>
+<span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a>test<span class="ot">&lt;-</span><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a>         a<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> x)</span>
+<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a>         <span class="fu">adf.test</span>(a)<span class="sc">$</span>p.value}</span>
+<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a>       ) <span class="co">#p&lt;0,05 is accepted</span></span>
+<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a><span class="do">## Second transform it to dataframe object:</span></span>
+<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a>test<span class="ot">&lt;-</span><span class="fu">data.frame</span>(test)</span>
+<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(test)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"Lag 1"</span>,<span class="st">"Lag 2"</span>,<span class="st">"Lag 3"</span>)</span>
+<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="do">## Finally plot the result:</span></span>
+<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtExtras)</span>
+<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(test) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(</span>
+<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"left"</span>,</span>
+<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="st">"Lag 1"</span></span>
+<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_align</span>(</span>
+<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"center"</span>,</span>
+<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="st">"Lag 2"</span></span>
+<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_header</span>(</span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Checking stationary assumption**"</span>),</span>
+<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Time from {min(month_df$datetime)} to 01-03-2015"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_source_note</span>(</span>
+<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Alternative hypothesis: stationary"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_538</span>()</span>
+<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-234"><a href="#cb14-234" aria-hidden="true" tabindex="-1"></a>Kết quả testing cho thấy chỉ có chuỗi 1 và 2 đạt yêu cầu, chuỗi 3 không phải chuỗi dừng vì p-value = 0.107 <span class="sc">\&gt;</span> 0.05.</span>
+<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Tính toán giá trị PACF và ACF:</span></span>
+<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Định nghĩa về PACF và ACF:</span></span>
+<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a>PACF (*Partial Autocorrelation Function*) và ACF (*Autocorrelation Function*) là 2 công thức tính thuộc **Autocorrelation Analyst** - 1 bước quan trọng trong việc phân tích chuỗi dữ liệu thời gian. Mục tiêu của Autocorrelation analyst là tìm ra các mẫu (*pattern*) giữa nhiều chuỗi thời gian và kiểm tra tính ngẫu nhiên.</span>
+<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Thực hành trên R:</span></span>
+<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a>Sau khi đã xác định được chuỗi dừng, bước tiếp theo là xác định các tham số (p, d, q) cho mô hình ARIMA.</span>
+<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a>Trong R có hàm <span class="in">`ggtsdisplay`</span> của package **forecast** sẽ hiển thị cả ACF, PACF và Time series plot của đối tượng mà bạn gán. Còn nếu bạn muốn hiển thị riêng giá trị ACF hoặc PACF thì dùng hàm <span class="in">`Acf`</span> hoặc <span class="in">`Pacf`</span> để tính và dùng hàm <span class="in">`autoplot()`</span> để hiển thị biểu đồ.</span>
+<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-253"><a href="#cb14-253" aria-hidden="true" tabindex="-1"></a><span class="co">#| layout-ncol: 2</span></span>
+<span id="cb14-254"><a href="#cb14-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a><span class="co">#Rename of two time series:</span></span>
+<span id="cb14-256"><a href="#cb14-256" aria-hidden="true" tabindex="-1"></a>ts1<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> <span class="dv">1</span>)</span>
+<span id="cb14-257"><a href="#cb14-257" aria-hidden="true" tabindex="-1"></a>ts2<span class="ot">&lt;-</span><span class="fu">diff</span>(demand_training, <span class="at">lag =</span> <span class="dv">2</span>)</span>
+<span id="cb14-258"><a href="#cb14-258" aria-hidden="true" tabindex="-1"></a><span class="co">#Plot value ACF for 2 series:</span></span>
+<span id="cb14-259"><a href="#cb14-259" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forecast)</span>
+<span id="cb14-260"><a href="#cb14-260" aria-hidden="true" tabindex="-1"></a><span class="fu">ggtsdisplay</span>(ts1,</span>
+<span id="cb14-261"><a href="#cb14-261" aria-hidden="true" tabindex="-1"></a>            <span class="at">main =</span> <span class="st">"Time series lag 1"</span>,</span>
+<span id="cb14-262"><a href="#cb14-262" aria-hidden="true" tabindex="-1"></a>            <span class="at">theme=</span><span class="fu">theme_bw</span>())</span>
+<span id="cb14-263"><a href="#cb14-263" aria-hidden="true" tabindex="-1"></a><span class="fu">ggtsdisplay</span>(ts2,</span>
+<span id="cb14-264"><a href="#cb14-264" aria-hidden="true" tabindex="-1"></a>            <span class="at">main =</span> <span class="st">"Time series lag 2"</span>,</span>
+<span id="cb14-265"><a href="#cb14-265" aria-hidden="true" tabindex="-1"></a>            <span class="at">theme=</span><span class="fu">theme_bw</span>())</span>
+<span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a>Dựa vào tricks từ <span class="co">[</span><span class="ot">@tavishsrivastava2023</span><span class="co">]</span>, ta sẽ dựa vào giá trị PACF để xác định bậc của AR và ACF để xác định bậc của MA.</span>
+<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-270"><a href="#cb14-270" aria-hidden="true" tabindex="-1"></a>Ví dụ ở trên, đối với chuỗi lag 1, giá trị PACF có sự đứt gãy (*cut off*) ở bậc 2 đến bậc 3 nên có thể thuộc AR(3). Còn giá trị ACF thì có thể thuộc MA(2) hoặc rõ ràng hơn là MA(3). Còn lại, đối với chuỗi lag 2, các bạn có thể làm tương tự.</span>
+<span id="cb14-271"><a href="#cb14-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a>Vậy mô hình tự chọn cuối cùng là ARIMA(3,0,2).</span>
+<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Lựa chọn mô hình tốt nhất:</span></span>
+<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a>Thực tế, trong R có hàm <span class="in">`auto.arima`</span>để chúng ta lựa chọn và so sánh nhiều mô hình ARIMA một cách tự động và không nặng về code như dưới đây. Nó sẽ tự liệt kê ra các mô hình phù hợp và chọn ra mô hình tốt nhất.</span>
+<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a>Ngoài ra, nếu bạn muốn tìm hiểu sâu về cách xây dựng mô hình ARIMA, bạn có thể tham khảo thêm bài blog <span class="co">[</span><span class="ot">@dung</span><span class="co">]</span>. Anh Chí Dũng có khá nhiều bài viết hay về cách sử dụng R trong nghiên cứu và phân tích kinh tế, bạn có thể tham khảo trang blog của ảnh thông qua đường link <span class="co">[</span><span class="ot">chidungkt</span><span class="co">](https://rpubs.com/chidungkt/)</span>.</span>
+<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-283"><a href="#cb14-283" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a><span class="co">#Select the best model:</span></span>
+<span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a>model<span class="ot">&lt;-</span><span class="fu">auto.arima</span>(ts1,<span class="at">trace =</span> T)</span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a><span class="fu">#### So sánh giá trị dự đoán từ training data với testing data:</span></span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a>Sau khi đã xây dựng mô hình, ta sẽ dùng nó để dự đoán và so sánh với dữ liệu thực tế từ bộ dữ liệu testing data.</span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a><span class="co">#Forecast by training model:</span></span>
+<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a>training_forecast<span class="ot">&lt;-</span><span class="fu">forecast</span>(model,<span class="at">h =</span> <span class="dv">21</span>)</span>
+<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a>Bảng trình bày các giá trị dự đoán theo từng tháng. Ta thấy chỉ có 4/21 thời điểm mà giá trị thực tế vượt ra giá trị dự đoán trong khoảng tin cậy 80%. Còn đối với giá trị dự đoán trong khoảng tin cậy 95% thì đều đạt yêu cầu.</span>
+<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-306"><a href="#cb14-306" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-309"><a href="#cb14-309" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate RMSE:</span></span>
+<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a>actual<span class="ot">&lt;-</span> <span class="fu">diff</span>(demand_testing,<span class="dv">1</span>)</span>
+<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a>accuracy<span class="ot">&lt;-</span><span class="fu">data_frame</span>(<span class="at">Period =</span> <span class="fu">paste</span>(<span class="fu">month</span>(testing_df<span class="sc">$</span>datetime),</span>
+<span id="cb14-313"><a href="#cb14-313" aria-hidden="true" tabindex="-1"></a>                                    <span class="fu">year</span>(testing_df<span class="sc">$</span>datetime),</span>
+<span id="cb14-314"><a href="#cb14-314" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sep =</span> <span class="st">"/"</span>)[<span class="sc">-</span><span class="dv">1</span>],</span>
+<span id="cb14-315"><a href="#cb14-315" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Actual =</span> actual <span class="sc">%&gt;%</span> <span class="fu">as.vector</span>(), </span>
+<span id="cb14-316"><a href="#cb14-316" aria-hidden="true" tabindex="-1"></a>                     <span class="at">High.80 =</span> training_forecast<span class="sc">$</span>upper[,<span class="dv">1</span>],</span>
+<span id="cb14-317"><a href="#cb14-317" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Low.80 =</span> training_forecast<span class="sc">$</span>lower[,<span class="dv">1</span>],</span>
+<span id="cb14-318"><a href="#cb14-318" aria-hidden="true" tabindex="-1"></a>                     <span class="at">High.95 =</span> training_forecast<span class="sc">$</span>upper[,<span class="dv">2</span>],</span>
+<span id="cb14-319"><a href="#cb14-319" aria-hidden="true" tabindex="-1"></a>                     <span class="at">Low.95 =</span> training_forecast<span class="sc">$</span>lower[,<span class="dv">2</span>]) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-320"><a href="#cb14-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Check.80 =</span> <span class="fu">ifelse</span>(Actual <span class="sc">&lt;=</span> High<span class="fl">.80</span> <span class="sc">&amp;</span> Actual <span class="sc">&gt;=</span> Low<span class="fl">.80</span>,<span class="st">"Pass"</span>,<span class="st">"Fail"</span>),</span>
+<span id="cb14-321"><a href="#cb14-321" aria-hidden="true" tabindex="-1"></a>         <span class="at">Check.95 =</span> <span class="fu">ifelse</span>(Actual <span class="sc">&lt;=</span> High<span class="fl">.95</span> <span class="sc">&amp;</span> Actual <span class="sc">&gt;=</span> Low<span class="fl">.95</span>,<span class="st">"Pass"</span>,<span class="st">"Fail"</span>))</span>
+<span id="cb14-322"><a href="#cb14-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-323"><a href="#cb14-323" aria-hidden="true" tabindex="-1"></a><span class="do">## Finally plot the result</span></span>
+<span id="cb14-324"><a href="#cb14-324" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(accuracy) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-325"><a href="#cb14-325" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_header</span>(</span>
+<span id="cb14-326"><a href="#cb14-326" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">md</span>(<span class="st">"**Comparing the accuracy of forecasting**"</span>),</span>
+<span id="cb14-327"><a href="#cb14-327" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-328"><a href="#cb14-328" aria-hidden="true" tabindex="-1"></a>   <span class="fu">tab_source_note</span>(</span>
+<span id="cb14-329"><a href="#cb14-329" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">str_glue</span>(<span class="st">"Method: Model {training_forecast$method}"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-330"><a href="#cb14-330" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_538</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb14-331"><a href="#cb14-331" aria-hidden="true" tabindex="-1"></a>   <span class="fu">data_color</span>(</span>
+<span id="cb14-332"><a href="#cb14-332" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Check<span class="fl">.80</span>,</span>
+<span id="cb14-333"><a href="#cb14-333" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"factor"</span>,</span>
+<span id="cb14-334"><a href="#cb14-334" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"red"</span>,<span class="st">"darkgreen"</span>)</span>
+<span id="cb14-335"><a href="#cb14-335" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="fu">data_color</span>(</span>
+<span id="cb14-336"><a href="#cb14-336" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Check<span class="fl">.95</span>,</span>
+<span id="cb14-337"><a href="#cb14-337" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"factor"</span>,</span>
+<span id="cb14-338"><a href="#cb14-338" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"darkgreen"</span>,<span class="st">"red"</span>)</span>
+<span id="cb14-339"><a href="#cb14-339" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb14-340"><a href="#cb14-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-341"><a href="#cb14-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-342"><a href="#cb14-342" aria-hidden="true" tabindex="-1"></a>Và dưới đây là biểu đồ hiển thị giá trị trung bình (*đường màu xanh dương*), giá trị dự đoán trong khoảng tin cậy 80% (*đường màu xám đậm*) và khoảng tin cậy 95% (*đường màu xám nhạt*).</span>
+<span id="cb14-343"><a href="#cb14-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-344"><a href="#cb14-344" aria-hidden="true" tabindex="-1"></a>Ngoài ra ta cũng tính các chỉ số MAE và RMSE của mô hình như sau:</span>
+<span id="cb14-345"><a href="#cb14-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-348"><a href="#cb14-348" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-349"><a href="#cb14-349" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculating MAE metric:</span></span>
+<span id="cb14-350"><a href="#cb14-350" aria-hidden="true" tabindex="-1"></a>sum <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb14-351"><a href="#cb14-351" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(accuracy)){ </span>
+<span id="cb14-352"><a href="#cb14-352" aria-hidden="true" tabindex="-1"></a>  sum <span class="ot">=</span> <span class="fu">abs</span>(accuracy<span class="sc">$</span>Actual[i]<span class="sc">-</span>training_forecast<span class="sc">$</span>mean[i]) <span class="sc">+</span> sum</span>
+<span id="cb14-353"><a href="#cb14-353" aria-hidden="true" tabindex="-1"></a>} </span>
+<span id="cb14-354"><a href="#cb14-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-355"><a href="#cb14-355" aria-hidden="true" tabindex="-1"></a>MAE <span class="ot">=</span> sum<span class="sc">/</span><span class="fu">nrow</span>(accuracy) </span>
+<span id="cb14-356"><a href="#cb14-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-357"><a href="#cb14-357" aria-hidden="true" tabindex="-1"></a><span class="do">## Calculating RMSE metric:</span></span>
+<span id="cb14-358"><a href="#cb14-358" aria-hidden="true" tabindex="-1"></a>RMSE<span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((accuracy<span class="sc">$</span>Actual <span class="sc">-</span> training_forecast<span class="sc">$</span>mean)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb14-359"><a href="#cb14-359" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-360"><a href="#cb14-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-363"><a href="#cb14-363" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-364"><a href="#cb14-364" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb14-365"><a href="#cb14-365" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb14-366"><a href="#cb14-366" aria-hidden="true" tabindex="-1"></a><span class="co">#Use chart for presenting the differents:</span></span>
+<span id="cb14-367"><a href="#cb14-367" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(training_forecast,</span>
+<span id="cb14-368"><a href="#cb14-368" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="fu">str_glue</span>(<span class="st">"Method: Model {training_forecast$method}"</span>),</span>
+<span id="cb14-369"><a href="#cb14-369" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">"Time"</span>,</span>
+<span id="cb14-370"><a href="#cb14-370" aria-hidden="true" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">"Order Demand"</span>)</span>
+<span id="cb14-371"><a href="#cb14-371" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(actual, </span>
+<span id="cb14-372"><a href="#cb14-372" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">"red"</span>,</span>
+<span id="cb14-373"><a href="#cb14-373" aria-hidden="true" tabindex="-1"></a>      <span class="at">lwd =</span> <span class="st">"2"</span>)</span>
+<span id="cb14-374"><a href="#cb14-374" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>,</span>
+<span id="cb14-375"><a href="#cb14-375" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Actual"</span>,<span class="st">"Forecast"</span>),</span>
+<span id="cb14-376"><a href="#cb14-376" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>,<span class="st">"blue"</span>),</span>
+<span id="cb14-377"><a href="#cb14-377" aria-hidden="true" tabindex="-1"></a>       <span class="at">box.lty =</span> <span class="dv">0</span>,</span>
+<span id="cb14-378"><a href="#cb14-378" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="dv">1</span>,</span>
+<span id="cb14-379"><a href="#cb14-379" aria-hidden="true" tabindex="-1"></a>       <span class="at">cex =</span> <span class="dv">1</span>,</span>
+<span id="cb14-380"><a href="#cb14-380" aria-hidden="true" tabindex="-1"></a>       <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb14-381"><a href="#cb14-381" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-382"><a href="#cb14-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-383"><a href="#cb14-383" aria-hidden="true" tabindex="-1"></a>Ta thấy kết quả dự đoán cũng ổn nhưng vẫn chưa bám sát thực tế. Vì vậy tiếp theo chúng ta sẽ làm cho mô hình tốt hơn ở trang sau <span class="co">[</span><span class="ot">Mô hình SARIMA</span><span class="co">](SARIMA.qmd)</span></span>
+<span id="cb14-384"><a href="#cb14-384" aria-hidden="true" tabindex="-1"></a></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">© Copyright 2023, Loc cao</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">Built with <a href="https://quarto.org/">Quarto</a></div>
+  </div>
+</footer>
+
+
+
+</body></html>

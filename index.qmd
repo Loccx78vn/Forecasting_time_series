@@ -6,6 +6,7 @@ description: "Đây là bài viết của tôi về cách sử dụng R trong vi
 author: "Cao Xuân Lộc"
 date: "2024-08-21"
 bibliography: references.bib
+number-sections: true
 ---
 
 # Giới thiệu:
@@ -57,21 +58,6 @@ Nếu các bạn chưa có các packages này, bạn có thể tải xuống t�
 :::
 
 ```{r}
-library(downloadthis)
-product_demand %>%
-  download_this(
-    output_name = "product_demand",
-    output_extension = ".csv",
-    button_label = "Download data",
-    button_type = "warning",
-    has_icon = TRUE,
-    icon = "fa fa-save"
-  )
-```
-
-Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
-
-```{r}
 #| echo: false
 #Import file:
 product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
@@ -115,9 +101,24 @@ month_df<-product_demand %>%
   select(-c(Year,Month))
 ```
 
+Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
+
+```{r}
+library(downloadthis)
+product_demand %>%
+  download_this(
+    output_name = "product_demand",
+    output_extension = ".csv",
+    button_label = "Download data",
+    button_type = "warning",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+```
+
 # Phân tích cơ bản:
 
-Bộ dữ liệu gồm có 2160 sản phẩm khác nhau và 4 kho hàng.
+Bộ dữ liệu gồm có **2160 sản phẩm khác nhau** và **4 kho hàng** khác nhau.
 
 ```{r}
 #Some informations of this dataset:
@@ -136,6 +137,8 @@ Vậy nếu bạn là Supply Chain Manager của công ty này, bạn cần lậ
 Đầu tiên, chúng ta sẽ muốn biết về xu hướng tiêu dùng trong 5 năm từ 2012 đến 2016 ở tất cả các kho và từng kho riêng lẻ. Sau đó chúng ta kết hợp hai đồ thị trong 1 đồ thị theo hàm `cowplot::plot_grid`
 
 ```{r}
+#| warning: false
+#| messages: false
 #Plot the demand of each month:
 #Prepare data by creating new ggplot object:
 product_demand <-product_demand %>%
@@ -187,6 +190,8 @@ cowplot::plot_grid(p1, p2,
 Nếu bạn là quản lí ở cửa hàng, bạn có thể quan tâm ngày nào trong tuần là ngày mà người tiêu dùng đi mua sắm nhiều nhất. Dựa vào thông tin đó để bạn có thể lên plan và sắp xếp nhân lực cho tối ưu nhất.
 
 ```{r}
+#| warning: false
+#| messages: false
 #We will calculate the total demand in the week and compare between weekday in the week:
 #First, counting total demand:
 product_demand$Month_Year = as.Date(str_c(product_demand$Year,product_demand$Month,"1",sep = "-"))

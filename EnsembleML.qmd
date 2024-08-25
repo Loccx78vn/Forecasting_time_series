@@ -3,6 +3,11 @@ title: "Machine Learning"
 subtitle: "Việt Nam, 2024"
 categories: ["Machine Learning", "Forecasting"]
 bibliography: references.bib
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+number-sections: true
 ---
 
 ## Dự đoán bằng Machine Learning:
@@ -28,11 +33,11 @@ Thuật toán Ensemble ML chia thành 3 loại:
 
 Bạn có thể tưởng tượng như hình dưới đây:
 
-![Bagging vs Boosting method.](img/Bagging_Boosting.png){fig-align="center"}
+![Hình 6: Bagging vs Boosting method.](img/Bagging_Boosting.png){fig-align="center"}
 
 -   Stacking xây dựng các mô hình khác loại từ training data và một mô hình supervisor model. Sau đó, mô hình này sẽ kết hợp các kết quả dự báo để tìm ra mô hình tốt nhất.
 
-![Staking method.](img/Staking.png){fig-align="center"}
+![Hình 7: Staking method.](img/Staking.png){fig-align="center"}
 
 Vậy tiếp theo, chúng ta sẽ thử dùng Ensemble ML trong R để dự đoán.
 
@@ -81,82 +86,355 @@ product_demand <-product_demand %>%
          Year = year(Date),
          Week_day = wday(Date)) %>% 
   filter(Year %in% c(2016:2012))
+```
 
+Trong phần này, đối với Machine Learning, ta nên chia bộ dữ liệu thành 3 bộ: training, testing và forecasting dataset. Ngoài ra, ML cần dữ liệu lớn nên ta sẽ tính theo tuần chứ không theo tháng như các phần trước.
+
+```{r}
+#| warning: false
+#| message: false
 
 #Sum by daily and remove negative value:
-daily_df<-product_demand %>% 
-  group_by(Date) %>%   
-  summarise(daily_demand = round(sum(Order_Demand,na.rm = T),3)) %>% 
-  ungroup() %>% 
-    mutate(daily_demand = ifelse(daily_demand < 0, 0, daily_demand))
+weekly_df<-product_demand %>% 
+  select(c(Warehouse,
+           Date,
+           Order_Demand)) %>%
+  mutate(order_date = floor_date(Date, 
+                                 unit = 'week', 
+                     # setting up week commencing Monday
+                     week_start = getOption("lubridate.week.start", 
+                                            1))) %>%
+  group_by(order_date) %>%
+  summarise(Order_Demand = sum(Order_Demand)) %>%
+  ungroup()
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+## Dividing the period of date:
+library(xts)
+n<-quantile(product_demand$Date, 
+            probs = c(0.001, 0.5, 0.7, 0.99), 
+            type = 1)
+m1<-weekly_df %>% 
+  filter(order_date <= n[[2]])
+m2<-weekly_df %>% 
+  filter(order_date <= n[[3]]&order_date > n[[2]])
+m3<-weekly_df %>% 
+  filter(order_date <= n[[4]]&order_date > n[[3]])
+
+## Transfering to xts class:
+demand_training<-xts(x=m1$Order_Demand,
+                     order.by=m1$order_date)
+demand_testing<-xts(x=m2$Order_Demand,
+                     order.by=m2$order_date)
+demand_forecasting<-xts(x=m3$Order_Demand,
+                     order.by=m3$order_date)
+
+## Plot the result:
+library(dygraphs)
+lines<-cbind(demand_training,
+             demand_testing,
+             demand_forecasting)
+dygraph(lines,
+        main = "Training and testing data", 
+        ylab = "Quantity order (Unit: Millions)") %>% 
+  dySeries("demand_training", label = "Training data") %>%
+  dySeries("demand_testing", label = "Testing data") %>%
+  dySeries("demand_forecasting", label = "Forecasting data") %>%
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyRangeSelector(height = 20)
 ```
 
 Giống ý tưởng của ARIMA, Ensemble ML cũng phân tích mối tương quan giữa giá trị tại thời điểm t với thời điểm t-1, t-2,... Và vì ta đã có dữ liệu tại thời điểm t nên ta cần tính giá trị tại các thời điểm t-1, t-2 bằng hàm `lag`.
 
+Trong R, có hàm `ts_lags` để kiếm tra mức độ tương quan giữa biến hiện tại và các biến trong quá khứ. Mặc định, hàm sẽ tính cho ta trong 12 lags nhưng ta có thể chỉ định bằng đối số: `lags = c()`
+
 ```{r}
 #| warning: false
 #| message: false
-df<-data.frame(datetime = daily_df$Date,
-                lag0 = daily_df$daily_demand,
-                lag1 = lag(daily_df$daily_demand,1),
-                lag2 = lag(daily_df$daily_demand,2),
-                lag3 = lag(daily_df$daily_demand,3))
-library(gt)
-library(gtExtras)
-gt(df[1:10,]) %>% 
-  cols_align(
-    align = "center",
-    columns = "datetime"
-  ) %>% 
-  cols_align(
-    align = "right",
-    columns = "lag3"
-  ) %>%
-   tab_header(
-    title = md("**Table of lag 1,2,3 series**"),
-    subtitle = glue::glue("Time from {min(df$datetime)} to {min(df$datetime)+10}")) %>%
-   tab_source_note(
-    source_note = "Created by function lag() in Rstudio") %>% 
-  gt_theme_538()
+library(TSstudio)
+ts_lags(demand_training, lags = c(13, 26, 39, 52))
 ```
 
-### Xử lí missing value:
+Dựa vào biểu đồ trên này, ta thấy được mối quan hệ tuyến tính theo hướng tích cực giữa dữ liệu chuỗi và giá trị của nó ở lag 52 (nghĩa là 1 năm sau) và hướng tiêu cực với giá trị của nó ở lag 13.
+
+Do đó, chúng ta sẽ tạo lại bộ dữ liệu có các biến mới.
+
+```{r}
+#| warning: false
+#| message: false
+model_data <- 
+  weekly_df %>% 
+  mutate(trend       = 1:nrow(weekly_df),
+         trend_sqr   = trend^2,
+         rev_lag_13  = lag(Order_Demand, n = 13),
+         rev_lag_52  = lag(Order_Demand, n = 52),
+         season      = case_when(Order_Demand == 0 ~ 0,
+                                 TRUE ~ 1)
+        ) %>% 
+ filter(!is.na(rev_lag_52)&!is.na(rev_lag_13)) %>% 
+  mutate(class = ifelse(order_date <= n[[2]],
+                        "train",
+                        ifelse(order_date > n[[2]]& order_date <= n[[3]],
+                               "test","forecast")))
+```
+
+### Xử lí missing value và outliers:
+
+#### Missing value:
 
 Gía trị NA xuất hiện là do ta đang lấy dữ liệu từ quá khứ thời điểm cách 1 tháng, 2 tháng và 3 tháng. Vì Machine Learning bắt buộc phải có đầy đủ giá trị nên ta có thể sử dụng cách khác để tạo ra giá trị thay thế cho NA. Mình kham khảo được cách này từ [@sauravkaushik8kaushik2019].
 
+#### Outliers:
+
+Ngoài ra, vấn đề về *outliers* cũng cần được quan tâm. *Outlier* là các giá trị có vẻ "lệch" hoặc không bình thường so với toàn bộ dữ liệu. Nguyên nhân xuất hiện outlier có thể do các biến cố không lường trước hoặc đơn giản là sai sót trong việc đo lường, tính toán của người thu thập dữ liệu.
+
+Vì mục đích của chúng ta là xây dựng mô hình nên các outliers không giúp ích nhiều. Do đó chúng ta cần loại bỏ nó trước khi mô hình hóa.
+
 ```{r}
 #| warning: false
 #| message: false
-library(mice)
-#Gán giá trị imputed vào object flights còn missing data:
-df[is.na(df)] <- mean(daily_df$daily_demand)
-
-#First we will divde the data into training data and testing data in 70-30:
-#Create ts object for month demand variable:
-training_df<-df[df$datetime <= as.Date("2015-03-01"),]
-testing_df <-df[df$datetime >= as.Date("2015-03-01"),]
+#| fig-cap: "Biểu đồ phân bố của 3 bộ dữ liệu"
+#| fig-subcap: "Các điểm đen lạc lỏng ở ngoài vùng boxplot chính là outliers"
+library(viridis)
+ggplot(model_data,
+       aes(x=Order_Demand,
+           y = as.factor(class),
+           fill = as.factor(class))) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_jitter(color="black", 
+                size=0.4, 
+                alpha=0.9) +
+    theme_minimal() +
+    theme(
+      legend.position="none",
+      plot.title = element_text(size=11,
+                                hjust=1, 
+                                vjust=0.5, 
+                                face='bold')
+    ) +
+    ggtitle("A boxplot with jitter") +
+    xlab("")+
+    ylab("Dataset")
 ```
 
+Cách xử lí outliers khá đơn giản. Ở đây mình sử dụng phương pháp IQR hay còn gọi là tứ phân vị. Sau khi xử lí, bạn có thể chạy lại code trên để kiểm tra xem outliers đã được loại bỏ hay chưa.
+
+[![Hình 8: IQR method.](img/IQR.png){fig-align="center"}](https://svcuong.github.io/post/remove-outliers/)
+
 ```{r}
-#| warning: false
-#| message: false
-library(caret)
-## Sau đó chúng ta chuẩn hóa giá trị của các thuộc tính (data normalization) về khoảng [0,1]:
-process_train <- predict(preProcess(training_df, 
-                            method = c("range")), 
-                         training_df) 
-process_test <- predict(preProcess(testing_df, 
-                            method = c("range")), 
-                        testing_df) 
+# Tính IQR
+q25 <- quantile(model_data$Order_Demand, 0.25)
+q75 <- quantile(model_data$Order_Demand, 0.75)
+iqr <- q75 - q25
+
+# thiết lập giới hạn để xác định outliers
+limit_iqr = 1.5*iqr
+lower_iqr = q25 - limit_iqr
+upper_iqr = q75 + limit_iqr
+
+# Loại bỏ các outliers
+model_data <- model_data[-which(model_data$Order_Demand > upper_iqr | model_data$Order_Demand < lower_iqr),]
+
+## Tạo các bộ dữ liệu training,testing và forecasting:
+train_data <- 
+  model_data %>% 
+  filter(class == "train")
+
+test_data <- 
+  model_data %>% 
+  filter(class == "test")
+
+forecast_data <- 
+  model_data %>% 
+  filter(class == "forecast")
 ```
 
 ### Dự đoán:
 
-#### Mô hình Boosting:
+#### Mô hình Random Forest:
 
-Đầu tiên, chúng ta sẽ thử với hai thuật toán boosting khá phổ biến là: *Stochastic Gradient Boosting*.
+Đầu tiên chúng ta sẽ làm việc với thuật toán boosting khá phổ biến là: *Random Forest*.
+
+Random Forest là một phương pháp học máy thuộc loại ensemble learning, được sử dụng chủ yếu cho các bài toán phân loại và hồi quy. Đây là một kỹ thuật mạnh mẽ và phổ biến, được phát triển bởi Leo Breiman vào năm 2001.
+
+Về ưu Điểm - Khả Năng Tổng Quát Cao: Random Forest thường có khả năng tổng quát tốt hơn so với các mô hình cây quyết định đơn lẻ, do giảm thiểu overfitting (quá khớp) nhờ vào sự kết hợp của nhiều cây. - Khả Năng Xử Lý Dữ Liệu Lớn và Nhiều Đặc Trưng: Random Forest có thể xử lý hiệu quả dữ liệu với số lượng lớn các đặc trưng và quan sát. - Khả Năng Đánh Giá Tầm Quan Trọng Của Các Đặc Trưng: Random Forest cung cấp thông tin về tầm quan trọng của từng đặc trưng trong việc đưa ra dự đoán, giúp ích trong việc chọn lọc và phân tích đặc trưng.
+
+Về nhược Điểm - Khó Giải Thích: Mặc dù Random Forest có hiệu suất tốt, nhưng các mô hình cây quyết định kết hợp lại có thể khó giải thích và không trực quan bằng các mô hình đơn giản hơn. - Tốn Tài Nguyên Tính Toán: Đặc biệt khi số lượng cây lớn, Random Forest có thể yêu cầu nhiều tài nguyên tính toán và bộ nhớ.
 
 ```{r}
+#| warning: false
+#| message: false
+#| include: false
+library(h2o)
+## specify the size of the memory allocation pool cluster. 
+h2o.init(max_mem_size = "8G")
+
+## Set dependent and independent variabls:
+y = "Order_Demand"
+x <- setdiff(names(train_data) %>% as.h2o(), 
+             c(y, "order_date","class"))
+
+## Build model:
+rft_model <- 
+  h2o.randomForest(
+    x = x, 
+    y = y, 
+    training_frame = train_data %>% as.h2o(),
+    nfolds = 10,
+    ntrees = 500,
+    stopping_metric = "RMSE",
+    stopping_rounds = 10,
+    stopping_tolerance = 0.005,
+    seed = 1975
+  )
+```
+
+Phân tích thêm về mức độ quan trọng của các biến trong mô hình. Ta thấy biến `lag_50` đóng vai trò quan trọng nhất, đúng như dự đoán của ta khi phân tích ở trên về mối tương quan.
+
+```{r}
+## visualise the variable importance 
+rft_model %>% 
+  h2o.varimp_plot()
+```
+
+```{r}
+#| warning: false
+#| message: false
+pred<- h2o.predict(rft_model, 
+                   newdata = as.h2o(train_data)) %>% 
+      as_tibble() %>% 
+  mutate(actual = train_data$Order_Demand,
+         date = train_data$order_date)
+
+library(plotly)
+pred %>% 
+  plot_ly() %>% 
+    add_lines(x = ~ date, y = ~ actual, name = 'Actual') %>% 
+    add_lines(x = ~ date, y = ~ predict, name = 'Random Forest', 
+              line = list(dash = 'dot'))
+
+```
+
+Khi dùng dữ liệu của bộ Training data, ML dự đoán lại gần như sát với dữ liệu thực tế. Nhưng khi có dữ liệu mới vào Machine Learning không dự đoán tốt được. Ví dụ như dưới đây.
+
+```{r}
+#| warning: false
+#| message: false
+#| include: false
+## Create table:
+
+plot_f<-function(model){
+pred<-rbind(h2o.predict(model, 
+                   newdata = as.h2o(test_data)) %>% 
+      as_tibble(),
+      h2o.predict(model, 
+                   newdata = as.h2o(forecast_data)) %>% 
+      as_tibble()) %>% 
+  mutate(actual = c(test_data$Order_Demand,
+                    forecast_data$Order_Demand),
+         date = c(test_data$order_date,
+                  forecast_data$order_date),
+         class = c(rep("Testing",nrow(test_data)),
+                   rep("Forecasting",nrow(forecast_data))))
+
+## Dividing the data for plotting purpose:
+pred1 <- pred[which(pred$class == "Testing"),]
+pred2 <- pred[which(pred$class == "Forecasting"),]
+
+plot_ly(mode = 'lines') %>% 
+  add_trace(x = ~ pred1$date, 
+            y = ~ pred1$actual, 
+            name = 'Actual value of Testing',
+            line = list(width = 3)) %>% 
+  add_trace(x = ~ pred1$date, 
+            y = ~ pred1$predict, 
+            name = 'Predicted value of Testing', 
+            line = list(dash = 'dot',
+                        width = 4)) %>% 
+  add_trace(x = ~ pred2$date, 
+            y = ~ pred2$actual, 
+            name = 'Actual of Forecasting',
+            line = list(width = 3)) %>% 
+  add_trace(x = ~ pred2$date, 
+            y = ~ pred2$predict, 
+            name = 'Predicted of Forecasting', 
+            line = list(dash = 'dot',
+                        width = 4)) %>% 
+   layout(title = "Evaluating the model's forecasting result",
+           yaxis = list(title = 'Order Demand'),
+           xaxis = list(title = 'Time')
+           )
+}
+```
+```{r}
+plot_f(rft_model)
+```
+
+#### Mô hình GLM:
+
+Chúng ta thử thêm 1 số mô hình khác của ML. Ở dưới đây là mô hình **Geleralised linear model** sử dụng phương pháp OSL để tính toán.
+
+```{r}
+#| warning: false
+#| message: false
+#| include: false
+# geleralised linear model:
+glm_model <- 
+  h2o.glm(
+    x = x, 
+    y = y, 
+    training_frame = as.h2o(train_data),
+    nfolds = 10,
+    family = "gaussian",
+    seed = 1975
+  )
+```
+
+```{r}
+plot_f(glm_model)
+```
+
+#### Mô hình Auto ML:
+
+Trong gói package **{h2o}** của R có mô hình "Auto Machine Learning" (AutoML) có thể tự động hóa quy trình đào tạo mô hình học máy được giám sát (supervised ML). AutoML tìm thấy mô hình tốt nhất, đưa ra khung đào tạo và phản hồi, đồng thời trả về đối tượng H2OAutoML, chứa bảng xếp hạng gồm tất cả các mô hình đã được đào tạo trong quy trình, được xếp hạng theo chỉ số hiệu suất mô hình mặc định.
+
+```{r}
+#| warning: false
+#| message: false
+#| include: false
+automl_model <-
+  h2o.automl(
+    x = x,
+    y = y,
+    training_frame     = as.h2o(train_data),
+    nfolds             = 5,
+    stopping_metric    = "RMSE",
+    stopping_rounds    = 10,
+    stopping_tolerance = 0.005,
+    max_runtime_secs   = 60,
+    seed               = 1975
+ )
+```
+```{r}
+plot_f(automl_model)
+```
+
+#### Mô hình Boosting:
+
+Tiếp đó, chúng ta sẽ thử với thuật toán boosting khá phổ biến là: *Stochastic Gradient Boosting*.
+
+Stochastic Gradient Boosting: Là một biến thể của gradient boosting, kết hợp các yếu tố ngẫu nhiên trong quá trình huấn luyện để cải thiện tính chính xác và khả năng tổng quát của mô hình. Thay vì sử dụng toàn bộ dữ liệu huấn luyện để xây dựng mỗi mô hình trong chuỗi, Stochastic Gradient Boosting chỉ sử dụng một mẫu ngẫu nhiên (subsample) của dữ liệu. Mỗi mô hình mới được huấn luyện để sửa chữa các sai số của các mô hình trước đó.
+
+Mục tiêu là giảm thiểu hàm mất mát (loss function) bằng cách sử dụng gradient descent.
+
+```{r}
+#| warning: false
+#| message: false
 library(caret)
 # Tạo một đối tượng control cho cross-validation
 fitControl <- trainControl(method="repeatedcv", 
@@ -169,9 +447,9 @@ fitControl <- trainControl(method="repeatedcv",
 
 # Stochastic Gradient Boosting
 set.seed(825)
-gbmFit1 <- train(lag0~., 
-                 data = process_train %>% 
-                   select(-datetime), 
+gbmFit1 <- train(Order_Demand~., 
+                 data = train_data %>% 
+                   select(-c(order_date,class)), 
                  method = "gbm",
                  trControl = fitControl,
                  ## This last option is actually one
@@ -181,19 +459,19 @@ gbmFit1 <- train(lag0~.,
 
 Sau khi đã training model, ta sẽ dùng mô hình đó để dự đoán và so sánh với giá trị thực tế ở testing data. Ta sẽ có kết quả như dưới đây:
 
-Kết quả có vẻ khá tệ vì tỉ lệ chênh lệch có điểm lên đến 75%
+Kết quả có vẻ ổn hơn Random Forest nhưng vẫn có 2 outliears vì độ chênh lệch lên đến 100-200%.
 
 ```{r}
 #| warning: false
 #| message: false
 #| layout: [[30,70]]
 predict<-data.frame(
-  Period = testing_df$datetime,
+  Period = test_data$order_date,
   Predicted = predict(gbmFit1, 
-                      newdata = process_test %>% 
-                        select(-datetime)),
-  Observed = process_test$lag0) %>% 
-  mutate(Diff = round(Observed - Predicted,3)*100,
+                      newdata = test_data %>% 
+                        select(-c(order_date,class))),
+  Observed = test_data$Order_Demand) %>% 
+  mutate(Diff = round((Observed - Predicted)/Observed*100,2),
          Check = ifelse(Diff <= 5 & Diff >= -5, "Passed","Failed"))
 
 library(gt)
@@ -207,15 +485,13 @@ gt(predict %>%
     Per = md("**Percentage**")) %>%
   tab_header(
     title = md("**Evaluating the model's accuracy**"),
-    subtitle = glue::glue("Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}")) %>%
+    subtitle = glue::glue("Forecasting from {min(test_data$order_date)} to {max(test_data$order_date)}")) %>%
    tab_source_note(
     source_note = str_glue("Smaller 5% means passed")) %>% 
   gt_theme_538() %>% 
-  gt_highlight_cols(Check,
-                    fill = "blue",
-                    alpha = 0.7)
-  
-  
+  data_color(columns = c("Check"),
+             method = "factor",
+             palette = c("red","blue"))
 
 ggplot(data = predict,
        aes(x = Period, 
@@ -234,98 +510,11 @@ ggplot(data = predict,
        caption = "The red line is abline Y = 0 means accuracry prediction and the blue line is the linear lines between observed and predicted value.")
 ```
 
-Trong mô hình này, mình nên quan tâm tới 3 tham số:
-
--   number of iterations, i.e. trees, (called n.trees in the gbm function).
--   complexity of the tree, called interaction.depth learning rate: how quickly the algorithm adapts, called shrinkage.
--   the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
-
-https://rpubs.com/DiegoUsai/565288
-
-https://rpubs.com/taliathaib/time_series_weather_forecasting
-
-#### Thuật toán Bagging
-
-Chúng ta cùng test hai thuật toán thuộc kỹ thuật Bagging là: *Bagged CART* và *Random Forest*
-
-```{r}
-fitControl <- trainControl(
-  method = "cv",
-  number = 5,
-savePredictions = 'final',
-classProbs = T)
-
-model_rf<-train(lag0~., 
-                data = process_df,
-                method='rf',
-                trControl=fitControl,
-                tuneLength=3)
-
-#Predicting using random forest model
-testSet$pred_rf<-predict(object = model_rf,
-                         testSet %>% select(-lag0))
-```
-
-```{r}
-matplot(1:12, 
-        cbind(testSet$lag0, testSet$pred_rf), 
-        type = "l", 
-        lty = 1, 
-        col = c("red", "blue"), 
-        xlab = "Time", 
-        ylab = "Order Demand", 
-        main = "Multiple Lines Plot")
-legend("topright", 
-       legend = c("Actual", 
-                  "Predicted"), 
-       col = c("red", "blue"), 
-       lty = 1)
-```
-
-```{r}
-control <- trainControl(method="repeatedcv", 
-                        number=10, 
-                        repeats=3)
-
-# Bagged CART
-set.seed(seed)
-fit.treebag <- train(lag0~., 
-                     data = process_df, 
-                     method="treebag", 
-                     metric = "Accuracy", 
-                     trControl=control)
-
-# Random Forest
-set.seed(seed)
-fit.rf <- train(Class~., data=dataset, method="rf", metric = "Accuracy", trControl=control)
-```
-
-#### Thuật toán Staking:
-
-```{r}
-library(caretEnsemble)
-control <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
-algorithmList <- c('lda', 'rpart', 'glm', 'knn', 'svmRadial')
-set.seed(seed)
-models <- caretList(Class~., 
-                    data=dataset, 
-                    trControl=control, 
-                    methodList=algorithmList)
-
-
-# So sành các kết quả với nhau:
-results <- resamples(models)
-summary(results)
-
-# Hiển thị hóa kết quả:
-dotplot(results)
-```
-
 ## Tuning parameters:
 
 Tiêu đề của mục này là keyword mà bạn cần nắm về Machine Learning. Theo nghiên cứu của [@dungnguyenchí], các thuật toán ML có các tham số mà việc điều chỉnh tham số sẽ ảnh hưởng đến kết quả dự đoán. Vậy chuyên đề tìm ra tham số tối ưu nhất là mục quan trọng khi bạn sử dụng ML.
 
-Về mặt lý thuyết, có nhiều cách để tìm ra, ở bài này mình sẽ sử dụng 3 cách là: 
+Về mặt lý thuyết, có nhiều cách để tìm ra, ở bài này mình sẽ sử dụng 3 cách là:
 
 -   Full Grid Search.
 -   Random Search.
@@ -333,18 +522,50 @@ Về mặt lý thuyết, có nhiều cách để tìm ra, ở bài này mình s�
 
 Và hầu như không có cách nào tìm ra tham số tối ưu nhất bằng cách thực nghiệm trên một bộ dữ liệu thực tế. Do đó, ở bài này, chúng ta sẽ lược qua cả 3 cách đã nêu trên và so sánh chúng để chọn ra các tối ưu nhất.
 
-```{r}
-## Tuning parameters:
-gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
-                        n.trees = (1:30)*50, 
-                        shrinkage = 0.1,
-                        n.minobsinnode = 20)
+Vậy có quá nhiều thuật toán ML vậy, làm sao ta biết được thuật toán nào cần chỉnh tham số nào? Trong R có hàm để chúng ta tự tìm hiểu, đó là `getModelInfo`. Dưới đây là 1 ví dụ về thuật toán mà ta đã dùng ở trên:
 
-gbmFit2 <- train(Class ~ ., data = training, 
-                 method = "gbm", 
-                 trControl = fitControl, 
-                 verbose = FALSE, 
-                 ## Now specify the exact models 
-                 ## to evaluate:
-                 tuneGrid = gbmGrid)
+```{r}
+getModelInfo("gbm")$gbm$parameters
 ```
+
+Vậy tiếp theo chúng ta sẽ điều chỉnh tham số để tối ưu kết quả của mô hình. Chi tiết ở dưới phần code.
+
+-   number of iterations, i.e. trees, (called n.trees in the gbm function).
+-   complexity of the tree, called interaction.depth learning rate: how quickly the algorithm adapts, called shrinkage.
+-   the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
+
+Dựa trên hướng dẫn của [@jasonbrownlee2020], ta sẽ thực hành qua cả 3 phương pháp. Code chi tiết dưới đây.
+
+#### Phương pháp Random Search:
+
+::: {.callout-tip appearance="minimal"}
+#### Random Search
+
+control \<- trainControl(method="repeatedcv", number=10, repeats=3, search="random")
+
+mtry \<- sqrt(ncol(train_data))
+
+gbm_random \<- train(Order_Demand\~., data = train_data %\>% select(-c(order_date,class)), method="gbm", tuneLength = 5, trControl = control)
+
+plot(gbm_random)
+:::
+
+#### Phương pháp Grid Search:
+
+Với phương pháp Grid Search, ta chỉ cần đổi đối số `search = "grid"` và thêm đối số `tuneGrid`.
+
+::: {.callout-tip appearance="minimal"}
+## Grid Search
+
+control \<- trainControl(method="repeatedcv", number=10, repeats=3, search="grid")
+
+tunegrid \<- expand.grid(.mtry=c(1:5))
+
+gbm_gridsearch\<-train(Order_Demand\~., data = train_data %\>% select(-c(order_date,class)), method="gbm", tuneGrid=tunegrid, trControl = control)
+
+plot(gbm_gridsearch)
+:::
+
+
+
+Cảm ơn các bạn đã ghé thăm và đọc bài viết của mình!!!
