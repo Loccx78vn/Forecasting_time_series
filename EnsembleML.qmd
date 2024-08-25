@@ -1,22 +1,25 @@
 ---
-title: "Ensemble Machine Learning"
+title: "Machine Learning"
 subtitle: "Việt Nam, 2024"
 categories: ["Machine Learning", "Forecasting"]
+bibliography: references.bib
 ---
 
-## Dự đoán bằng Ensemble Machine Learning:
+## Dự đoán bằng Machine Learning:
 
 ### Định nghĩa về Machine Learning:
 
-Theo [Topdev](https://topdev.vn/blog/machine-learning-la-gi/), Machine learning (ML) hay máy học là "*một nhánh của trí tuệ nhân tạo (AI), nó là một lĩnh vực nghiên cứu cho phép máy tính có khả năng cải thiện chính bản thân chúng dựa trên dữ liệu mẫu (training data) hoặc dựa vào kinh nghiệm (những gì đã được học). Machine learning có thể tự dự đoán hoặc đưa ra quyết định mà không cần được lập trình cụ thể.*"
+Theo [@topdev], Machine learning (ML) hay máy học là "*một nhánh của trí tuệ nhân tạo (AI), nó là một lĩnh vực nghiên cứu cho phép máy tính có khả năng cải thiện chính bản thân chúng dựa trên dữ liệu mẫu (training data) hoặc dựa vào kinh nghiệm (những gì đã được học). Machine learning có thể tự dự đoán hoặc đưa ra quyết định mà không cần được lập trình cụ thể.*"
 
-Phương pháp ML "gây bão" trong giới khoa học khi ra mắt vì khả năng xây dựng mô hình nhanh chóng và sự chuẩn xác của mô hình trong việc dự đoán và phân loại kết quả. Khác với các mô hình khoa học truyền thống đòi hỏi nhiều về đáp ứng giả định và quy tắc rắc rối, Machine Learning giúp con người nhanh chóng đưa ra quyết định và có thể tự cải thiện performance của mình mà không cần người dùng.
+Phương pháp Machine Learning từng "gây bão" trong giới khoa học khi ra mắt vì khả năng xây dựng mô hình nhanh chóng và sự chuẩn xác của mô hình trong việc dự đoán và phân loại kết quả. Với sự phát triển của khoa học, lượng lớn dữ liệu được thu thập hay được gọi là Big Data đòi hỏi nhu cầu tính toán nhanh chóng và công cụ mạnh. Các phương pháp khoa học truyền thống lại không làm tốt việc này bằng Machine Learning.
 
-### Thuật toán Ensemble ML:
+Ngoài ra, khác với các mô hình truyền thống đòi hỏi nhiều về đáp ứng giả định và quy tắc rắc rối, Machine Learning giúp con người nhanh chóng đưa ra quyết định và có thể tự cải thiện performance của mình bằng học máy mà không cần người dùng phải tương tác nhiều.
+
+### Thuật toán Ensemble Machine Learning:
 
 Trong machine learning tồn tại định lý “*không có bữa trưa miễn phí”* (No free lunch theorem), tức là không tồn tại một thuật toán mà tốt cho mọi ứng dụng và mọi tập dữ liệu. Vì ML có nhiều thuật toán khác nhau và tùy vào đặc tính của bộ dữ liệu mà thuật toán ML sẽ tính ra kết quả khác nhau. Muốn tìm ra thuật toán phù hợp, người sử dụng phải cần nhiều thời gian để test và điều chỉnh hệ số (tuning hyperparameters) để đạt độ chính xác cao.
 
-Và thuật toán Ensemble ML có thể giúp người dùng giảm thời gian trong việc testing bằng cách kết hợp các mô hình này với nhau. Theo [Cuong Sai](https://svcuong.github.io/post/ensemble-learning/), "Ý tưởng của việc combine các mô hình khác nhau xuất phát từ một suy nghĩ hợp lý là: các mô hình khác nhau có khả năng khác nhau, có thể thực hiện tốt nhất các loại công việc khác nhau (subtasks), khi kết hợp các mô hình này với nhau một cách hợp lý thì sẽ tạo thành một mô hình kết hợp (combined model) mạnh có khả năng cải thiện hiệu suât tổng thể (overall performance) so với việc chỉ dùng các mô hình một cách đơn lẻ."
+Và thuật toán Ensemble ML có thể giúp người dùng giảm thời gian trong việc testing bằng cách kết hợp các mô hình này với nhau. Theo [@cuongsai2020],"Ý tưởng của việc combine các mô hình khác nhau xuất phát từ một suy nghĩ hợp lý là: các mô hình khác nhau có khả năng khác nhau, có thể thực hiện tốt nhất các loại công việc khác nhau (subtasks), khi kết hợp các mô hình này với nhau một cách hợp lý thì sẽ tạo thành một mô hình kết hợp (combined model) mạnh có khả năng cải thiện hiệu suât tổng thể (overall performance) so với việc chỉ dùng các mô hình một cách đơn lẻ."
 
 Thuật toán Ensemble ML chia thành 3 loại:
 
@@ -119,7 +122,7 @@ gt(df[1:10,]) %>%
 
 ### Xử lí missing value:
 
-Gía trị NA xuất hiện là do ta đang lấy dữ liệu từ quá khứ thời điểm cách 1 tháng, 2 tháng và 3 tháng. Vì Machine Learning bắt buộc phải có đầy đủ giá trị nên ta có thể sử dụng cách khác để tạo ra giá trị thay thế cho NA. Mình kham khảo được cách này ở [Sauravkaushik8 Kaushik](https://www.analyticsvidhya.com/blog/2017/02/introduction-to-ensembling-along-with-implementation-in-r/)
+Gía trị NA xuất hiện là do ta đang lấy dữ liệu từ quá khứ thời điểm cách 1 tháng, 2 tháng và 3 tháng. Vì Machine Learning bắt buộc phải có đầy đủ giá trị nên ta có thể sử dụng cách khác để tạo ra giá trị thay thế cho NA. Mình kham khảo được cách này từ [@sauravkaushik8kaushik2019].
 
 ```{r}
 #| warning: false
@@ -135,7 +138,9 @@ testing_df <-df[df$datetime >= as.Date("2015-03-01"),]
 ```
 
 ```{r}
-library(RANN)
+#| warning: false
+#| message: false
+library(caret)
 ## Sau đó chúng ta chuẩn hóa giá trị của các thuộc tính (data normalization) về khoảng [0,1]:
 process_train <- predict(preProcess(training_df, 
                             method = c("range")), 
@@ -160,13 +165,14 @@ fitControl <- trainControl(method="repeatedcv",
 # Trong đó
 # method = 'repeatedcv': sử dụng cross-validation với các tham số sau:
 # number = 10 có nhĩa là quá trình cross-validation cần chia dữ liệu gốc thành 10 phần bằng nhau
-# repeats = 3 có nhĩa là quá trình cross-validation sẽ hoàn thành sau 3 lần
+# repeats = 10 có nghĩa là quá trình cross-validation cần lặp lại 10 lần
 
 # Stochastic Gradient Boosting
 set.seed(825)
 gbmFit1 <- train(lag0~., 
-                 data = process_train %>% select(-datetime), 
-                 method = "gbm", 
+                 data = process_train %>% 
+                   select(-datetime), 
+                 method = "gbm",
                  trControl = fitControl,
                  ## This last option is actually one
                  ## for gbm() that passes through
@@ -175,53 +181,72 @@ gbmFit1 <- train(lag0~.,
 
 Sau khi đã training model, ta sẽ dùng mô hình đó để dự đoán và so sánh với giá trị thực tế ở testing data. Ta sẽ có kết quả như dưới đây:
 
+Kết quả có vẻ khá tệ vì tỉ lệ chênh lệch có điểm lên đến 75%
+
 ```{r}
 #| warning: false
 #| message: false
+#| layout: [[30,70]]
 predict<-data.frame(
+  Period = testing_df$datetime,
   Predicted = predict(gbmFit1, 
                       newdata = process_test %>% 
                         select(-datetime)),
-  Observed = process_test$lag0)
+  Observed = process_test$lag0) %>% 
+  mutate(Diff = round(Observed - Predicted,3)*100,
+         Check = ifelse(Diff <= 5 & Diff >= -5, "Passed","Failed"))
+
+library(gt)
+library(gtExtras)
+gt(predict %>% 
+     count(Check) %>% 
+     mutate(Per = round(n/nrow(predict),3))) %>% 
+  cols_label(
+    Check = md("**Status**"),
+    n = md("**Count**"),
+    Per = md("**Percentage**")) %>%
+  tab_header(
+    title = md("**Evaluating the model's accuracy**"),
+    subtitle = glue::glue("Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}")) %>%
+   tab_source_note(
+    source_note = str_glue("Smaller 5% means passed")) %>% 
+  gt_theme_538() %>% 
+  gt_highlight_cols(Check,
+                    fill = "blue",
+                    alpha = 0.7)
+  
+  
 
 ggplot(data = predict,
-       aes(x = Observed, 
-           y = Predicted)) + 
+       aes(x = Period, 
+           y = Diff)) + 
   geom_point() +
-  geom_smooth(method='lm') +
-  geom_abline(intercept = 0, 
-              slope = 1, color="red", 
+  geom_smooth(method = "lm")+
+  geom_abline(intercept = 1, 
+              slope = 0, color="red", 
               linetype="dashed", 
               size=1)+
-  xlab('Observed value') +
-  ylab('Predicted value') +
+  xlab('Time') +
+  ylab('Difference (%)') +
   theme_bw()+
-  labs(title = "Evaluating model builded by gbm method",
+  labs(title = "Evaluating model builded by GBM method",
        subtitle = "Observed vs Predicted value",
-       caption = "The red line is abline Y = X and the blue line is the linear lines between observed and predicted value.So it should be overlap each other")
+       caption = "The red line is abline Y = 0 means accuracry prediction and the blue line is the linear lines between observed and predicted value.")
 ```
 
-Trong mô hình này, mình nên quan tâm tới 3 tham số: - number of iterations, i.e. trees, (called n.trees in the gbm function) - complexity of the tree, called interaction.depth learning rate: how quickly the algorithm adapts, called shrinkage - the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
+Trong mô hình này, mình nên quan tâm tới 3 tham số:
 
-```{r}
-## Tuning parameters:
-gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
-                        n.trees = (1:30)*50, 
-                        shrinkage = 0.1,
-                        n.minobsinnode = 20)
+-   number of iterations, i.e. trees, (called n.trees in the gbm function).
+-   complexity of the tree, called interaction.depth learning rate: how quickly the algorithm adapts, called shrinkage.
+-   the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
 
-gbmFit2 <- train(Class ~ ., data = training, 
-                 method = "gbm", 
-                 trControl = fitControl, 
-                 verbose = FALSE, 
-                 ## Now specify the exact models 
-                 ## to evaluate:
-                 tuneGrid = gbmGrid)
-```
+https://rpubs.com/DiegoUsai/565288
+
+https://rpubs.com/taliathaib/time_series_weather_forecasting
 
 #### Thuật toán Bagging
 
-Chúng ta cùng test hai thuậ toán thuộc kỹ thuật Bagging là: *Bagged CART* và *Random Forest*
+Chúng ta cùng test hai thuật toán thuộc kỹ thuật Bagging là: *Bagged CART* và *Random Forest*
 
 ```{r}
 fitControl <- trainControl(
@@ -294,4 +319,32 @@ summary(results)
 
 # Hiển thị hóa kết quả:
 dotplot(results)
+```
+
+## Tuning parameters:
+
+Tiêu đề của mục này là keyword mà bạn cần nắm về Machine Learning. Theo nghiên cứu của [@dungnguyenchí], các thuật toán ML có các tham số mà việc điều chỉnh tham số sẽ ảnh hưởng đến kết quả dự đoán. Vậy chuyên đề tìm ra tham số tối ưu nhất là mục quan trọng khi bạn sử dụng ML.
+
+Về mặt lý thuyết, có nhiều cách để tìm ra, ở bài này mình sẽ sử dụng 3 cách là: 
+
+-   Full Grid Search.
+-   Random Search.
+-   Default Search.
+
+Và hầu như không có cách nào tìm ra tham số tối ưu nhất bằng cách thực nghiệm trên một bộ dữ liệu thực tế. Do đó, ở bài này, chúng ta sẽ lược qua cả 3 cách đã nêu trên và so sánh chúng để chọn ra các tối ưu nhất.
+
+```{r}
+## Tuning parameters:
+gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
+                        n.trees = (1:30)*50, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 20)
+
+gbmFit2 <- train(Class ~ ., data = training, 
+                 method = "gbm", 
+                 trControl = fitControl, 
+                 verbose = FALSE, 
+                 ## Now specify the exact models 
+                 ## to evaluate:
+                 tuneGrid = gbmGrid)
 ```

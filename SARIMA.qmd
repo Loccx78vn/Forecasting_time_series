@@ -1,5 +1,6 @@
 ---
 title: "Mô hình SARIMA"
+bibliography: references.bib
 ---
 
 # Mô hình SARIMA và SARIMAX:
@@ -12,6 +13,17 @@ Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và 
 #| warning: false
 #| message: false
 #| echo: false
+
+#Call packages:
+pacman::p_load(rio,
+               here,
+               janitor,
+               tidyverse,
+               dplyr,
+               magrittr,
+               lubridate,
+               stringr
+               )
 #Import file:
 product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
 
@@ -60,9 +72,9 @@ demand_testing<-ts(testing_df$month_demand,
                 start = c(2015,3))
 ```
 
-### Giới thiệu:
+### Mô hình SARIMA:
 
-Theo nghiên cứu của [JOHN A. MILLER,etc](https://arxiv.org/pdf/2401.13912),họ nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA. Vậy SARIMAX là gì:
+Theo nghiên cứu của [@johna.miller2024],họ nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA. Vậy SARIMAX là gì:
 
 -   Định nghĩa: ARIMA đóng vai trò là nền tảng để lập mô hình dữ liệu không theo mùa (*non-seasonal*), trong khi SARIMA mở rộng khả năng xử lý các mẫu theo mùa.
 
@@ -80,76 +92,17 @@ Giải thích lại các thông số ta sử dụng sẽ là:
 
 -   (P,D,Q) là bậc seasonal của mô hình.
 
--   \[s\] (period arguments) là thông số cho pattern. Ví dụ trong dữ liệu này là dữ liệu của 12 tháng nên `period = 12`. Bạn có thể gặp dữ liệu theo quý thì `period = 4`, dữ liệu theo năm thì `period = 1`.
+-   \[s\] (period arguments) là thông số cho pattern. Ví dụ trong dữ liệu này là dữ liệu của 12 tháng nên `period = 12`. Bạn có thể gặp dữ liệu theo quý thì `period = 3`, dữ liệu theo năm thì `period = 1`.
 
-Và để thêm thành phần *seasonal*, ta cần tính thêm *seasonal difference* bằng hàm `lag`.
-
-```{r}
-#| warning: false
-#| message: false
-#| layout: [[40,60]]
-ts3<-diff(demand_training, 
-          lag = 1, 
-          differences = 1)   # Requires seasonal differencing
-
-# Check the stationary hypothesis:
-adf.test(ts3)
-
-ggtsdisplay(ts3,
-            main = "Time series plot")
-
-actual<- diff(demand_testing,
-              lag = 1,
-              differences = 1)
-```
-
-Dựa vào biểu đồ ACF và PACF để lựa chọn mô hình phù hợp là Arima(3,0,2)(1,1,0)\[12\].
-
-### Mô hình SARIMA:
-
-```{r}
-#| warning: false
-#| message: false
-#| echo: false
-model_training1<-Arima(ts3,
-             order = c(3,1,3),
-             seasonal = list(order = c(1,1,0),
-                             period = 12),
-             lambda = NULL,
-             include.constant = TRUE)
-
-checkresiduals(model_training1,
-               theme = theme_bw())
-```
-
-```{r}
-#Forecast by training model:
-training_forecast1<-forecast(model_training1,h = 21)
-
-#Use chart for presenting the differents:
-plot(training_forecast1,
-      main = str_glue("Model ARIMA(3,1,3)(1,1,0)[12]"),
-      xlab = "Time",
-      ylab = "Order Demand")
-lines(actual, 
-      col = "red",
-      lwd = "2")
-legend("topleft",
-       legend = c("Actual","Forecast"),
-       col = c("red","blue"),
-       box.lty = 0,
-       lty = 1,
-       cex = 1,
-       lwd = 2)
-```
-
-Kết quả cho thấy mô hình có vẻ dữ đoán ổn hơn và sát với dữ liệu thực tế. Vậy thì còn mô hình SARIMAX thì khác gì với SARIMA.
+Vậy thì còn mô hình SARIMAX thì khác gì với SARIMA.
 
 ### Mô hình SARIMAX:
 
 Để xây dựng mô hình SARIMAX thì ta cần thêm 1 biến khác không phải là biến quá khứ của dữ liệu. Gỉa sử ta tạo thêm 1 biến là thu nhập bình quân của người dân trong khoảng thời gian đó.
 
 ```{r}
+#| warning: false
+#| message: false
 # Tạo biến mới thu nhập bình quân:
 income<-ts(data = runif(nrow(month_df),100,500),
            frequency = 12,
@@ -162,9 +115,11 @@ ggtsdisplay(income,
 Sau đó ta xây dựng mô hình như các bước cũ:
 
 ```{r}
+#| warning: false
+#| message: false
 #Forecast by training model:
-model_training2<-Arima(ts3,
-             xreg = income[1:length(ts3)],
+model_training2<-Arima(demand_training,,
+             xreg = income[1:length(demand_training)],
              order = c(3,1,3),
              seasonal = list(order = c(1,1,0),
                              period = 12),
@@ -176,6 +131,8 @@ checkresiduals(model_training2,
 ```
 
 ```{r}
+#| warning: false
+#| message: false
 training_forecast2<-forecast(model_training2,
                              xreg = income[39:nrow(month_df)],
                              h = 21)
@@ -185,7 +142,7 @@ plot(training_forecast2,
       main = str_glue("Model ARIMA(2,0,0)"),
       xlab = "Time",
       ylab = "Order Demand")
-lines(actual, 
+lines(demand_testing, 
       col = "red",
       lwd = "2")
 legend("topleft",
@@ -198,7 +155,218 @@ legend("topleft",
 
 ```
 
-Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai.
+Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai. Nhìn biểu đồ ta dễ dàng kết luận mô hình không tốt. Nguyên do là tương quan giữa biến `income` và `demand_training` quá thấp, chỉ số tương quan chỉ có `r round(cor(income[1:length(demand_training)],demand_training),3)`.
+
+## Thực hành trong R:
+
+### Lựa chọn mô hình thủ công:
+
+Thực tế, ta thấy mô hình do R đề xuất bằng hàm `auto.arima` có vẻ "overfitting" - nghĩa là mô hình tốt quá, *cover* hết các trường hợp nhưng có nguy cơ không cho dự đoán tốt vì dữ liệu trong tương lai biến động.
+
+Vì vậy, ta cần xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên [How can I select the best SARIMA model](https://malouche.github.io/howto/sarima.html).
+
+```{r}
+#| warning: false
+#| message: false
+## List all parameters can be appeared:
+qQ=list()
+for(i in 1:14) qQ[[i]]=c(i-1,0)
+qQ[[15]]=c(0,1)
+qQ[[16]]=c(1,1)
+pP=qQ
+ 
+dt_params=c()
+for(i in 1:16){
+  for(j in 1:16){
+     temp=c(pP[[i]][1],1,qQ[[j]][1],pP[[i]][2],1,
+            qQ[[j]][2],12)
+     dt_params=rbind(temp,dt_params)
+   }
+ }
+colnames(dt_params)=c("p","d","q","P","D","Q","T")
+rownames(dt_params)=1:256
+
+# Build all the models:
+models=vector("list",256)
+for(i in 1:256){
+   try(models[[i]]<-Arima(diff(demand_training,lag = 1),
+                          order = dt_params[i,1:3],
+                          seasonal = list(order=dt_params[i,4:6],
+                                          period=12),
+                     lambda = NULL,
+                     method="ML"))  ## use MLE (maximum likelihood estimation)
+}
+```
+
+Sau khi đã xây dựng hết các mô hình bằng 256 thông số. Ta sẽ kiểm tra giả thuyết về tính độc lập trong một chuỗi thời gian nhất định (*White noise*) - nghĩa là kiểm tra phần dư (*residuals*) của mô hình có phải là *random noise* không ?
+
+```{r}
+#| warning: false
+#| message: false
+## Applied Ljung-Box Tests:
+aa=rep(NA,256)
+for(i in 1:256){
+   if(length(models[[i]]$residuals)>1){
+     a=Box.test(x = models[[i]]$residuals,
+                lag = 10,
+                type = "Box-Pierce")
+     z=prod(1-(a[["p.value"]]<.05))
+     if(z==1) aa[i]="Passed"
+     else aa[i]="Failed"
+   }
+}
+
+## Transfers all these information into 1 table:
+dt_params2=data.frame(dt_params)
+dt_params2$residuals=aa
+
+aic=rep(NA,256)
+model_names=rep(NA,256)
+for(i in 1:256){
+   if(length(models[[i]]$aic)>0){
+     aic[i]=models[[i]]$aic
+     model_names[i]=as.character(models[[i]])
+   }
+}
+dt_params2$aic=aic
+dt_params2$model=model_names
+```
+
+Cuối cùng trình bày bảng 10 model tốt nhất với 2 điều kiện:
+
+-   Chỉ số AIC thấp trong top 10.
+-   Chỉ số p của Ljung-Box Test \< 0.05.
+
+Và mô hình cuối cùng được chọn là ARIMA(2,1,0)(0,1,0)\[12\] với chỉ số AIC là 189.8917.
+
+```{r}
+## Finally plot the table and compared the AIC and BIC value among models:
+gt<-dt_params2[order(dt_params2$aic,decreasing = FALSE),][1:10,] %>%
+     filter(residuals == "Passed") %>% ### Just select the models with p < 0.05
+     relocate(model)
+## Just select 10 best models:
+
+
+library(gt)
+library(gtExtras)
+gt(gt) %>% 
+  cols_align(
+    align = "left",
+    columns = "model"
+  ) %>% 
+    cols_label(
+    model = md("**Model**"),
+    aic = md("**AIC value**")) %>%
+   tab_header(
+    title = md("**Ljung–Box test**"),
+    subtitle = glue::glue("Time from {min(training_df$datetime)} to {max(training_df$datetime)}")) %>%
+   tab_source_note(
+    source_note = "Null hypothesis: a given time series is independence") %>% 
+  gt_theme_538() %>% 
+  gt_highlight_rows(rows = 1, 
+                    font_weight = "normal")
+
+```
+
+### Đánh giá mô hình:
+
+Và cuối cùng là đánh giá mô hình vừa được chọn ARIMA(2,1,0)(0,1,0)\[12\] với dữ liệu thực tế từ đối tượng `demand_testing`.
+
+```{r}
+#| warning: false
+#| message: false
+#Forecast by training model:
+model_training3<-Arima(diff(demand_training,lag = 1),
+                       order = c(2,1,1),
+                       seasonal = list(order = c(0,1,0),
+                                       period = 12),
+             lambda = NULL)
+
+training_forecast3<-forecast(model_training3,
+                             h = 21)
+
+#Use chart for presenting the differents:
+plot(training_forecast3,
+      main = glue::glue("Model {gt[['model']][1]}"),
+      xlab = "Time",
+      ylab = "Order Demand")
+lines(diff(demand_testing,lag = 1), 
+      col = "red",
+      lwd = "2")
+legend("topleft",
+       legend = c("Actual","Forecast"),
+       col = c("red","blue"),
+       box.lty = 0,
+       lty = 1,
+       cex = 1,
+       lwd = 2)
+```
+
+### Kiểm định giả thuyết của mô hình:
+
+Sau khi đã xây dựng mô hình, ta cần kiểm tra lại các giả thuyết như:
+
+-   Phần dư không tương quan.
+-   Phần dư có trung bình là 0.
+-   phương sai không đổi
+-   Phần dư có phân phối chuẩn.
+
+```{r}
+#| warining: false
+#| message: false
+## Diagnostics the ARRIMA model in a short command with package {astsa}:
+library(astsa)
+sarima(diff(demand_training,lag = 1),
+       p = 2,
+       d = 1,
+       q = 1,
+       P = 0,
+       D = 1,
+       Q = 0,
+       S = 12,
+       gg=TRUE, 
+       col=4)
+```
+
+Nếu so sánh với mô hình ban đầu theo cách `auto.arima` thì có vẻ mô hình này tệ hơn. Nhưng có thể ở trong tương lai, mô hình này có thể sẽ tốt hơn chăng.
+
+```{r}
+## Calculating MAE metric:
+sum = 0
+for (i in 1:21){ 
+  sum = abs(diff(demand_testing,lag = 1)[i]-training_forecast3$mean[i])+sum
+} 
+
+MAE = sum/21
+
+## Calculating RMSE metric:
+RMSE = sqrt(mean((diff(demand_testing,lag = 1) - training_forecast3$mean)^2))
+
+## Plot the compared results:
+gt(data.frame(Metric = c("MAE","RMSE"),
+              Manual = c(MAE,RMSE),
+              Auto.Arima = c(6.428828,7.534382))) %>% 
+  cols_label(
+    Manual = md("**Manual method**"),
+    Auto.Arima = md("**Auto.Arima method**")) %>%
+  cols_align(
+    align = "center",
+    columns = "Manual"
+  ) %>% 
+  cols_align(
+    align = "center",
+    columns = "Auto.Arima"
+  ) %>% 
+  tab_header(
+    title = md("**Comparing the accuracy of forecasting**"),
+    subtitle = glue::glue("Forecasting from {min(testing_df$datetime)} to {max(testing_df$datetime)}")) %>%
+   tab_source_note(
+    source_note = str_glue("Between Manual and Auto ARIMA Method")) %>% 
+  gt_theme_538() %>% 
+  gt_highlight_cols(Auto.Arima, 
+                    fill = "blue", 
+                    alpha = 0.5)
+```
 
 ## Dự đoán số đơn hàng trong 18 tháng ở tương lai:
 
@@ -209,23 +377,19 @@ Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai.
 demand_full<-ts(month_df$month_demand,
                       frequency = 12,
                       start = c(2012,1))
-fit<-Arima(demand_full, 
-             order = c(2,0,2),
-             seasonal = list(order = c(1,0,1),
-                             period = 12),
-             include.drift = FALSE)
+
 #Predicting for 18 months with 99.5% range:
-predict_fit<-forecast:::forecast.Arima(fit,
+predict_fit<-forecast:::forecast.Arima(model_training3,
                                        h = 18, 
-                                      level = c(99.5)) 
+                                       level = c(99.5)) 
 
 #Transform to data.frame object:
 df<-predict_fit %>% 
   as.data.frame() %>% 
   mutate(Period = seq(max(month_df$datetime),
                     max(month_df$datetime)+months(18), 
-                    by= "1 month")[-1])
-df<-df[,c(4,1,2,3)]
+                    by= "1 month")[-1]) %>% 
+  relocate(Period)
 ```
 
 ```{r}
@@ -237,7 +401,7 @@ gt(df[1:9,]) %>%
     title = md("**Forecasting Order Demand**"),
     subtitle = glue::glue("Time from {max(month_df$datetime)} to {max(month_df$datetime)+months(9)}")) %>%
    tab_source_note(
-    source_note = "Method: ARIMA(2,0,2)(1,0,1)[12] model") %>% 
+    source_note = glue::glue("Method: Model {gt[['model']][1]}")) %>% 
   gt_theme_538() 
 
 gt(df[10:18,]) %>% 

@@ -3,17 +3,13 @@ project:
   output-dir: docs
   
 website:
-  title: "MY WEB SITE"
+  title: "Time series model"
   navbar:
     left:
       - href: index.qmd
-        text: Introduction
       - href: Forecasting.qmd
-        text: ARIMA model
       - href: SARIMA.qmd
-        text: SARMIA and SARIMAX model
       - href: EnsembleML.qmd
-        text: Ensemble ML
     tools:
       - icon: github
         text: Github
