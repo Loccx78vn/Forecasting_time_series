@@ -264,37 +264,17 @@ Random Forest là một phương pháp học máy thuộc loại ensemble learni
 
 Về ưu Điểm:
 
--   
+-   Khả Năng Tổng Quát Cao: Random Forest thường có khả năng tổng quát tốt hơn so với các mô hình cây quyết định đơn lẻ, do giảm thiểu overfitting (quá khớp) nhờ vào sự kết hợp của nhiều cây.
 
-    ```         
-    Khả Năng Tổng Quát Cao: Random Forest thường có khả năng tổng quát tốt hơn so với các mô hình cây quyết định đơn lẻ, do giảm thiểu overfitting (quá khớp) nhờ vào sự kết hợp của nhiều cây. 
-    ```
+-   Khả Năng Xử Lý Dữ Liệu Lớn và Nhiều Đặc Trưng: Random Forest có thể xử lý hiệu quả dữ liệu với số lượng lớn các đặc trưng và quan sát.
 
--   
-
-    ```         
-    Khả Năng Xử Lý Dữ Liệu Lớn và Nhiều Đặc Trưng: Random Forest có thể xử lý hiệu quả dữ liệu với số lượng lớn các đặc trưng và quan sát. 
-    ```
-
--   
-
-    ```         
-    Khả Năng Đánh Giá Tầm Quan Trọng Của Các Đặc Trưng: Random Forest cung cấp thông tin về tầm quan trọng của từng đặc trưng trong việc đưa ra dự đoán, giúp ích trong việc chọn lọc và phân tích đặc trưng.
-    ```
+-   Khả Năng Đánh Giá Tầm Quan Trọng Của Các Đặc Trưng: Random Forest cung cấp thông tin về tầm quan trọng của từng đặc trưng trong việc đưa ra dự đoán, giúp ích trong việc chọn lọc và phân tích đặc trưng.
 
 Về nhược Điểm:
 
--   
+-   Khó Giải Thích: Mặc dù Random Forest có hiệu suất tốt, nhưng các mô hình cây quyết định kết hợp lại có thể khó giải thích và không trực quan bằng các mô hình đơn giản hơn.
 
-    ```         
-    Khó Giải Thích: Mặc dù Random Forest có hiệu suất tốt, nhưng các mô hình cây quyết định kết hợp lại có thể khó giải thích và không trực quan bằng các mô hình đơn giản hơn. 
-    ```
-
--   
-
-    ```         
-    Tốn Tài Nguyên Tính Toán: Đặc biệt khi số lượng cây lớn, Random Forest có thể yêu cầu nhiều tài nguyên tính toán và bộ nhớ.
-    ```
+-   Tốn Tài Nguyên Tính Toán: Đặc biệt khi số lượng cây lớn, Random Forest có thể yêu cầu nhiều tài nguyên tính toán và bộ nhớ.
 
 ```{r}
 #| warning: false
