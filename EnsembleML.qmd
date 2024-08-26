@@ -262,9 +262,39 @@ forecast_data <-
 
 Random Forest là một phương pháp học máy thuộc loại ensemble learning, được sử dụng chủ yếu cho các bài toán phân loại và hồi quy. Đây là một kỹ thuật mạnh mẽ và phổ biến, được phát triển bởi Leo Breiman vào năm 2001.
 
-Về ưu Điểm - Khả Năng Tổng Quát Cao: Random Forest thường có khả năng tổng quát tốt hơn so với các mô hình cây quyết định đơn lẻ, do giảm thiểu overfitting (quá khớp) nhờ vào sự kết hợp của nhiều cây. - Khả Năng Xử Lý Dữ Liệu Lớn và Nhiều Đặc Trưng: Random Forest có thể xử lý hiệu quả dữ liệu với số lượng lớn các đặc trưng và quan sát. - Khả Năng Đánh Giá Tầm Quan Trọng Của Các Đặc Trưng: Random Forest cung cấp thông tin về tầm quan trọng của từng đặc trưng trong việc đưa ra dự đoán, giúp ích trong việc chọn lọc và phân tích đặc trưng.
+Về ưu Điểm:
 
-Về nhược Điểm - Khó Giải Thích: Mặc dù Random Forest có hiệu suất tốt, nhưng các mô hình cây quyết định kết hợp lại có thể khó giải thích và không trực quan bằng các mô hình đơn giản hơn. - Tốn Tài Nguyên Tính Toán: Đặc biệt khi số lượng cây lớn, Random Forest có thể yêu cầu nhiều tài nguyên tính toán và bộ nhớ.
+-   
+
+    ```         
+    Khả Năng Tổng Quát Cao: Random Forest thường có khả năng tổng quát tốt hơn so với các mô hình cây quyết định đơn lẻ, do giảm thiểu overfitting (quá khớp) nhờ vào sự kết hợp của nhiều cây. 
+    ```
+
+-   
+
+    ```         
+    Khả Năng Xử Lý Dữ Liệu Lớn và Nhiều Đặc Trưng: Random Forest có thể xử lý hiệu quả dữ liệu với số lượng lớn các đặc trưng và quan sát. 
+    ```
+
+-   
+
+    ```         
+    Khả Năng Đánh Giá Tầm Quan Trọng Của Các Đặc Trưng: Random Forest cung cấp thông tin về tầm quan trọng của từng đặc trưng trong việc đưa ra dự đoán, giúp ích trong việc chọn lọc và phân tích đặc trưng.
+    ```
+
+Về nhược Điểm:
+
+-   
+
+    ```         
+    Khó Giải Thích: Mặc dù Random Forest có hiệu suất tốt, nhưng các mô hình cây quyết định kết hợp lại có thể khó giải thích và không trực quan bằng các mô hình đơn giản hơn. 
+    ```
+
+-   
+
+    ```         
+    Tốn Tài Nguyên Tính Toán: Đặc biệt khi số lượng cây lớn, Random Forest có thể yêu cầu nhiều tài nguyên tính toán và bộ nhớ.
+    ```
 
 ```{r}
 #| warning: false
@@ -371,6 +401,7 @@ plot_ly(mode = 'lines') %>%
            )
 }
 ```
+
 ```{r}
 plot_f(rft_model)
 ```
@@ -420,6 +451,7 @@ automl_model <-
     seed               = 1975
  )
 ```
+
 ```{r}
 plot_f(automl_model)
 ```
@@ -565,7 +597,5 @@ gbm_gridsearch\<-train(Order_Demand\~., data = train_data %\>% select(-c(order_d
 
 plot(gbm_gridsearch)
 :::
-
-
 
 Cảm ơn các bạn đã ghé thăm và đọc bài viết của mình!!!
