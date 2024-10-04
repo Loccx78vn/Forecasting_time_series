@@ -36,7 +36,7 @@ Vậy làm sao để làm một **Planner** tốt trong quản lý chuỗi cung 
 
 Ví dụ, trong tháng 10, cửa hàng cửa bạn vẫn còn 10 đồ chơi A và khách hàng cần mua tới 15 đồ chơi và thời gian vận chuyển nhập kho trung bình là 10 ngày. Vì vậy, trước tháng 10, bạn cần lên đơn đặt hàng cho bên supplier để mình nhập kho kịp lúc và trưng bày hàng trên kệ. Nghe việc này có vẻ dễ đúng không nhưng điều đó chỉ dễ khi bạn biết trước được tương lai rằng khách hàng của bạn sẽ mua 15 món đồ chơi trong tháng 10. Vậy làm sao để dự đoán chính xác được thì đó là công dụng của **demand planning**.
 
-### Làm sao để planning:
+## Làm sao để planning:
 
 Thực chất **demand planning** chỉ là 1 phần nhỏ giữa nhiều hoạt động planning khác nhau trong quá trình quản lý chuỗi cung ứng nhưng lại đóng vai trò quan trọng nhất. Như nghiên cứu dưới đây của [@nataliaszozda2013] , nó được xem thông tin đầu vào cho doanh nghiệp và dựa vào đó, các phòng ban trong doanh nghiệp như phòng thu mua sẽ lên kế hoạch về số lượng nguyên vật liệu cần mua, phòng sản xuất sẽ xây dựng kế hoạch sản xuất, đơn vị vận chuyển sẽ lên lịch trình phân phối hàng hóa cho từng nhà kho, từng cửa hàng khác nhau.
 
