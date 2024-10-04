@@ -8,11 +8,7 @@ format:
 number-sections: true
 ---
 
-# Mô hình SARIMA và SARIMAX:
-
-## Chuẩn bị dữ liệu
-
-Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
+# Giới thiệu mô hình:
 
 ```{r}
 #| warning: false
@@ -77,7 +73,7 @@ demand_testing<-ts(testing_df$month_demand,
                 start = c(2015,3))
 ```
 
-### Mô hình SARIMA:
+## Mô hình SARIMA:
 
 Theo nghiên cứu của [@johna.miller2024],họ nhắc đến mô hình SARIMAX có performance tốt hơn ARIMA. Vậy SARIMAX là gì:
 
@@ -101,9 +97,26 @@ Giải thích lại các thông số ta sử dụng sẽ là:
 
 Vậy thì còn mô hình SARIMAX thì khác gì với SARIMA.
 
-### Mô hình SARIMAX:
+## Mô hình SARIMAX:
 
-Để xây dựng mô hình SARIMAX thì ta cần thêm 1 biến khác không phải là biến quá khứ của dữ liệu. Gỉa sử ta tạo thêm 1 biến là thu nhập bình quân của người dân trong khoảng thời gian đó.
+SARIMAX nghĩa là *Seasonal Autoregressive Integrated Moving Average with eXogenous regressors* là một sự mở rộng của mô hình ARIMA, được thiết kế để phân tích và dự đoán các chuỗi thời gian có tính mùa vụ và có thể có thêm các biến độc lập bên ngoài. Dưới đây là một số điểm chính về mô hình này. Vậy so với mô hình **SARIMA**, nó chỉ khác là có thêm biến khác không phải là biến quá khứ của dữ liệu. 
+
+Nhắc lại, cấu trúc mô hình SARIMAX vẫn bao gồm các thành phần sau:
+
+1. **AR (Autoregressive)**: Phần này mô tả mối quan hệ giữa giá trị hiện tại và các giá trị trước đó trong chuỗi thời gian.
+2. **I (Integrated)**: Phần này đề cập đến việc làm cho chuỗi thời gian trở nên ổn định bằng cách lấy sai phân của nó.
+3. **MA (Moving Average)**: Phần này mô tả mối quan hệ giữa giá trị hiện tại và các sai số dự đoán trong quá khứ.
+4. **Seasonal**: SARIMAX có thể xử lý các yếu tố mùa vụ bằng cách thêm các tham số mùa vụ vào mô hình.
+
+Và thêm vào đó là tham số mới là phần **Exogenous** là các biến độc lập bên ngoài *(exogenous variables)* để cải thiện khả năng dự đoán.
+
+Như vậy, mô hình SARIMAX mang lại nhiều lợi ích, bao gồm khả năng dự đoán chính xác hơn nhờ vào việc xử lý hiệu quả các yếu tố mùa vụ và các biến độc lập. Ngoài ra, mô hình này còn cho phép điều chỉnh các tham số linh hoạt để phù hợp với đặc điểm của dữ liệu. Tuy nhiên, SARIMAX cũng có một số nhược điểm, như tính phức tạp khi cần tối ưu hóa nhiều tham số và yêu cầu về dữ liệu lớn, vì để đạt được kết quả tốt, mô hình cần có một lượng dữ liệu lịch sử đáng kể.
+
+## Chuẩn bị dữ liệu
+
+Để kiểm chứng nó, ta sẽ giả sử có thêm 1 biến là biến **Income (Thu nhập)** vào mô hình
+
+Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
 
 ```{r}
 #| warning: false
@@ -365,7 +378,7 @@ gt(data.frame(Metric = c("MAE","RMSE"),
                     alpha = 0.5)
 ```
 
-# Dự đoán số đơn hàng trong 18 tháng ở tương lai:
+# Dự đoán số đơn hàng trong 18 tháng tới:
 
 Dưới đây là kết quả dự đoán từ mô hình trong 3 năm tiếp theo ~ 18 tháng.
 
@@ -394,6 +407,7 @@ df<-predict_fit %>%
 ```{r}
 #| warning: false
 #| message: false
+#| echo: false
 #| layout: [[50,50], [100]]
 gt(df[1:9,]) %>% 
   tab_header(

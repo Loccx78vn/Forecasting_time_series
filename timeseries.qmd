@@ -1,0 +1,261 @@
+---
+title: "Giới thiệu"
+subtitle: "Việt Nam, 2024"
+categories: ["SupplyChainManagement", "Forecasting"]
+description: "Đây là bài viết của tôi về cách sử dụng R trong việc dự đoán dữ liệu trong tương lai"
+author: "Cao Xuân Lộc"
+date: "2024-08-21"
+bibliography: references.bib
+number-sections: true
+---
+
+# Demand planning là gì:
+
+## Định nghĩa:
+
+Trong quản lí chuỗi cung ứng, thuật ngữ *Demand Planning* là một trong những hoạt động quan trọng mà các nhà quản lí và doanh nghiệp cần quan tâm sâu sắc. Về định nghĩa, theo [@vilasb] "*Demand Planning* là một quá trình quản lý chuỗi cung ứng nhằm dự báo nhu cầu về sản phẩm để đảm bảo chúng có thể được cung cấp và làm hài lòng khách hàng. Mục tiêu của Demand planning là đạt được sự cân bằng trong việc có đủ lượng hàng tồn kho để đáp ứng nhu cầu của khách hàng mà không bị thiếu hoặc thừa. Để có thể dự báo được nhu cầu mua hàng, nhà Hoạch định nhu cầu cần thu thập và phân tích dữ liệu từ nhiều nguồn khác nhau như: hàng tồn kho, nhà cung ứng, kho, khách hàng,...".
+
+[![Hình 1: Định nghĩa về Demand Planning](img/DemandPlanning.jpg){fig-alt="Thuật ngữ quan trọng trong Supply Chain Management" fig-align="center" width="1200"}](https://www.kepion.com/blog/accurate-demand-planning-demp)
+
+## Lợi ích của Demand Planning:
+
+Việc dự đoán trước nhu cầu của khách hàng sẽ giúp doanh nghiệp chuẩn bị tốt hơn về hàng hóa, dịch vụ và chiếm được lòng tin của khách hàng. Ngoài ra, việc chuẩn bị sớm cũng tránh các hiện tượng như out-stock, tranh chấp hoặc tệ hơn đứt gãy chuỗi cung ứng và ảnh hưởng nặng nề tới kết quả kinh doanh của công ty.
+
+Ở vị trí nhân viên, bạn có thể ứng tuyển vị trí Demand Planner để có thể làm việc về Demand Planning. Còn ở vị trí cấp cao hơn sẽ là Supply Chain Planner - là người có thể xử lí luôn cả 4 vấn đề như sau:
+
+-   **Demand planning**: Dự đoán nhu cầu khách hàng bao nhiêu.
+-   **Capacity planning**: Lên kế hoạch phân phối, tồn kho.
+-   **Prodcution planning**: Chuẩn bị nguyên vật liệu để sản xuất ở nhà máy. Thông thường hoạt động này chỉ xảy ra ở công ti lớn có cả chuỗi cung ứng từ nhà máy đến nhà kho và có thể cả cửa hàng.
+-   **Invetory management** và **Sales and Opertion planning**: hai chức năng này có thể gộp lại thành **Fulfillment planning** - là hoạt động nhằm thỏa mãn các nhu cầu khác nhau của khách hàng như: quản lí hàng tồn kho tránh bị outstock, hàng hóa được vận chuyển đúng số lượng, đúng sản phẩm và nhận hàng với thời gian ngắn nhất.
+
+[![Hình 2: Các chức năng chính của Supply Chain Planner](img/SCP.jpg){fig-align="center"}](https://www.erp-information.com/)
+
+## Vì sao cần planning:
+
+Vậy làm sao để làm một **Planner** tốt trong quản lý chuỗi cung ứng ? Giả sử bạn đang là người quản lý cửa hàng về đồ chơi trẻ em, bạn sẽ cần lên kế hoạch nhập kho **từng loại** đồ chơi để tránh việc outstock hàng trên kho và bạn cần phải biết cân đối số lượng giữa các loại mặt hàng - mặt hàng nào bán chạy thì nhập nhiều, mặt hàng nào còn tồn kho thì có thể tạo chương trình giảm giá hoặc làm quà tặng...). Để làm được điều này, bạn không thể chỉ quyết định bằng cảm tính mà cần các công cụ đo lường hiệu quả và phù hợp với công ty của bạn.
+
+Ví dụ, trong tháng 10, cửa hàng cửa bạn vẫn còn 10 đồ chơi A và khách hàng cần mua tới 15 đồ chơi và thời gian vận chuyển nhập kho trung bình là 10 ngày. Vì vậy, trước tháng 10, bạn cần lên đơn đặt hàng cho bên supplier để mình nhập kho kịp lúc và trưng bày hàng trên kệ. Nghe việc này có vẻ dễ đúng không nhưng điều đó chỉ dễ khi bạn biết trước được tương lai rằng khách hàng của bạn sẽ mua 15 món đồ chơi trong tháng 10. Vậy làm sao để dự đoán chính xác được thì đó là công dụng của **demand planning**.
+
+### Làm sao để planning:
+
+Thực chất **demand planning** chỉ là 1 phần nhỏ giữa nhiều hoạt động planning khác nhau trong quá trình quản lý chuỗi cung ứng nhưng lại đóng vai trò quan trọng nhất. Như nghiên cứu dưới đây của [@nataliaszozda2013] , nó được xem thông tin đầu vào cho doanh nghiệp và dựa vào đó, các phòng ban trong doanh nghiệp như phòng thu mua sẽ lên kế hoạch về số lượng nguyên vật liệu cần mua, phòng sản xuất sẽ xây dựng kế hoạch sản xuất, đơn vị vận chuyển sẽ lên lịch trình phân phối hàng hóa cho từng nhà kho, từng cửa hàng khác nhau.
+
+![Hình 3: Vai trò của Demand Planning trong doanh nghiệp](img/planning.png){fig-align="center"}
+
+Do đó, bạn có thể thấy thông tin được dự đoán từ **demand planning** sẽ làm nền tảng hay dữ liệu đầu vào cho rất nhiều kế hoạch hoạt động trong công ty, doanh nghiệp. Vì vậy, để đảm bảo được độ chính xác, bạn cần thu thập dữ liệu từ nhiều nguồn để xây dựng mô hình dự đoán.
+
+Đối với dữ liệu chuỗi thời gian, các mô hình dự đoán thông thường được sử dụng như là:
+
+- Cho thời gian ngắn hạn (Từ 1 đến 3 tháng): ETS, MA (Moving Average), AR (Autoregressive).
+
+- Cho thời gian dài hạn: ARIMA, SARIMA hay SARIMAX.
+
+- Cho thời gian dài hạn và dữ liệu đa dạng phức tạp: các mô hình thuần về học máy như RNN, Deap Learning,... sẽ làm tốt hơn mô hình truyền thống.
+
+Vậy thì trong bài này chúng ta sẽ học đầu tiên về mô hình ARIMA.
+
+# Chuẩn bị dữ liệu:
+
+Ở phần bài tập này, chúng ta sẽ học về cách sử dụng R trong việc phân tích và dự đoán dữ liệu bằng 2 cách: mô hình ARIMA và SARIMAX
+
+Bài tập này dựa vào bộ dữ liệu từ [@felixzhao2017] của *Frank Corrigan*. Nếu bí ý tưởng, bạn có thể kham khảo thêm phần phân tích của anh ấy thông qua bài blog [@frank2019].
+
+Việc đầu tiên, rất quen thuộc, chúng ta gọi các packages vào R.
+
+```{r}
+#Call packages:
+pacman::p_load(rio,
+               here,
+               janitor,
+               tidyverse,
+               dplyr,
+               magrittr,
+               lubridate,
+               stringr
+               )
+```
+
+::: {.callout-tip}
+## Tải thư viện
+
+Nếu các bạn chưa có các packages này, bạn có thể tải xuống từ CRAN R bằng cú pháp: \``` install.packages(*"name_of_package"*)` ``
+:::
+
+```{r}
+#| echo: false
+#Import file:
+product_demand<-import("C:\\Users\\locca\\Downloads\\Historical Product Demand.csv")
+```
+
+Thông thường khi phân tích, việc xử lí dữ liệu khá tốn thời gian và công sức. Bạn có thể xem phần code xử lí của *Frank Corrigan* dưới đây để tiết kiệm thời gian.
+
+```{r}
+#| warning: false
+#| message: false
+#Change to suitable class (I change the name dataset to product_demand to shortly write)
+product_demand <-product_demand %>% 
+    mutate(Date = as.Date(Date,format = "%Y/%m/%d"),
+           Product_Category = as.factor(Product_Category))
+
+product_demand$Order_Demand <- 
+  gsub("[(]", "-", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  gsub("[)]", "", product_demand$Order_Demand)
+product_demand$Order_Demand <- 
+  as.numeric(product_demand$Order_Demand)
+
+#Then I will create a lot of cols contain year, month, week data and just select from 2012 to 2016:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+
+#So I will calculate the total order demand divided by year and month:
+month_df<-product_demand %>% 
+  group_by(Year,Month) %>%   
+  summarise(month_demand = round(sum(Order_Demand,
+                               na.rm = T)/10^6,3)) %>% 
+  mutate(datetime = as.Date(str_c(Year,
+                                    Month,
+                                    "1",
+                                    sep = "-"))) %>% 
+  ungroup() %>% 
+  select(-c(Year,Month))
+```
+
+Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
+
+```{r}
+#| echo: false
+library(downloadthis)
+product_demand %>%
+  download_this(
+    output_name = "product_demand",
+    output_extension = ".csv",
+    button_label = "Download data",
+    button_type = "warning",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+```
+
+# Phân tích cơ bản:
+
+Bộ dữ liệu gồm có **2160 sản phẩm khác nhau** và **4 kho hàng** khác nhau. Dữ liệu khá phức tạp nên vì mục đích học tập, mình sẽ xem như chỉ có 1 sản phẩm và chúng ta sẽ làm dự đoán cho 4 nhà kho.
+
+```{r}
+#| echo: false
+#Some informations of this dataset:
+library(glue)
+
+# Calculate unique counts
+num_products <- length(unique(product_demand$Product_Code))
+num_warehouses <- length(unique(product_demand$Warehouse))
+
+# Print summary with glue
+output <- glue(
+  "=== Dataset Summary ===\n",
+  "Number of unique products: {num_products}\n",
+  "Number of unique warehouses: {num_warehouses}\n"
+)
+
+cat(output)
+```
+
+Đầu tiên, chúng ta sẽ muốn biết về xu hướng tiêu dùng trong 5 năm từ 2012 đến 2016 ở tất cả các kho và từng kho riêng lẻ. Sau đó chúng ta kết hợp hai đồ thị trong 1 đồ thị theo hàm `cowplot::plot_grid`
+
+```{r}
+#| warning: false
+#| messages: false
+#| echo: false
+#Plot the demand of each month:
+#Prepare data by creating new ggplot object:
+product_demand <-product_demand %>%
+  mutate(Month = month(Date),
+         Year = year(Date),
+         Week_day = wday(Date)) %>% 
+  filter(Year %in% c(2016:2012))
+
+df1<-product_demand %>% 
+  group_by(Year,Month) %>% 
+  summarise(month_demand = sum(Order_Demand,na.rm = T))
+
+df1$Month_Year = as.Date(str_c(df1$Year,df1$Month,"1",sep = "-"))
+
+#Plot demand line base on month:
+p1<-ggplot(data = df1,
+       mapping = aes(x = Month_Year, 
+                     y = month_demand))+
+  geom_line()+
+  labs(x="Month_Year",y="Total Orders",title="Total Orders by Month") +
+  theme_bw() +
+  geom_smooth(size=0.2,se=FALSE,color='red')
+
+#Plot histogram of demand product in each warehouse:
+df2<-product_demand %>% 
+  group_by(Year,Month,Warehouse) %>% 
+  summarise(Month_Demand = sum(Order_Demand,na.rm = T))
+df2$Month_Year = as.Date(str_c(df2$Year,df2$Month,"1",sep = "-"))
+
+p2<-ggplot(data = df2,
+       mapping = aes(x = Month_Year,
+                     y = Month_Demand))+
+  geom_line()+
+  theme_bw()+
+  facet_grid(~Warehouse)+
+  labs(x = "Daily demand order", 
+       y = "Names of Warehouse",
+       title = "Plot of daily demand in each warehouse")
+
+#Combine two graphs:
+cowplot::plot_grid(p1, p2,
+                  # 1 column and two rows - stacked on top of each other
+                   ncol = 1,
+                   nrow = 2,
+                   # top plot is 2/3 as tall as second
+                   rel_heights = c(2, 3))
+```
+
+Nếu bạn là quản lí ở cửa hàng, bạn có thể quan tâm ngày nào trong tuần là ngày mà người tiêu dùng đi mua sắm nhiều nhất. Dựa vào thông tin đó để bạn có thể lên plan và sắp xếp nhân lực cho tối ưu nhất.
+
+```{r}
+#| warning: false
+#| messages: false
+#| echo: false
+#We will calculate the total demand in the week and compare between weekday in the week:
+#First, counting total demand:
+product_demand$Month_Year = as.Date(str_c(product_demand$Year,product_demand$Month,"1",sep = "-"))
+
+Demand_weekday <-product_demand %>%
+  drop_na(Date) %>%
+  group_by(Month_Year,Week_day) %>% 
+  summarise(Daily_demand = sum(Order_Demand)) %>% 
+  mutate(pct = Daily_demand/sum(Daily_demand))
+
+#Then, we will plot the daily demand weekday for 5 years to compare each weekday which has the most demand:
+ggplot(data = Demand_weekday,
+       mapping = aes(x = as.factor(Week_day),
+                     y = pct,
+                     group = Month_Year))+
+  geom_line()+
+  labs(x = "Week day",
+       y = "Percentage of daily demand")+
+  theme_bw()
+
+#Or comparing each years to find different:
+ggplot(data = Demand_weekday,
+       mapping = aes(x = as.factor(Week_day),
+                     y = pct,
+                     group = Month_Year))+
+  geom_line()+
+  labs(x = "Week day",
+       y = "Percentage of daily demand")+
+  theme_bw()+
+  facet_wrap(~year(Month_Year))
+```
+
+Như biểu đồ trên, ta có thể thấy người tiêu dùng thường đi vào đầu tuần và cuối tuần, có xu hướng giảm dần vào giữa tuần hay khoảng thứ 4 hoặc thứ 5.
+
+Vậy tiếp theo ta sẽ vào phần phân tích và xây dựng mô hình ở trang [Mô hình ARIMA](Forecasting.qmd).

@@ -61,7 +61,7 @@ month_df<-product_demand %>%
   select(-c(Year,Month))
 ```
 
-# Sơ lược về kiến thức cần nắm:
+# Kiến thức sơ lược:
 
 ## Giới thiệu dữ liệu thời gian:
 
@@ -141,7 +141,7 @@ Mô hình được xây dựng "dựa trên giả thuyết: *Stationary series* 
 
 -   Stationary series: điều kiện là trung bình của chuỗi là constant (bất biến), phương sai (variance) của chuỗi phải có tính đồng nhất (homoscedasticity) và hiệp phương sai (covariance) giữa giá trị t và t+1 phải không liên quan tới nhau.
 
-    ::: {.callout-warning appearance="minimal"}
+    ::: {.callout-warning}
     ## Lưu ý
 
     Nếu chuỗi dữ liệu không phải là chuỗi dùng thì bạn sẽ không xây dựng được mô hình chuỗi thời gian (time-series model)

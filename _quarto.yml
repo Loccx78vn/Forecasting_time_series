@@ -3,28 +3,22 @@ project:
   output-dir: docs
   
 website:
-  title: "Time series model"
+  title: "Cao Xuân Lộc"
   navbar:
     left:
       - href: index.qmd
+        text: Home
+      - href: timeseries.qmd
+        text: Time series
       - href: Forecasting.qmd
       - href: SARIMA.qmd
-    tools:
-      - icon: github
-        text: Github
-        href: https://github.com/Loccx78vn/Forecasting_time_series
-      - icon: twitter
-        text: Another projects
-        href: https://rpubs.com/loccx
   page-footer:
     right: "Built with [Quarto](https://quarto.org/)"
     left: "&copy; Copyright 2024, Loc cao"
 
 format:
   html:
-    theme: 
-      light: flatly
-      dark: darkly
+    theme: Flatly
     toc: true
 
 editor: source
