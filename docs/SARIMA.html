@@ -147,10 +147,6 @@ div.csl-indent {
     <a class="nav-link active" href="./SARIMA.html" rel="" target="" aria-current="page">
  <span class="menu-text">Mô hình SARIMA</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./EnsembleML.html" rel="" target="">
- <span class="menu-text">Machine Learning</span></a>
-  </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto tools-wide">
     <a href="https://github.com/Loccx78vn/Forecasting_time_series" rel="" title="Github" class="quarto-navigation-tool px-1" aria-label="Github"><i class="bi bi-github"></i></a>
@@ -177,14 +173,14 @@ div.csl-indent {
   <li><a href="#mô-hình-sarima" id="toc-mô-hình-sarima" class="nav-link" data-scroll-target="#mô-hình-sarima"><span class="header-section-number">1.1.1</span> Mô hình SARIMA:</a></li>
   <li><a href="#mô-hình-sarimax" id="toc-mô-hình-sarimax" class="nav-link" data-scroll-target="#mô-hình-sarimax"><span class="header-section-number">1.1.2</span> Mô hình SARIMAX:</a></li>
   </ul></li>
-  <li><a href="#thực-hành-trong-r" id="toc-thực-hành-trong-r" class="nav-link" data-scroll-target="#thực-hành-trong-r"><span class="header-section-number">1.2</span> Thực hành trong R:</a>
+  </ul></li>
+  <li><a href="#phương-pháp-thủ-công" id="toc-phương-pháp-thủ-công" class="nav-link" data-scroll-target="#phương-pháp-thủ-công"><span class="header-section-number">2</span> Phương pháp thủ công:</a>
   <ul class="collapse">
-  <li><a href="#lựa-chọn-mô-hình-thủ-công" id="toc-lựa-chọn-mô-hình-thủ-công" class="nav-link" data-scroll-target="#lựa-chọn-mô-hình-thủ-công"><span class="header-section-number">1.2.1</span> Lựa chọn mô hình thủ công:</a></li>
-  <li><a href="#đánh-giá-mô-hình" id="toc-đánh-giá-mô-hình" class="nav-link" data-scroll-target="#đánh-giá-mô-hình"><span class="header-section-number">1.2.2</span> Đánh giá mô hình:</a></li>
-  <li><a href="#kiểm-định-giả-thuyết-của-mô-hình" id="toc-kiểm-định-giả-thuyết-của-mô-hình" class="nav-link" data-scroll-target="#kiểm-định-giả-thuyết-của-mô-hình"><span class="header-section-number">1.2.3</span> Kiểm định giả thuyết của mô hình:</a></li>
+  <li><a href="#lựa-chọn-mô-hình-thủ-công" id="toc-lựa-chọn-mô-hình-thủ-công" class="nav-link" data-scroll-target="#lựa-chọn-mô-hình-thủ-công"><span class="header-section-number">2.1</span> Lựa chọn mô hình thủ công:</a></li>
+  <li><a href="#đánh-giá-mô-hình" id="toc-đánh-giá-mô-hình" class="nav-link" data-scroll-target="#đánh-giá-mô-hình"><span class="header-section-number">2.2</span> Đánh giá mô hình:</a></li>
+  <li><a href="#kiểm-định-giả-thuyết-của-mô-hình" id="toc-kiểm-định-giả-thuyết-của-mô-hình" class="nav-link" data-scroll-target="#kiểm-định-giả-thuyết-của-mô-hình"><span class="header-section-number">2.3</span> Kiểm định giả thuyết của mô hình:</a></li>
   </ul></li>
-  </ul></li>
-  <li><a href="#dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" id="toc-dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" class="nav-link" data-scroll-target="#dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai"><span class="header-section-number">2</span> Dự đoán số đơn hàng trong 18 tháng ở tương lai:</a></li>
+  <li><a href="#dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" id="toc-dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" class="nav-link" data-scroll-target="#dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai"><span class="header-section-number">3</span> Dự đoán số đơn hàng trong 18 tháng ở tương lai:</a></li>
   </ul>
 </nav>
     </div>
@@ -224,7 +220,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="img/SARIMAX.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Hình 5: Stationary and non-stationary series</figcaption>
+<figcaption class="figure-caption">Hình 7: SARIMA VS ARIMA</figcaption>
 </figure>
 </div>
 <p>Dưới đây là ví dụ về mô hình SARIMA và cách để code trong R.</p>
@@ -260,7 +256,7 @@ div.csl-indent {
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Forecast by training model:</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model_training2<span class="ot">&lt;-</span><span class="fu">Arima</span>(demand_training,,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model_training2<span class="ot">&lt;-</span><span class="fu">Arima</span>(demand_training,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">xreg =</span> income[<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(demand_training)],</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">order =</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">3</span>),</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">seasonal =</span> <span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>),</span>
@@ -279,7 +275,7 @@ div.csl-indent {
     Ljung-Box test
 
 data:  Residuals from Regression with ARIMA(3,1,3)(1,1,0)[12] errors
-Q* = 3.5682, df = 3, p-value = 0.312
+Q* = 5.7002, df = 3, p-value = 0.1271
 
 Model df: 7.   Total lags used: 10</code></pre>
 </div>
@@ -311,15 +307,16 @@ Model df: 7.   Total lags used: 10</code></pre>
 <p><img src="SARIMA_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai. Nhìn biểu đồ ta dễ dàng kết luận mô hình không tốt. Nguyên do là tương quan giữa biến <code>income</code> và <code>demand_training</code> quá thấp, chỉ số tương quan chỉ có 0.09.</p>
+<p>Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai. Nhìn biểu đồ ta dễ dàng kết luận mô hình không tốt. Nguyên do là tương quan giữa biến <code>income</code> và <code>demand_training</code> quá thấp, chỉ số tương quan chỉ có -0.193.</p>
 </section>
 </section>
-<section id="thực-hành-trong-r" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="thực-hành-trong-r"><span class="header-section-number">1.2</span> Thực hành trong R:</h2>
-<section id="lựa-chọn-mô-hình-thủ-công" class="level3" data-number="1.2.1">
-<h3 data-number="1.2.1" class="anchored" data-anchor-id="lựa-chọn-mô-hình-thủ-công"><span class="header-section-number">1.2.1</span> Lựa chọn mô hình thủ công:</h3>
+</section>
+<section id="phương-pháp-thủ-công" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Phương pháp thủ công:</h1>
+<section id="lựa-chọn-mô-hình-thủ-công" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="lựa-chọn-mô-hình-thủ-công"><span class="header-section-number">2.1</span> Lựa chọn mô hình thủ công:</h2>
 <p>Thực tế, ta thấy mô hình do R đề xuất bằng hàm <code>auto.arima</code> có vẻ “overfitting” - nghĩa là mô hình tốt quá, <em>cover</em> hết các trường hợp nhưng có nguy cơ không cho dự đoán tốt vì dữ liệu trong tương lai biến động.</p>
-<p>Vì vậy, ta cần xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên <a href="https://malouche.github.io/howto/sarima.html">How can I select the best SARIMA model</a>.</p>
+<p>Vì vậy, ta có thể xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên <a href="https://malouche.github.io/howto/sarima.html">How can I select the best SARIMA model</a>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -429,27 +426,27 @@ Model df: 7.   Total lags used: 10</code></pre>
 </details>
 <div class="cell-output-display">
 
-<div id="otqcsczjhw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="myaiwekfvp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#otqcsczjhw table {
+#myaiwekfvp table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#otqcsczjhw thead, #otqcsczjhw tbody, #otqcsczjhw tfoot, #otqcsczjhw tr, #otqcsczjhw td, #otqcsczjhw th {
+#myaiwekfvp thead, #myaiwekfvp tbody, #myaiwekfvp tfoot, #myaiwekfvp tr, #myaiwekfvp td, #myaiwekfvp th {
   border-style: none;
 }
 
-#otqcsczjhw p {
+#myaiwekfvp p {
   margin: 0;
   padding: 0;
 }
 
-#otqcsczjhw .gt_table {
+#myaiwekfvp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -475,12 +472,12 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_caption {
+#myaiwekfvp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#otqcsczjhw .gt_title {
+#myaiwekfvp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -492,7 +489,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-bottom-width: 0;
 }
 
-#otqcsczjhw .gt_subtitle {
+#myaiwekfvp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -504,7 +501,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-top-width: 0;
 }
 
-#otqcsczjhw .gt_heading {
+#myaiwekfvp .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -516,13 +513,13 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_bottom_border {
+#myaiwekfvp .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_col_headings {
+#myaiwekfvp .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -537,7 +534,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_col_heading {
+#myaiwekfvp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -557,7 +554,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   overflow-x: hidden;
 }
 
-#otqcsczjhw .gt_column_spanner_outer {
+#myaiwekfvp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -569,15 +566,15 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 4px;
 }
 
-#otqcsczjhw .gt_column_spanner_outer:first-child {
+#myaiwekfvp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#otqcsczjhw .gt_column_spanner_outer:last-child {
+#myaiwekfvp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#otqcsczjhw .gt_column_spanner {
+#myaiwekfvp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -589,11 +586,11 @@ Model df: 7.   Total lags used: 10</code></pre>
   width: 100%;
 }
 
-#otqcsczjhw .gt_spanner_row {
+#myaiwekfvp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#otqcsczjhw .gt_group_heading {
+#myaiwekfvp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -619,7 +616,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   text-align: left;
 }
 
-#otqcsczjhw .gt_empty_group_heading {
+#myaiwekfvp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -634,15 +631,15 @@ Model df: 7.   Total lags used: 10</code></pre>
   vertical-align: middle;
 }
 
-#otqcsczjhw .gt_from_md > :first-child {
+#myaiwekfvp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#otqcsczjhw .gt_from_md > :last-child {
+#myaiwekfvp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#otqcsczjhw .gt_row {
+#myaiwekfvp .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -661,7 +658,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   overflow-x: hidden;
 }
 
-#otqcsczjhw .gt_stub {
+#myaiwekfvp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -674,7 +671,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 5px;
 }
 
-#otqcsczjhw .gt_stub_row_group {
+#myaiwekfvp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -688,15 +685,15 @@ Model df: 7.   Total lags used: 10</code></pre>
   vertical-align: top;
 }
 
-#otqcsczjhw .gt_row_group_first td {
+#myaiwekfvp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#otqcsczjhw .gt_row_group_first th {
+#myaiwekfvp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#otqcsczjhw .gt_summary_row {
+#myaiwekfvp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -706,16 +703,16 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 5px;
 }
 
-#otqcsczjhw .gt_first_summary_row {
+#myaiwekfvp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_first_summary_row.thick {
+#myaiwekfvp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#otqcsczjhw .gt_last_summary_row {
+#myaiwekfvp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -725,7 +722,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_grand_summary_row {
+#myaiwekfvp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -735,7 +732,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 5px;
 }
 
-#otqcsczjhw .gt_first_grand_summary_row {
+#myaiwekfvp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -745,7 +742,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_last_grand_summary_row_top {
+#myaiwekfvp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -755,11 +752,11 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_striped {
+#myaiwekfvp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#otqcsczjhw .gt_table_body {
+#myaiwekfvp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -768,7 +765,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_footnotes {
+#myaiwekfvp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -782,7 +779,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_footnote {
+#myaiwekfvp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -791,7 +788,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 5px;
 }
 
-#otqcsczjhw .gt_sourcenotes {
+#myaiwekfvp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -805,7 +802,7 @@ Model df: 7.   Total lags used: 10</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#otqcsczjhw .gt_sourcenote {
+#myaiwekfvp .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -813,72 +810,72 @@ Model df: 7.   Total lags used: 10</code></pre>
   padding-right: 5px;
 }
 
-#otqcsczjhw .gt_left {
+#myaiwekfvp .gt_left {
   text-align: left;
 }
 
-#otqcsczjhw .gt_center {
+#myaiwekfvp .gt_center {
   text-align: center;
 }
 
-#otqcsczjhw .gt_right {
+#myaiwekfvp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#otqcsczjhw .gt_font_normal {
+#myaiwekfvp .gt_font_normal {
   font-weight: normal;
 }
 
-#otqcsczjhw .gt_font_bold {
+#myaiwekfvp .gt_font_bold {
   font-weight: bold;
 }
 
-#otqcsczjhw .gt_font_italic {
+#myaiwekfvp .gt_font_italic {
   font-style: italic;
 }
 
-#otqcsczjhw .gt_super {
+#myaiwekfvp .gt_super {
   font-size: 65%;
 }
 
-#otqcsczjhw .gt_footnote_marks {
+#myaiwekfvp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#otqcsczjhw .gt_asterisk {
+#myaiwekfvp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#otqcsczjhw .gt_indent_1 {
+#myaiwekfvp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#otqcsczjhw .gt_indent_2 {
+#myaiwekfvp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#otqcsczjhw .gt_indent_3 {
+#myaiwekfvp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#otqcsczjhw .gt_indent_4 {
+#myaiwekfvp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#otqcsczjhw .gt_indent_5 {
+#myaiwekfvp .gt_indent_5 {
   text-indent: 25px;
 }
 
-#otqcsczjhw .katex-display {
+#myaiwekfvp .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#otqcsczjhw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#myaiwekfvp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -1025,8 +1022,8 @@ tbody tr:last-child {
 </div>
 </div>
 </section>
-<section id="đánh-giá-mô-hình" class="level3" data-number="1.2.2">
-<h3 data-number="1.2.2" class="anchored" data-anchor-id="đánh-giá-mô-hình"><span class="header-section-number">1.2.2</span> Đánh giá mô hình:</h3>
+<section id="đánh-giá-mô-hình" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="đánh-giá-mô-hình"><span class="header-section-number">2.2</span> Đánh giá mô hình:</h2>
 <p>Và cuối cùng là đánh giá mô hình vừa được chọn ARIMA(2,1,0)(0,1,0)[12] với dữ liệu thực tế từ đối tượng <code>demand_testing</code>.</p>
 <div class="cell">
 <details>
@@ -1062,8 +1059,8 @@ tbody tr:last-child {
 </div>
 </div>
 </section>
-<section id="kiểm-định-giả-thuyết-của-mô-hình" class="level3" data-number="1.2.3">
-<h3 data-number="1.2.3" class="anchored" data-anchor-id="kiểm-định-giả-thuyết-của-mô-hình"><span class="header-section-number">1.2.3</span> Kiểm định giả thuyết của mô hình:</h3>
+<section id="kiểm-định-giả-thuyết-của-mô-hình" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="kiểm-định-giả-thuyết-của-mô-hình"><span class="header-section-number">2.3</span> Kiểm định giả thuyết của mô hình:</h2>
 <p>Sau khi đã xây dựng mô hình, ta cần kiểm tra lại các giả thuyết như:</p>
 <ul>
 <li>Phần dư không tương quan.</li>
@@ -1133,27 +1130,27 @@ Model df: 3.   Total lags used: 8</code></pre>
 </details>
 <div class="cell-output-display">
 
-<div id="jzrbjcgppb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lzhslkzcmc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#jzrbjcgppb table {
+#lzhslkzcmc table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jzrbjcgppb thead, #jzrbjcgppb tbody, #jzrbjcgppb tfoot, #jzrbjcgppb tr, #jzrbjcgppb td, #jzrbjcgppb th {
+#lzhslkzcmc thead, #lzhslkzcmc tbody, #lzhslkzcmc tfoot, #lzhslkzcmc tr, #lzhslkzcmc td, #lzhslkzcmc th {
   border-style: none;
 }
 
-#jzrbjcgppb p {
+#lzhslkzcmc p {
   margin: 0;
   padding: 0;
 }
 
-#jzrbjcgppb .gt_table {
+#lzhslkzcmc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1179,12 +1176,12 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_caption {
+#lzhslkzcmc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jzrbjcgppb .gt_title {
+#lzhslkzcmc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1196,7 +1193,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-bottom-width: 0;
 }
 
-#jzrbjcgppb .gt_subtitle {
+#lzhslkzcmc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1208,7 +1205,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-top-width: 0;
 }
 
-#jzrbjcgppb .gt_heading {
+#lzhslkzcmc .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1220,13 +1217,13 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_bottom_border {
+#lzhslkzcmc .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_col_headings {
+#lzhslkzcmc .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1241,7 +1238,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_col_heading {
+#lzhslkzcmc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1261,7 +1258,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   overflow-x: hidden;
 }
 
-#jzrbjcgppb .gt_column_spanner_outer {
+#lzhslkzcmc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1273,15 +1270,15 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 4px;
 }
 
-#jzrbjcgppb .gt_column_spanner_outer:first-child {
+#lzhslkzcmc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jzrbjcgppb .gt_column_spanner_outer:last-child {
+#lzhslkzcmc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jzrbjcgppb .gt_column_spanner {
+#lzhslkzcmc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -1293,11 +1290,11 @@ Model df: 3.   Total lags used: 8</code></pre>
   width: 100%;
 }
 
-#jzrbjcgppb .gt_spanner_row {
+#lzhslkzcmc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jzrbjcgppb .gt_group_heading {
+#lzhslkzcmc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1323,7 +1320,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   text-align: left;
 }
 
-#jzrbjcgppb .gt_empty_group_heading {
+#lzhslkzcmc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1338,15 +1335,15 @@ Model df: 3.   Total lags used: 8</code></pre>
   vertical-align: middle;
 }
 
-#jzrbjcgppb .gt_from_md > :first-child {
+#lzhslkzcmc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jzrbjcgppb .gt_from_md > :last-child {
+#lzhslkzcmc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jzrbjcgppb .gt_row {
+#lzhslkzcmc .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -1365,7 +1362,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   overflow-x: hidden;
 }
 
-#jzrbjcgppb .gt_stub {
+#lzhslkzcmc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1378,7 +1375,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 5px;
 }
 
-#jzrbjcgppb .gt_stub_row_group {
+#lzhslkzcmc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1392,15 +1389,15 @@ Model df: 3.   Total lags used: 8</code></pre>
   vertical-align: top;
 }
 
-#jzrbjcgppb .gt_row_group_first td {
+#lzhslkzcmc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jzrbjcgppb .gt_row_group_first th {
+#lzhslkzcmc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jzrbjcgppb .gt_summary_row {
+#lzhslkzcmc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1410,16 +1407,16 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 5px;
 }
 
-#jzrbjcgppb .gt_first_summary_row {
+#lzhslkzcmc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_first_summary_row.thick {
+#lzhslkzcmc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jzrbjcgppb .gt_last_summary_row {
+#lzhslkzcmc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1429,7 +1426,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_grand_summary_row {
+#lzhslkzcmc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1439,7 +1436,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 5px;
 }
 
-#jzrbjcgppb .gt_first_grand_summary_row {
+#lzhslkzcmc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1449,7 +1446,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_last_grand_summary_row_top {
+#lzhslkzcmc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1459,11 +1456,11 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_striped {
+#lzhslkzcmc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jzrbjcgppb .gt_table_body {
+#lzhslkzcmc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1472,7 +1469,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_footnotes {
+#lzhslkzcmc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1486,7 +1483,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_footnote {
+#lzhslkzcmc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1495,7 +1492,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 5px;
 }
 
-#jzrbjcgppb .gt_sourcenotes {
+#lzhslkzcmc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1509,7 +1506,7 @@ Model df: 3.   Total lags used: 8</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#jzrbjcgppb .gt_sourcenote {
+#lzhslkzcmc .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1517,72 +1514,72 @@ Model df: 3.   Total lags used: 8</code></pre>
   padding-right: 5px;
 }
 
-#jzrbjcgppb .gt_left {
+#lzhslkzcmc .gt_left {
   text-align: left;
 }
 
-#jzrbjcgppb .gt_center {
+#lzhslkzcmc .gt_center {
   text-align: center;
 }
 
-#jzrbjcgppb .gt_right {
+#lzhslkzcmc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jzrbjcgppb .gt_font_normal {
+#lzhslkzcmc .gt_font_normal {
   font-weight: normal;
 }
 
-#jzrbjcgppb .gt_font_bold {
+#lzhslkzcmc .gt_font_bold {
   font-weight: bold;
 }
 
-#jzrbjcgppb .gt_font_italic {
+#lzhslkzcmc .gt_font_italic {
   font-style: italic;
 }
 
-#jzrbjcgppb .gt_super {
+#lzhslkzcmc .gt_super {
   font-size: 65%;
 }
 
-#jzrbjcgppb .gt_footnote_marks {
+#lzhslkzcmc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jzrbjcgppb .gt_asterisk {
+#lzhslkzcmc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jzrbjcgppb .gt_indent_1 {
+#lzhslkzcmc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jzrbjcgppb .gt_indent_2 {
+#lzhslkzcmc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jzrbjcgppb .gt_indent_3 {
+#lzhslkzcmc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jzrbjcgppb .gt_indent_4 {
+#lzhslkzcmc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jzrbjcgppb .gt_indent_5 {
+#lzhslkzcmc .gt_indent_5 {
   text-indent: 25px;
 }
 
-#jzrbjcgppb .katex-display {
+#lzhslkzcmc .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#jzrbjcgppb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lzhslkzcmc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -1629,9 +1626,8 @@ tbody tr:last-child {
 </div>
 </section>
 </section>
-</section>
-<section id="dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Dự đoán số đơn hàng trong 18 tháng ở tương lai:</h1>
+<section id="dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Dự đoán số đơn hàng trong 18 tháng ở tương lai:</h1>
 <p>Dưới đây là kết quả dự đoán từ mô hình trong 3 năm tiếp theo ~ 18 tháng.</p>
 <div class="cell">
 <details>
@@ -1678,27 +1674,27 @@ tbody tr:last-child {
 <div class="quarto-layout-row quarto-layout-valign-top">
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 
-<div id="ayilbncckw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="aotkdkkcgq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#ayilbncckw table {
+#aotkdkkcgq table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ayilbncckw thead, #ayilbncckw tbody, #ayilbncckw tfoot, #ayilbncckw tr, #ayilbncckw td, #ayilbncckw th {
+#aotkdkkcgq thead, #aotkdkkcgq tbody, #aotkdkkcgq tfoot, #aotkdkkcgq tr, #aotkdkkcgq td, #aotkdkkcgq th {
   border-style: none;
 }
 
-#ayilbncckw p {
+#aotkdkkcgq p {
   margin: 0;
   padding: 0;
 }
 
-#ayilbncckw .gt_table {
+#aotkdkkcgq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1724,12 +1720,12 @@ tbody tr:last-child {
   border-left-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_caption {
+#aotkdkkcgq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ayilbncckw .gt_title {
+#aotkdkkcgq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1741,7 +1737,7 @@ tbody tr:last-child {
   border-bottom-width: 0;
 }
 
-#ayilbncckw .gt_subtitle {
+#aotkdkkcgq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1753,7 +1749,7 @@ tbody tr:last-child {
   border-top-width: 0;
 }
 
-#ayilbncckw .gt_heading {
+#aotkdkkcgq .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1765,13 +1761,13 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_bottom_border {
+#aotkdkkcgq .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_col_headings {
+#aotkdkkcgq .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1786,7 +1782,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_col_heading {
+#aotkdkkcgq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1806,7 +1802,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#ayilbncckw .gt_column_spanner_outer {
+#aotkdkkcgq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1818,15 +1814,15 @@ tbody tr:last-child {
   padding-right: 4px;
 }
 
-#ayilbncckw .gt_column_spanner_outer:first-child {
+#aotkdkkcgq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ayilbncckw .gt_column_spanner_outer:last-child {
+#aotkdkkcgq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ayilbncckw .gt_column_spanner {
+#aotkdkkcgq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -1838,11 +1834,11 @@ tbody tr:last-child {
   width: 100%;
 }
 
-#ayilbncckw .gt_spanner_row {
+#aotkdkkcgq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ayilbncckw .gt_group_heading {
+#aotkdkkcgq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1868,7 +1864,7 @@ tbody tr:last-child {
   text-align: left;
 }
 
-#ayilbncckw .gt_empty_group_heading {
+#aotkdkkcgq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1883,15 +1879,15 @@ tbody tr:last-child {
   vertical-align: middle;
 }
 
-#ayilbncckw .gt_from_md > :first-child {
+#aotkdkkcgq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ayilbncckw .gt_from_md > :last-child {
+#aotkdkkcgq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ayilbncckw .gt_row {
+#aotkdkkcgq .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -1910,7 +1906,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#ayilbncckw .gt_stub {
+#aotkdkkcgq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1923,7 +1919,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#ayilbncckw .gt_stub_row_group {
+#aotkdkkcgq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1937,15 +1933,15 @@ tbody tr:last-child {
   vertical-align: top;
 }
 
-#ayilbncckw .gt_row_group_first td {
+#aotkdkkcgq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ayilbncckw .gt_row_group_first th {
+#aotkdkkcgq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ayilbncckw .gt_summary_row {
+#aotkdkkcgq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1955,16 +1951,16 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#ayilbncckw .gt_first_summary_row {
+#aotkdkkcgq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_first_summary_row.thick {
+#aotkdkkcgq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ayilbncckw .gt_last_summary_row {
+#aotkdkkcgq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1974,7 +1970,7 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_grand_summary_row {
+#aotkdkkcgq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1984,7 +1980,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#ayilbncckw .gt_first_grand_summary_row {
+#aotkdkkcgq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1994,7 +1990,7 @@ tbody tr:last-child {
   border-top-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_last_grand_summary_row_top {
+#aotkdkkcgq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2004,11 +2000,11 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_striped {
+#aotkdkkcgq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ayilbncckw .gt_table_body {
+#aotkdkkcgq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2017,7 +2013,7 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_footnotes {
+#aotkdkkcgq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2031,7 +2027,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_footnote {
+#aotkdkkcgq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2040,7 +2036,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#ayilbncckw .gt_sourcenotes {
+#aotkdkkcgq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2054,7 +2050,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#ayilbncckw .gt_sourcenote {
+#aotkdkkcgq .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2062,72 +2058,72 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#ayilbncckw .gt_left {
+#aotkdkkcgq .gt_left {
   text-align: left;
 }
 
-#ayilbncckw .gt_center {
+#aotkdkkcgq .gt_center {
   text-align: center;
 }
 
-#ayilbncckw .gt_right {
+#aotkdkkcgq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ayilbncckw .gt_font_normal {
+#aotkdkkcgq .gt_font_normal {
   font-weight: normal;
 }
 
-#ayilbncckw .gt_font_bold {
+#aotkdkkcgq .gt_font_bold {
   font-weight: bold;
 }
 
-#ayilbncckw .gt_font_italic {
+#aotkdkkcgq .gt_font_italic {
   font-style: italic;
 }
 
-#ayilbncckw .gt_super {
+#aotkdkkcgq .gt_super {
   font-size: 65%;
 }
 
-#ayilbncckw .gt_footnote_marks {
+#aotkdkkcgq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ayilbncckw .gt_asterisk {
+#aotkdkkcgq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ayilbncckw .gt_indent_1 {
+#aotkdkkcgq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ayilbncckw .gt_indent_2 {
+#aotkdkkcgq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ayilbncckw .gt_indent_3 {
+#aotkdkkcgq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ayilbncckw .gt_indent_4 {
+#aotkdkkcgq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ayilbncckw .gt_indent_5 {
+#aotkdkkcgq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ayilbncckw .katex-display {
+#aotkdkkcgq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ayilbncckw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#aotkdkkcgq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -2200,27 +2196,27 @@ tbody tr:last-child {
 </div>
 <div class="cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
 
-<div id="jnsajoqksw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="igotdqwruf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cairo:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-#jnsajoqksw table {
+#igotdqwruf table {
   font-family: Cairo, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#jnsajoqksw thead, #jnsajoqksw tbody, #jnsajoqksw tfoot, #jnsajoqksw tr, #jnsajoqksw td, #jnsajoqksw th {
+#igotdqwruf thead, #igotdqwruf tbody, #igotdqwruf tfoot, #igotdqwruf tr, #igotdqwruf td, #igotdqwruf th {
   border-style: none;
 }
 
-#jnsajoqksw p {
+#igotdqwruf p {
   margin: 0;
   padding: 0;
 }
 
-#jnsajoqksw .gt_table {
+#igotdqwruf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2246,12 +2242,12 @@ tbody tr:last-child {
   border-left-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_caption {
+#igotdqwruf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#jnsajoqksw .gt_title {
+#igotdqwruf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2263,7 +2259,7 @@ tbody tr:last-child {
   border-bottom-width: 0;
 }
 
-#jnsajoqksw .gt_subtitle {
+#igotdqwruf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2275,7 +2271,7 @@ tbody tr:last-child {
   border-top-width: 0;
 }
 
-#jnsajoqksw .gt_heading {
+#igotdqwruf .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -2287,13 +2283,13 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_bottom_border {
+#igotdqwruf .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_col_headings {
+#igotdqwruf .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2308,7 +2304,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_col_heading {
+#igotdqwruf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2328,7 +2324,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#jnsajoqksw .gt_column_spanner_outer {
+#igotdqwruf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2340,15 +2336,15 @@ tbody tr:last-child {
   padding-right: 4px;
 }
 
-#jnsajoqksw .gt_column_spanner_outer:first-child {
+#igotdqwruf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#jnsajoqksw .gt_column_spanner_outer:last-child {
+#igotdqwruf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#jnsajoqksw .gt_column_spanner {
+#igotdqwruf .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #000000;
@@ -2360,11 +2356,11 @@ tbody tr:last-child {
   width: 100%;
 }
 
-#jnsajoqksw .gt_spanner_row {
+#igotdqwruf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#jnsajoqksw .gt_group_heading {
+#igotdqwruf .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2390,7 +2386,7 @@ tbody tr:last-child {
   text-align: left;
 }
 
-#jnsajoqksw .gt_empty_group_heading {
+#igotdqwruf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2405,15 +2401,15 @@ tbody tr:last-child {
   vertical-align: middle;
 }
 
-#jnsajoqksw .gt_from_md > :first-child {
+#igotdqwruf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#jnsajoqksw .gt_from_md > :last-child {
+#igotdqwruf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#jnsajoqksw .gt_row {
+#igotdqwruf .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -2432,7 +2428,7 @@ tbody tr:last-child {
   overflow-x: hidden;
 }
 
-#jnsajoqksw .gt_stub {
+#igotdqwruf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2445,7 +2441,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#jnsajoqksw .gt_stub_row_group {
+#igotdqwruf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2459,15 +2455,15 @@ tbody tr:last-child {
   vertical-align: top;
 }
 
-#jnsajoqksw .gt_row_group_first td {
+#igotdqwruf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#jnsajoqksw .gt_row_group_first th {
+#igotdqwruf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#jnsajoqksw .gt_summary_row {
+#igotdqwruf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2477,16 +2473,16 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#jnsajoqksw .gt_first_summary_row {
+#igotdqwruf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_first_summary_row.thick {
+#igotdqwruf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#jnsajoqksw .gt_last_summary_row {
+#igotdqwruf .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2496,7 +2492,7 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_grand_summary_row {
+#igotdqwruf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2506,7 +2502,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#jnsajoqksw .gt_first_grand_summary_row {
+#igotdqwruf .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2516,7 +2512,7 @@ tbody tr:last-child {
   border-top-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_last_grand_summary_row_top {
+#igotdqwruf .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2526,11 +2522,11 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_striped {
+#igotdqwruf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#jnsajoqksw .gt_table_body {
+#igotdqwruf .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2539,7 +2535,7 @@ tbody tr:last-child {
   border-bottom-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_footnotes {
+#igotdqwruf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2553,7 +2549,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_footnote {
+#igotdqwruf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2562,7 +2558,7 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#jnsajoqksw .gt_sourcenotes {
+#igotdqwruf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2576,7 +2572,7 @@ tbody tr:last-child {
   border-right-color: #D3D3D3;
 }
 
-#jnsajoqksw .gt_sourcenote {
+#igotdqwruf .gt_sourcenote {
   font-size: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2584,72 +2580,72 @@ tbody tr:last-child {
   padding-right: 5px;
 }
 
-#jnsajoqksw .gt_left {
+#igotdqwruf .gt_left {
   text-align: left;
 }
 
-#jnsajoqksw .gt_center {
+#igotdqwruf .gt_center {
   text-align: center;
 }
 
-#jnsajoqksw .gt_right {
+#igotdqwruf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#jnsajoqksw .gt_font_normal {
+#igotdqwruf .gt_font_normal {
   font-weight: normal;
 }
 
-#jnsajoqksw .gt_font_bold {
+#igotdqwruf .gt_font_bold {
   font-weight: bold;
 }
 
-#jnsajoqksw .gt_font_italic {
+#igotdqwruf .gt_font_italic {
   font-style: italic;
 }
 
-#jnsajoqksw .gt_super {
+#igotdqwruf .gt_super {
   font-size: 65%;
 }
 
-#jnsajoqksw .gt_footnote_marks {
+#igotdqwruf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#jnsajoqksw .gt_asterisk {
+#igotdqwruf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#jnsajoqksw .gt_indent_1 {
+#igotdqwruf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#jnsajoqksw .gt_indent_2 {
+#igotdqwruf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#jnsajoqksw .gt_indent_3 {
+#igotdqwruf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#jnsajoqksw .gt_indent_4 {
+#igotdqwruf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#jnsajoqksw .gt_indent_5 {
+#igotdqwruf .gt_indent_5 {
   text-indent: 25px;
 }
 
-#jnsajoqksw .katex-display {
+#igotdqwruf .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#jnsajoqksw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#igotdqwruf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 
@@ -2724,7 +2720,77 @@ tbody tr:last-child {
 </div>
 </div>
 </div>
-<p>Vậy tiếp theo ta sẽ vào phần phân tích ở trang <a href="./EnsembleML.html">Machine Learning</a>.</p>
+<p>Vậy chúng ta đã kết thúc bài post ngày hôm nay.</p>
+<p>Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang <strong>Rpubs</strong> hoặc mã nguồn trên <strong>Github</strong>. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄</p>
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/svgs/rstudio.svg">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; }
+        .container { max-width: 400px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        label { display: block; margin: 10px 0 5px; }
+        input[type="email"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        .github-button, .rpubs-button { margin-top: 20px; text-align: center; }
+        .github-button button, .rpubs-button button { background-color: #333; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; }
+        .github-button button:hover, .rpubs-button button:hover { background-color: #555; }
+        .rpubs-button button { background-color: #75AADB; }
+        .rpubs-button button:hover { background-color: #5A9BC2; }
+        .rpubs-icon { margin-right: 5px; width: 20px; vertical-align: middle; filter: brightness(0) invert(1); }
+        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }
+    </style>
+
+
+    <div class="container">
+        <h2 class="anchored" data-anchor-id="dự-đoán-số-đơn-hàng-trong-18-tháng-ở-tương-lai">Contact Me</h2>
+        <form id="emailForm">
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" name="email" required="" aria-label="Email Address">
+            <div class="error-message" id="error-message" style="display: none;">Please enter a valid email address.</div>
+            <button type="submit">Send Email</button>
+        </form>
+        <div class="github-button">
+            <button>
+                <a href="https://github.com/Loccx78vn" target="_blank" style="color: white; text-decoration: none;">
+                    <i class="fab fa-github"></i> View Code on GitHub
+                </a>
+            </button>
+        </div>
+        <div class="rpubs-button">
+            <button>
+                <a href="https://rpubs.com/loccx" target="_blank" style="color: white; text-decoration: none;">
+                    <img src="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/icons/rstudio.svg" alt="RStudio icon" class="rpubs-icon"> Visit my RPubs
+                </a>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value;
+            const errorMessage = document.getElementById('error-message');
+
+            // Simple email validation regex
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailPattern.test(email)) {
+                errorMessage.style.display = 'none'; // Hide error message
+                const yourEmail = 'loccaoxuan103@gmail.com'; // Your email
+                const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${yourEmail}&su=Help%20Request%20from%20${encodeURIComponent(email)}`;
+                window.open(gmailLink, '_blank'); // Open in new tab
+            } else {
+                errorMessage.style.display = 'block'; // Show error message
+            }
+        });
+    </script>
+
+
 
 
 <!-- -->
@@ -3225,7 +3291,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-89"><a href="#cb16-89" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-90"><a href="#cb16-90" aria-hidden="true" tabindex="-1"></a>Thực tế, mô hình mà R đề xuất trên bằng hàm <span class="in">`auto.arima()`</span> cũng đã bao gồm thành phần *seasonal* nên ta có thể xem mô hình trên SARIMA.</span>
 <span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-92"><a href="#cb16-92" aria-hidden="true" tabindex="-1"></a><span class="al">![Hình 5: Stationary and non-stationary series](img/SARIMAX.png)</span>{fig-align="center"}</span>
+<span id="cb16-92"><a href="#cb16-92" aria-hidden="true" tabindex="-1"></a><span class="al">![Hình 7: SARIMA VS ARIMA ](img/SARIMAX.png)</span>{fig-align="center"}</span>
 <span id="cb16-93"><a href="#cb16-93" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-94"><a href="#cb16-94" aria-hidden="true" tabindex="-1"></a>Dưới đây là ví dụ về mô hình SARIMA và cách để code trong R.</span>
 <span id="cb16-95"><a href="#cb16-95" aria-hidden="true" tabindex="-1"></a></span>
@@ -3262,7 +3328,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-130"><a href="#cb16-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
 <span id="cb16-131"><a href="#cb16-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
 <span id="cb16-132"><a href="#cb16-132" aria-hidden="true" tabindex="-1"></a><span class="co">#Forecast by training model:</span></span>
-<span id="cb16-133"><a href="#cb16-133" aria-hidden="true" tabindex="-1"></a>model_training2<span class="ot">&lt;-</span><span class="fu">Arima</span>(demand_training,,</span>
+<span id="cb16-133"><a href="#cb16-133" aria-hidden="true" tabindex="-1"></a>model_training2<span class="ot">&lt;-</span><span class="fu">Arima</span>(demand_training,</span>
 <span id="cb16-134"><a href="#cb16-134" aria-hidden="true" tabindex="-1"></a>             <span class="at">xreg =</span> income[<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(demand_training)],</span>
 <span id="cb16-135"><a href="#cb16-135" aria-hidden="true" tabindex="-1"></a>             <span class="at">order =</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">3</span>),</span>
 <span id="cb16-136"><a href="#cb16-136" aria-hidden="true" tabindex="-1"></a>             <span class="at">seasonal =</span> <span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>),</span>
@@ -3301,13 +3367,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-171"><a href="#cb16-171" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-172"><a href="#cb16-172" aria-hidden="true" tabindex="-1"></a>Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai. Nhìn biểu đồ ta dễ dàng kết luận mô hình không tốt. Nguyên do là tương quan giữa biến <span class="in">`income`</span> và <span class="in">`demand_training`</span> quá thấp, chỉ số tương quan chỉ có <span class="in">`r round(cor(income[1:length(demand_training)],demand_training),3)`</span>.</span>
 <span id="cb16-173"><a href="#cb16-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-174"><a href="#cb16-174" aria-hidden="true" tabindex="-1"></a><span class="fu">## Thực hành trong R:</span></span>
+<span id="cb16-174"><a href="#cb16-174" aria-hidden="true" tabindex="-1"></a><span class="fu"># Phương pháp thủ công:</span></span>
 <span id="cb16-175"><a href="#cb16-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-176"><a href="#cb16-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lựa chọn mô hình thủ công:</span></span>
+<span id="cb16-176"><a href="#cb16-176" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lựa chọn mô hình thủ công:</span></span>
 <span id="cb16-177"><a href="#cb16-177" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-178"><a href="#cb16-178" aria-hidden="true" tabindex="-1"></a>Thực tế, ta thấy mô hình do R đề xuất bằng hàm <span class="in">`auto.arima`</span> có vẻ "overfitting" - nghĩa là mô hình tốt quá, *cover* hết các trường hợp nhưng có nguy cơ không cho dự đoán tốt vì dữ liệu trong tương lai biến động.</span>
 <span id="cb16-179"><a href="#cb16-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-180"><a href="#cb16-180" aria-hidden="true" tabindex="-1"></a>Vì vậy, ta cần xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên <span class="co">[</span><span class="ot">How can I select the best SARIMA model</span><span class="co">](https://malouche.github.io/howto/sarima.html)</span>.</span>
+<span id="cb16-180"><a href="#cb16-180" aria-hidden="true" tabindex="-1"></a>Vì vậy, ta có thể xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên <span class="co">[</span><span class="ot">How can I select the best SARIMA model</span><span class="co">](https://malouche.github.io/howto/sarima.html)</span>.</span>
 <span id="cb16-181"><a href="#cb16-181" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-184"><a href="#cb16-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb16-185"><a href="#cb16-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
@@ -3412,7 +3478,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-288"><a href="#cb16-288" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-289"><a href="#cb16-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb16-290"><a href="#cb16-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-291"><a href="#cb16-291" aria-hidden="true" tabindex="-1"></a><span class="fu">### Đánh giá mô hình:</span></span>
+<span id="cb16-291"><a href="#cb16-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Đánh giá mô hình:</span></span>
 <span id="cb16-292"><a href="#cb16-292" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-293"><a href="#cb16-293" aria-hidden="true" tabindex="-1"></a>Và cuối cùng là đánh giá mô hình vừa được chọn ARIMA(2,1,0)(0,1,0)<span class="sc">\[</span>12<span class="sc">\]</span> với dữ liệu thực tế từ đối tượng <span class="in">`demand_testing`</span>.</span>
 <span id="cb16-294"><a href="#cb16-294" aria-hidden="true" tabindex="-1"></a></span>
@@ -3446,7 +3512,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-324"><a href="#cb16-324" aria-hidden="true" tabindex="-1"></a>       <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb16-325"><a href="#cb16-325" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb16-326"><a href="#cb16-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-327"><a href="#cb16-327" aria-hidden="true" tabindex="-1"></a><span class="fu">### Kiểm định giả thuyết của mô hình:</span></span>
+<span id="cb16-327"><a href="#cb16-327" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kiểm định giả thuyết của mô hình:</span></span>
 <span id="cb16-328"><a href="#cb16-328" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-329"><a href="#cb16-329" aria-hidden="true" tabindex="-1"></a>Sau khi đã xây dựng mô hình, ta cần kiểm tra lại các giả thuyết như:</span>
 <span id="cb16-330"><a href="#cb16-330" aria-hidden="true" tabindex="-1"></a></span>
@@ -3553,13 +3619,87 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb16-439"><a href="#cb16-439" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Order demand"</span>)</span>
 <span id="cb16-440"><a href="#cb16-440" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb16-441"><a href="#cb16-441" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-442"><a href="#cb16-442" aria-hidden="true" tabindex="-1"></a>Vậy tiếp theo ta sẽ vào phần phân tích ở trang <span class="co">[</span><span class="ot">Machine Learning</span><span class="co">](EnsembleML.qmd)</span>.</span>
+<span id="cb16-442"><a href="#cb16-442" aria-hidden="true" tabindex="-1"></a>Vậy chúng ta đã kết thúc bài post ngày hôm nay.</span>
+<span id="cb16-443"><a href="#cb16-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-444"><a href="#cb16-444" aria-hidden="true" tabindex="-1"></a>Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang **Rpubs** hoặc mã nguồn trên **Github**. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄</span>
+<span id="cb16-445"><a href="#cb16-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-446"><a href="#cb16-446" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb16-447"><a href="#cb16-447" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;!DOCTYPE html&gt;</span></span>
+<span id="cb16-448"><a href="#cb16-448" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;html lang="en"&gt;</span></span>
+<span id="cb16-449"><a href="#cb16-449" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;head&gt;</span></span>
+<span id="cb16-450"><a href="#cb16-450" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;meta charset="UTF-8"&gt;</span></span>
+<span id="cb16-451"><a href="#cb16-451" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></span>
+<span id="cb16-452"><a href="#cb16-452" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;title&gt;Contact Me&lt;/title&gt;</span></span>
+<span id="cb16-453"><a href="#cb16-453" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"&gt;</span></span>
+<span id="cb16-454"><a href="#cb16-454" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/svgs/rstudio.svg"&gt;</span></span>
+<span id="cb16-455"><a href="#cb16-455" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;style&gt;</span></span>
+<span id="cb16-456"><a href="#cb16-456" aria-hidden="true" tabindex="-1"></a><span class="in">        body { font-family: Arial, sans-serif; background-color: #f9f9f9; }</span></span>
+<span id="cb16-457"><a href="#cb16-457" aria-hidden="true" tabindex="-1"></a><span class="in">        .container { max-width: 400px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }</span></span>
+<span id="cb16-458"><a href="#cb16-458" aria-hidden="true" tabindex="-1"></a><span class="in">        label { display: block; margin: 10px 0 5px; }</span></span>
+<span id="cb16-459"><a href="#cb16-459" aria-hidden="true" tabindex="-1"></a><span class="in">        input[type="email"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }</span></span>
+<span id="cb16-460"><a href="#cb16-460" aria-hidden="true" tabindex="-1"></a><span class="in">        .github-button, .rpubs-button { margin-top: 20px; text-align: center; }</span></span>
+<span id="cb16-461"><a href="#cb16-461" aria-hidden="true" tabindex="-1"></a><span class="in">        .github-button button, .rpubs-button button { background-color: #333; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; }</span></span>
+<span id="cb16-462"><a href="#cb16-462" aria-hidden="true" tabindex="-1"></a><span class="in">        .github-button button:hover, .rpubs-button button:hover { background-color: #555; }</span></span>
+<span id="cb16-463"><a href="#cb16-463" aria-hidden="true" tabindex="-1"></a><span class="in">        .rpubs-button button { background-color: #75AADB; }</span></span>
+<span id="cb16-464"><a href="#cb16-464" aria-hidden="true" tabindex="-1"></a><span class="in">        .rpubs-button button:hover { background-color: #5A9BC2; }</span></span>
+<span id="cb16-465"><a href="#cb16-465" aria-hidden="true" tabindex="-1"></a><span class="in">        .rpubs-icon { margin-right: 5px; width: 20px; vertical-align: middle; filter: brightness(0) invert(1); }</span></span>
+<span id="cb16-466"><a href="#cb16-466" aria-hidden="true" tabindex="-1"></a><span class="in">        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }</span></span>
+<span id="cb16-467"><a href="#cb16-467" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;/style&gt;</span></span>
+<span id="cb16-468"><a href="#cb16-468" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/head&gt;</span></span>
+<span id="cb16-469"><a href="#cb16-469" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;body&gt;</span></span>
+<span id="cb16-470"><a href="#cb16-470" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;div class="container"&gt;</span></span>
+<span id="cb16-471"><a href="#cb16-471" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;h2&gt;Contact Me&lt;/h2&gt;</span></span>
+<span id="cb16-472"><a href="#cb16-472" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;form id="emailForm"&gt;</span></span>
+<span id="cb16-473"><a href="#cb16-473" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;label for="email"&gt;Your Email:&lt;/label&gt;</span></span>
+<span id="cb16-474"><a href="#cb16-474" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;input type="email" id="email" name="email" required aria-label="Email Address"&gt;</span></span>
+<span id="cb16-475"><a href="#cb16-475" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;div class="error-message" id="error-message" style="display: none;"&gt;Please enter a valid email address.&lt;/div&gt;</span></span>
+<span id="cb16-476"><a href="#cb16-476" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;button type="submit"&gt;Send Email&lt;/button&gt;</span></span>
+<span id="cb16-477"><a href="#cb16-477" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;/form&gt;</span></span>
+<span id="cb16-478"><a href="#cb16-478" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;div class="github-button"&gt;</span></span>
+<span id="cb16-479"><a href="#cb16-479" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;button&gt;</span></span>
+<span id="cb16-480"><a href="#cb16-480" aria-hidden="true" tabindex="-1"></a><span class="in">                &lt;a href="https://github.com/Loccx78vn" target="_blank" style="color: white; text-decoration: none;"&gt;</span></span>
+<span id="cb16-481"><a href="#cb16-481" aria-hidden="true" tabindex="-1"></a><span class="in">                    &lt;i class="fab fa-github"&gt;&lt;/i&gt; View Code on GitHub</span></span>
+<span id="cb16-482"><a href="#cb16-482" aria-hidden="true" tabindex="-1"></a><span class="in">                &lt;/a&gt;</span></span>
+<span id="cb16-483"><a href="#cb16-483" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;/button&gt;</span></span>
+<span id="cb16-484"><a href="#cb16-484" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;/div&gt;</span></span>
+<span id="cb16-485"><a href="#cb16-485" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;div class="rpubs-button"&gt;</span></span>
+<span id="cb16-486"><a href="#cb16-486" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;button&gt;</span></span>
+<span id="cb16-487"><a href="#cb16-487" aria-hidden="true" tabindex="-1"></a><span class="in">                &lt;a href="https://rpubs.com/loccx" target="_blank" style="color: white; text-decoration: none;"&gt;</span></span>
+<span id="cb16-488"><a href="#cb16-488" aria-hidden="true" tabindex="-1"></a><span class="in">                    &lt;img src="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/icons/rstudio.svg" alt="RStudio icon" class="rpubs-icon"&gt; Visit my RPubs</span></span>
+<span id="cb16-489"><a href="#cb16-489" aria-hidden="true" tabindex="-1"></a><span class="in">                &lt;/a&gt;</span></span>
+<span id="cb16-490"><a href="#cb16-490" aria-hidden="true" tabindex="-1"></a><span class="in">            &lt;/button&gt;</span></span>
+<span id="cb16-491"><a href="#cb16-491" aria-hidden="true" tabindex="-1"></a><span class="in">        &lt;/div&gt;</span></span>
+<span id="cb16-492"><a href="#cb16-492" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;/div&gt;</span></span>
+<span id="cb16-493"><a href="#cb16-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-494"><a href="#cb16-494" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;script&gt;</span></span>
+<span id="cb16-495"><a href="#cb16-495" aria-hidden="true" tabindex="-1"></a><span class="in">        document.getElementById('emailForm').addEventListener('submit', function(event) {</span></span>
+<span id="cb16-496"><a href="#cb16-496" aria-hidden="true" tabindex="-1"></a><span class="in">            event.preventDefault(); // Prevent default form submission</span></span>
+<span id="cb16-497"><a href="#cb16-497" aria-hidden="true" tabindex="-1"></a><span class="in">            const emailInput = document.getElementById('email');</span></span>
+<span id="cb16-498"><a href="#cb16-498" aria-hidden="true" tabindex="-1"></a><span class="in">            const email = emailInput.value;</span></span>
+<span id="cb16-499"><a href="#cb16-499" aria-hidden="true" tabindex="-1"></a><span class="in">            const errorMessage = document.getElementById('error-message');</span></span>
+<span id="cb16-500"><a href="#cb16-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-501"><a href="#cb16-501" aria-hidden="true" tabindex="-1"></a><span class="in">            // Simple email validation regex</span></span>
+<span id="cb16-502"><a href="#cb16-502" aria-hidden="true" tabindex="-1"></a><span class="in">            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;</span></span>
+<span id="cb16-503"><a href="#cb16-503" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-504"><a href="#cb16-504" aria-hidden="true" tabindex="-1"></a><span class="in">            if (emailPattern.test(email)) {</span></span>
+<span id="cb16-505"><a href="#cb16-505" aria-hidden="true" tabindex="-1"></a><span class="in">                errorMessage.style.display = 'none'; // Hide error message</span></span>
+<span id="cb16-506"><a href="#cb16-506" aria-hidden="true" tabindex="-1"></a><span class="in">                const yourEmail = 'loccaoxuan103@gmail.com'; // Your email</span></span>
+<span id="cb16-507"><a href="#cb16-507" aria-hidden="true" tabindex="-1"></a><span class="in">                const gmailLink = `https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=${yourEmail}&amp;su=Help%20Request%20from%20${encodeURIComponent(email)}`;</span></span>
+<span id="cb16-508"><a href="#cb16-508" aria-hidden="true" tabindex="-1"></a><span class="in">                window.open(gmailLink, '_blank'); // Open in new tab</span></span>
+<span id="cb16-509"><a href="#cb16-509" aria-hidden="true" tabindex="-1"></a><span class="in">            } else {</span></span>
+<span id="cb16-510"><a href="#cb16-510" aria-hidden="true" tabindex="-1"></a><span class="in">                errorMessage.style.display = 'block'; // Show error message</span></span>
+<span id="cb16-511"><a href="#cb16-511" aria-hidden="true" tabindex="-1"></a><span class="in">            }</span></span>
+<span id="cb16-512"><a href="#cb16-512" aria-hidden="true" tabindex="-1"></a><span class="in">        });</span></span>
+<span id="cb16-513"><a href="#cb16-513" aria-hidden="true" tabindex="-1"></a><span class="in">    &lt;/script&gt;</span></span>
+<span id="cb16-514"><a href="#cb16-514" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/body&gt;</span></span>
+<span id="cb16-515"><a href="#cb16-515" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/html&gt;</span></span>
+<span id="cb16-516"><a href="#cb16-516" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-    <div class="nav-footer-left">© Copyright 2023, Loc cao</div>   
+    <div class="nav-footer-left">© Copyright 2024, Loc cao</div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>

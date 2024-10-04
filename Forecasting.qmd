@@ -10,10 +10,6 @@ format:
 number-sections: true
 ---
 
-# Thực hành trong Rstudio:
-
-Bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
-
 ```{r}
 #| warning: false
 #| message: false
@@ -65,13 +61,108 @@ month_df<-product_demand %>%
   select(-c(Year,Month))
 ```
 
-Sau khi đã chuyển đổi dữ liệu, tiếp theo chúng ta sẽ chia dữ liệu theo tỉ lệ 70:30. Lý do chia ra là vì ở phần cuối, chúng ta sẽ sử dụng phần 30% bộ dữ liệu để đánh giá mô hình được xây dựng trên 70% bộ dữ liệu.
+# Sơ lược về kiến thức cần nắm:
 
-Việc chia dữ liệu này cũng khá phổ biến vì ta có thể đánh giá mô hình bằng chính dữ liệu thực tế và không cần tốn thời gian và công sức để theo dõi mô hình trong tương lai nữa.
+## Giới thiệu dữ liệu thời gian:
+
+Dữ liệu thời gian (*time series data*) là một tập hợp các quan sát được ghi lại theo thời gian, được sắp xếp theo một thứ tự nhất định (thường theo ngày tháng). Dữ liệu kiểu này thường được sử dụng để xây dựng mô hình dự đoán cho tương lai với ý tưởng là dựa vào các giá trị quá khứ để dự đoán cho 1 hiện tượng, vấn đề trong tương lai. Ví dụ bạn có thể dự đoán được rằng: Giá cổ phiếu ngày mai, nhiệt độ trung bình trong tuần sau hoặc thậm chí cả lượng mưa từng tháng trong một năm sau.
+
+Trước đây, dữ liệu thời gian chỉ gói gọn 2 cột dữ liệu là:
+
+-   **Thời gian**: Thời điểm mà mỗi quan sát được thực hiện.
+-   **Giá trị**: Giá trị đo được tại thời điểm đó.
+
+Nhưng gần đây, với sự phát triển của Machine Learning, dữ liệu thời gian có thể bao gồm cả hình ảnh, thước phim,... Ví dụ như ảnh chụp từ vệ tinh Nasa cho thấy sự thay đổi khí hậu và môi trường.
+
+![Hình 4: Ảnh chụp từ Nasa](img/NASA.jpg){fig-align="center"}
+
+Hay với 1 thước phim về vận động viên bơi với tốc độ khung hình FPS 60 nghĩa là 1s sẽ có 60 khung hình thì ta sẽ có 60 hình ảnh khác nhau về chuyển động của vận động viên trong khoảng thời gian 1s. Do đó, dựa vào thông tin trên, ta có thể xây dựng mô hình và dự đoán rằng tiếp theo, vận động viên đó sẽ cử động, vận chuyển như thế nào.
+
+Nghe rất tuyệt phải không !!! Điều này đòi hỏi phải có kiến thức nền mạnh về Machine Learning nói chung và Deep Learning nói riêng. Ở bài post này, mình sẽ chỉ tập ở việc phân tích dữ liệu về nhu cầu.
+
+## Phân tích dữ liệu thời gian:
+
+Phân tích dữ liệu thời gian có thể giúp nhận diện các xu hướng, mùa vụ và chu kỳ, từ đó hỗ trợ ra quyết định trong nhiều lĩnh vực như tài chính, kinh tế, khí tượng và nhiều lĩnh vực khác. Vậy xu hướng, mùa vụ và chu kỳ là gì:
+
+-   **Trend (Xu hướng)**: nghĩa là độ tăng, giảm dài hạn hoặc chuyển động đứng yên.
+
+-   **Seasonal (Mùa vụ)**: là một *pattern* trong khoảng thời gian nhất định, thông thường là theo năm hoặc theo quý.
+
+-   **Cycle (chu kỳ)**: là biến động được lặp đi lặp lại.
+
+-   **Noise (Sai số)**: Sai số còn sót lại không giải thích được.
+
+Nghe giải thích có thể sẽ làm bạn khó hiểu, vậy mình sẽ minh họa trong R như dưới đây với hàm `decompose()`:
 
 ```{r}
 #| warning: false
 #| message: false
+#| fig-cap: "Khi mức độ biến động của seasonal hoặc sự biến đổi xung quanh trend-cycle không thay đổi theo mức độ của chuỗi thời gian, mô hình Additive sẽ phù hợp hơn mô hình Multiplicative."
+
+library(TSstudio)
+Demand<-ts(month_df$month_demand,
+                      frequency = 12,
+                      start = c(2012,1))
+
+ts_decompose(Demand, 
+             type = "both")
+```
+
+Vậy mục tiêu của việc phân tích time series chính là tìm ra thành phần *seasonal* trong vì nó có tính lặp lại và có thể dùng để dự đoán cho tương lai. Ngoài ra, thành phần *trend* cũng cần được quan tâm vì nó thể hiện xu hướng của dữ liệu trong tương lai.
+
+Nhìn sơ bộ, ta có thể thấy xu hướng tăng (trend) của số lượng đơn đặt hàng. Về phần random thì sẽ có 1 khoảng từ (-10,5) số đơn là tự nhiên xảy ra, nghĩa là giá trị dự đoán có thể lệch từ -10 đến 5 đơn hàng và sai lệch này là do tự nhiên.
+
+::: callout-tip
+## Hàm Decompose()
+Về công thức tính, hàm `decompose()` dựa vào kĩ thuật Moving Averages để tính trung bình giá trị theo 1 khoảng thời gian (Vd: 3 tháng 6 tháng hoặc 1 năm).
+:::
+
+Ngoài ra, việc phân tách chuỗi dữ liệu trên trong R dựa vào công thức từ 2 mô hình là *Additive* và *Multiplicative*. Ở mặc định, hàm `decompose()` tính theo mô hình *Additive*, còn bạn muốn tính theo mô hình *Multiplicative* thì phải thêm đối số `type = "multiplicative"`. Việc lựa chọn mô hình sẽ tùy vào nhu cầu của bạn, vì mục đích học tập nên mình trình bày kết quả tính toán được từ cả hai mô hình.
+
+![Hình 5: Additive and multiplicative model](img/decompose.png){fig-alt="(Nguồn: R documentation)" fig-align="center" width="609"}
+
+## Mô hình ARIMA:
+
+Trên thực tế, phần phân tích các thành phần của *time series* chỉ đưa ra dự đoán định tính, không thể dự đoán bằng các dữ liệu trên mà phải cần thông qua mô hình cụ thể. Và dưới đây là giới thiệu về mô hình ARIMA - một trong những mô hình phổ biến được sử dụng khi phân tích dữ liệu chuỗi thời gian.
+
+### Lịch sử:
+
+Vào năm 1970, hai nhà khoa học [George E.P. Box](https://en.wikipedia.org/wiki/George_E._P._Box) và [Gwilym M. Jenkins](https://en.wikipedia.org/wiki/Gwilym_Jenkins) đã công bố cuốn sách "Time Series Analysis: Forecasting and Control". Trong cuốn sách này, họ giới thiệu phương pháp ARIMA và phương pháp tiếp cận từng bước để phát triển mô hình. Khái niệm **ARIMA** được định nghĩa rõ ràng và trở thành một trong những công cụ phân tích chuỗi thời gian chủ yếu.
+
+Sau này, nhiều nghiên cứu đã mở rộng và cải thiện phương pháp này, dẫn đến sự phát triển của các biến thể như **SARIMA (Seasonal ARIMA)** để xử lý các chuỗi thời gian có yếu tố mùa vụ. Và cho đến hiện nay, xu hướng kết hợp mô hình **ARIMA** với các phương pháp học máy để cải thiện độ chính xác trong dự đoán chuỗi thời gian, mở rộng khả năng của mô hình này trong việc xử lý dữ liệu lớn và phức tạp.
+
+### Định nghĩa:
+
+Theo [@phamdinhkhanh2019], Mô hình ARIMA "sử dụng đầu vào chính là những tín hiệu quá khứ của chuỗi được dự báo để dự báo nó. Các tín hiệu đó bao gồm: Chuỗi tự hồi qui AR (auto regression) và chuỗi trung bình trượt MA (moving average).
+
+Hầu hết các chuỗi thời gian sẽ có xu hướng tăng hoặc giảm theo thời gian, do đó yếu tố chuỗi dừng thường không đạt được. Trong trường hợp chuỗi không dừng thì ta sẽ cần biến đổi sang chuỗi dừng bằng sai phân. Khi đó tham số đặc trưng của mô hình sẽ có thêm thành phần bậc của sai phân d và mô hình được đặc tả bởi 3 tham số ARIMA(p, d, q)".
+
+Mô hình được xây dựng "dựa trên giả thuyết: *Stationary series* (Chuỗi dừng) đòi hỏi *Phương sai sai số không đổi* và Nhiễu trắng (*White noise*), cụ thể trong đó:
+
+-   Stationary series: điều kiện là trung bình của chuỗi là constant (bất biến), phương sai (variance) của chuỗi phải có tính đồng nhất (homoscedasticity) và hiệp phương sai (covariance) giữa giá trị t và t+1 phải không liên quan tới nhau.
+
+    ::: {.callout-warning appearance="minimal"}
+    ## Lưu ý
+
+    Nếu chuỗi dữ liệu không phải là chuỗi dùng thì bạn sẽ không xây dựng được mô hình chuỗi thời gian (time-series model)
+    :::
+
+-   Nhiễu trắng là: một thành phần ngẫu nhiên thể hiện cho yếu tố không thể dự báo của model và không có tính qui luật.
+
+[![Hình 6: Stationary and non-stationary series](img/stationary.png){fig-alt="A Complete Tutorial on Time Series Modeling in R" fig-align="center"}](https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/)
+
+# Thực hành trong Rstudio:
+
+Trước tiên, bạn nhớ chuẩn bị dữ liệu. Nếu quên, bạn có thể quay lại trang đầu tiên để lấy dữ liệu gốc và các bước để chỉnh sửa dữ liệu ở [Giới thiệu](index.qmd).
+
+Sau khi đã chuyển đổi dữ liệu, tiếp theo chúng ta sẽ chia dữ liệu theo tỉ lệ 70:30. Lý do chia ra là vì ở phần cuối, chúng ta sẽ sử dụng phần 30% bộ dữ liệu để đánh giá mô hình được xây dựng trên 70% bộ dữ liệu. 
+
+Việc chia dữ liệu này cũng khá phổ biến vì ta có thể đánh giá mô hình bằng chính dữ liệu thực tế và không cần tốn thời gian và công sức để lấy theo dữ liệu trong tương lai để đánh giá lại mô hình nữa.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
 #First we will divde the data into training data and testing data in 70-30:
 #Create ts object for month demand variable:
 training_df<-month_df[month_df$datetime <= as.Date("2015-03-01"),]
@@ -103,69 +194,9 @@ dygraph(lines,
   dyRangeSelector(height = 20)
 ```
 
-## Phân tích thành phần trong time-series dữ liệu:
+## Kiểm tra chuỗi dừng:
 
-Về thông tin của dữ liệu, đây là dữ liệu thuộc dạng time-series nghĩa là chuỗi dữ liệu theo thời gian nên nó sẽ có các đặt tính chung như:
-
--   Trend: Tăng, giảm dài hạn hoặc chuyển động đứng yên.
-
--   Seasonal: Các mô hình có thể dự đoán được ở những khoảng thời gian cố định.
-
--   Cycle: Biến động không có chu kỳ nhất quán.
-
--   Noise: Sai số còn sót lại không giải thích được.
-
-Vậy mục tiêu của việc phân tích time series là để tìm ra thành phần *seasonal* trong vì nó có tính lặp lại và có thể dùng để dự đoán cho tương lai. Ngoài ra, thành phần *trend* cũng cần được quan tâm vì nó thể hiện xu hướng của dữ liệu trong tương lai.
-
-Trong R, ta có thể phân tích dễ dàng với hàm `decompose()` như code dưới đây.
-
-Về công thức tính, hàm `decompose()` dựa vào kĩ thuật Moving Averages để tính trung bình giá trị theo 1 khoảng thời gian (Vd: 3 tháng 6 tháng hoặc 1 năm).
-
-![Hình 3: Additive and multiplicative model](img/decompose.png){fig-alt="(Nguồn: R documentation)" fig-align="center" width="609"}
-
-Có 2 mô hình gồm *Additive* và *Multiplicative* có thể sử dụng. Ở mặc định, hàm `decompose()` tính theo mô hình *Additive*, còn bạn muốn tính theo mô hình *Multiplicative* thì phải thêm đối số `type = "multiplicative"`.
-
-```{r}
-#| warning: false
-#| message: false
-#| fig-cap: "Khi mức độ biến động của seasonal hoặc sự biến đổi xung quanh trend-cycle không thay đổi theo mức độ của chuỗi thời gian, mô hình Additive sẽ phù hợp hơn mô hình Multiplicative."
-
-library(TSstudio)
-ts_decompose(demand_training, 
-             type = "both")
-```
-
-Nhìn sơ bộ, ta có thể thấy xu hướng tăng (trend) của số lượng đơn đặt hàng. Về phần random thì sẽ có 1 khoảng từ (-10,5) số đơn là tự nhiên xảy ra, nghĩa là giá trị dự đoán có thể lệch từ -10 đến 5 đơn hàng và sai lệch này là do tự nhiên.
-
-## Dự đoán bằng mô hình ARIMA:
-
-Trên thực tế, phần phân tích thành các thành phần của time series chỉ đưa ra dự đoán định tính, không thể dự đoán bằng các dữ liệu trên mà phải cần thông qua mô hình cụ thể. Dưới đây là giới thiệu về mô hình ARIMA.
-
-### Định nghĩa về ARIMA:
-
-Theo [@phamdinhkhanh2019], Mô hình ARIMA "sử dụng đầu vào chính là những tín hiệu quá khứ của chuỗi được dự báo để dự báo nó. Các tín hiệu đó bao gồm: Chuỗi tự hồi qui AR (auto regression) và chuỗi trung bình trượt MA (moving average).
-
-Hầu hết các chuỗi thời gian sẽ có xu hướng tăng hoặc giảm theo thời gian, do đó yếu tố chuỗi dừng thường không đạt được. Trong trường hợp chuỗi không dừng thì ta sẽ cần biến đổi sang chuỗi dừng bằng sai phân. Khi đó tham số đặc trưng của mô hình sẽ có thêm thành phần bậc của sai phân d và mô hình được đặc tả bởi 3 tham số ARIMA(p, d, q)".
-
-Mô hình được xây dựng "dựa trên giả thuyết: *Stationary series* (Chuỗi dừng) đòi hỏi *Phương sai sai số không đổi* và Nhiễu trắng (*White noise*), cụ thể trong đó:
-
--   Stationary series: điều kiện là trung bình của chuỗi là constant (bất biến), phương sai (variance) của chuỗi phải có tính đồng nhất (homoscedasticity) và hiệp phương sai (covariance) giữa giá trị t và t+1 phải không liên quan tới nhau.
-
-    ::: {.callout-warning appearance="minimal"}
-    ## Lưu ý
-
-    Nếu chuỗi dữ liệu không phải là chuỗi dùng thì bạn sẽ không xây dựng được mô hình chuỗi thời gian (time-series model)
-    :::
-
--   Nhiễu trắng là: một thành phần ngẫu nhiên thể hiện cho yếu tố không thể dự báo của model và không có tính qui luật.
-
-[![Hình 4: Stationary and non-stationary series](img/stationary.png){fig-alt="A Complete Tutorial on Time Series Modeling in R" fig-align="center"}](https://www.analyticsvidhya.com/blog/2015/12/complete-tutorial-time-series-modeling/)
-
-### Phân tích ARIMA bằng R:
-
-#### Kiểm tra chuỗi dừng:
-
-Và để thỏa mãn giả định này, cần tính toán các chỉ số trên và đánh giá và điều này khá phức tạp. Trong R, ta có hàm `adf.test()` có thể kiểm tra vấn đề này nhanh hơn.
+Trước khi phân tích, bạn cần đảm bảo chuỗi dữ liệu thời gian phải thỏa mãn các giả định trên. Để làm được điều đó trong R, ta chỉ cần sử dụng hàm `adf.test()` có thể kiểm tra nhanh chóng.
 
 ```{r}
 #| warning: false
@@ -223,13 +254,13 @@ gt(test) %>%
 
 Kết quả testing cho thấy chỉ có chuỗi 1 và 2 đạt yêu cầu, chuỗi 3 không phải chuỗi dừng vì p-value = 0.107 \> 0.05.
 
-#### Tính toán giá trị PACF và ACF:
+## Tính toán giá trị PACF và ACF:
 
-##### Định nghĩa về PACF và ACF:
+### Định nghĩa về PACF và ACF:
 
 PACF (*Partial Autocorrelation Function*) và ACF (*Autocorrelation Function*) là 2 công thức tính thuộc **Autocorrelation Analyst** - 1 bước quan trọng trong việc phân tích chuỗi dữ liệu thời gian. Mục tiêu của Autocorrelation analyst là tìm ra các mẫu (*pattern*) giữa nhiều chuỗi thời gian và kiểm tra tính ngẫu nhiên.
 
-##### Thực hành trên R:
+### Phân tích trong R:
 
 Sau khi đã xác định được chuỗi dừng, bước tiếp theo là xác định các tham số (p, d, q) cho mô hình ARIMA.
 
@@ -259,7 +290,7 @@ Ví dụ ở trên, đối với chuỗi lag 1, giá trị PACF có sự đứt 
 
 Vậy mô hình tự chọn cuối cùng là ARIMA(3,0,2).
 
-#### Lựa chọn mô hình tốt nhất:
+## Lựa chọn mô hình tốt nhất:
 
 Thực tế, trong R có hàm `auto.arima`để chúng ta lựa chọn và so sánh nhiều mô hình ARIMA một cách tự động và không nặng về code như dưới đây. Nó sẽ tự liệt kê ra các mô hình phù hợp và chọn ra mô hình tốt nhất.
 
@@ -272,9 +303,9 @@ Ngoài ra, nếu bạn muốn tìm hiểu sâu về cách xây dựng mô hình 
 model<-auto.arima(ts1,trace = T)
 ```
 
-#### So sánh giá trị dự đoán từ training data với testing data:
+## Đánh giá mô hình:
 
-Sau khi đã xây dựng mô hình, ta sẽ dùng nó để dự đoán và so sánh với dữ liệu thực tế từ bộ dữ liệu testing data.
+Sau khi đã xây dựng mô hình, ta sẽ so sánh giá trị dự đoán từ training data với testing data để đánh giá độ tốt của mô hình.
 
 ```{r}
 #| warning: false
@@ -358,6 +389,4 @@ legend("topleft",
        lwd = 2)
 ```
 
-Ta thấy kết quả dự đoán cũng ổn nhưng vẫn chưa bám sát thực tế. Vì vậy tiếp theo chúng ta sẽ làm cho mô hình tốt hơn ở trang sau [Mô hình SARIMA](SARIMA.qmd)
-
-
+Ta thấy kết quả dự đoán cũng ổn nhưng vẫn chưa sát với dữ liệu thực tế. Vì vậy tiếp theo chúng ta sẽ làm cho mô hình tốt hơn ở trang sau [Mô hình SARIMA](SARIMA.qmd)

@@ -9,7 +9,6 @@ website:
       - href: index.qmd
       - href: Forecasting.qmd
       - href: SARIMA.qmd
-      - href: EnsembleML.qmd
     tools:
       - icon: github
         text: Github
@@ -19,7 +18,7 @@ website:
         href: https://rpubs.com/loccx
   page-footer:
     right: "Built with [Quarto](https://quarto.org/)"
-    left: "&copy; Copyright 2023, Loc cao"
+    left: "&copy; Copyright 2024, Loc cao"
 
 format:
   html:

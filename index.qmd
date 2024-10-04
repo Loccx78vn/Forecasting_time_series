@@ -23,18 +23,42 @@ Việc dự đoán trước nhu cầu của khách hàng sẽ giúp doanh nghi�
 
 Ở vị trí nhân viên, bạn có thể ứng tuyển vị trí Demand Planner để có thể làm việc về Demand Planning. Còn ở vị trí cấp cao hơn sẽ là Supply Chain Planner - là người có thể xử lí luôn cả 4 vấn đề như sau:
 
--   Demand planning: Dự đoán nhu cầu khách hàng bao nhiêu.
--   Supply planning: Lên kế hoạch phân phối, tồn kho.
--   Prodcution planning: Chuẩn bị nguyên vật liệu để sản xuất ở nhà máy. Thông thường hoạt động này chỉ xảy ra ở công ti lớn có cả chuỗi cung ứng từ nhà máy đến nhà kho và có thể cả cửa hàng.
--   Fulfillment planning: Hoạt động này cũng giống Supply planning nhưng ở mức độ cao cấp hơn. Việc lên kế hoạch còn đòi hỏi phải thỏa mãn các nhu cầu khác của khách hàng như: hàng hóa đúng số lượng, đúng sản phẩm và nhận hàng với thời gian ngắn nhất.
+-   **Demand planning**: Dự đoán nhu cầu khách hàng bao nhiêu.
+-   **Capacity planning**: Lên kế hoạch phân phối, tồn kho.
+-   **Prodcution planning**: Chuẩn bị nguyên vật liệu để sản xuất ở nhà máy. Thông thường hoạt động này chỉ xảy ra ở công ti lớn có cả chuỗi cung ứng từ nhà máy đến nhà kho và có thể cả cửa hàng.
+-   **Invetory management** và **Sales and Opertion planning**: hai chức năng này có thể gộp lại thành **Fulfillment planning** - là hoạt động nhằm thỏa mãn các nhu cầu khác nhau của khách hàng như: quản lí hàng tồn kho tránh bị outstock, hàng hóa được vận chuyển đúng số lượng, đúng sản phẩm và nhận hàng với thời gian ngắn nhất.
 
 [![Hình 2: Các chức năng chính của Supply Chain Planner](img/SCP.jpg){fig-align="center"}](https://www.erp-information.com/)
 
-Ở phần bài tập này, chúng ta sẽ học về cách sử dụng R trong việc phân tích và dự đoán dữ liệu bằng 2 cách: mô hình ARIMA và Machine Learning.
+## Vì sao cần planning:
 
-Bài tập này dựa vào bộ dữ liệu từ [@felixzhao2017] của *Frank Corrigan*. Nếu bí ý tưởng, bạn có thể kham khảo thêm phần phân tích của anh ấy thông qua bài blog [@frank2019].
+Vậy làm sao để làm một **Planner** tốt trong quản lý chuỗi cung ứng ? Giả sử bạn đang là người quản lý cửa hàng về đồ chơi trẻ em, bạn sẽ cần lên kế hoạch nhập kho **từng loại** đồ chơi để tránh việc outstock hàng trên kho và bạn cần phải biết cân đối số lượng giữa các loại mặt hàng - mặt hàng nào bán chạy thì nhập nhiều, mặt hàng nào còn tồn kho thì có thể tạo chương trình giảm giá hoặc làm quà tặng...). Để làm được điều này, bạn không thể chỉ quyết định bằng cảm tính mà cần các công cụ đo lường hiệu quả và phù hợp với công ty của bạn.
+
+Ví dụ, trong tháng 10, cửa hàng cửa bạn vẫn còn 10 đồ chơi A và khách hàng cần mua tới 15 đồ chơi và thời gian vận chuyển nhập kho trung bình là 10 ngày. Vì vậy, trước tháng 10, bạn cần lên đơn đặt hàng cho bên supplier để mình nhập kho kịp lúc và trưng bày hàng trên kệ. Nghe việc này có vẻ dễ đúng không nhưng điều đó chỉ dễ khi bạn biết trước được tương lai rằng khách hàng của bạn sẽ mua 15 món đồ chơi trong tháng 10. Vậy làm sao để dự đoán chính xác được thì đó là công dụng của **demand planning**.
+
+### Làm sao để planning:
+
+Thực chất **demand planning** chỉ là 1 phần nhỏ giữa nhiều hoạt động planning khác nhau trong quá trình quản lý chuỗi cung ứng nhưng lại đóng vai trò quan trọng nhất. Như nghiên cứu dưới đây của [@nataliaszozda2013] , nó được xem thông tin đầu vào cho doanh nghiệp và dựa vào đó, các phòng ban trong doanh nghiệp như phòng thu mua sẽ lên kế hoạch về số lượng nguyên vật liệu cần mua, phòng sản xuất sẽ xây dựng kế hoạch sản xuất, đơn vị vận chuyển sẽ lên lịch trình phân phối hàng hóa cho từng nhà kho, từng cửa hàng khác nhau.
+
+![Hình 3: Vai trò của Demand Planning trong doanh nghiệp](img/planning.png){fig-align="center"}
+
+Do đó, bạn có thể thấy thông tin được dự đoán từ **demand planning** sẽ làm nền tảng hay dữ liệu đầu vào cho rất nhiều kế hoạch hoạt động trong công ty, doanh nghiệp. Vì vậy, để đảm bảo được độ chính xác, bạn cần thu thập dữ liệu từ nhiều nguồn để xây dựng mô hình dự đoán.
+
+Đối với dữ liệu chuỗi thời gian, các mô hình dự đoán thông thường được sử dụng như là:
+
+- Cho thời gian ngắn hạn (Từ 1 đến 3 tháng): ETS, MA (Moving Average), AR (Autoregressive).
+
+- Cho thời gian dài hạn: ARIMA, SARIMA hay SARIMAX.
+
+- Cho thời gian dài hạn và dữ liệu đa dạng phức tạp: các mô hình thuần về học máy như RNN, Deap Learning,... sẽ làm tốt hơn mô hình truyền thống.
+
+Vậy thì trong bài này chúng ta sẽ học đầu tiên về mô hình ARIMA.
 
 # Chuẩn bị dữ liệu:
+
+Ở phần bài tập này, chúng ta sẽ học về cách sử dụng R trong việc phân tích và dự đoán dữ liệu bằng 2 cách: mô hình ARIMA và SARIMAX
+
+Bài tập này dựa vào bộ dữ liệu từ [@felixzhao2017] của *Frank Corrigan*. Nếu bí ý tưởng, bạn có thể kham khảo thêm phần phân tích của anh ấy thông qua bài blog [@frank2019].
 
 Việc đầu tiên, rất quen thuộc, chúng ta gọi các packages vào R.
 
@@ -51,7 +75,7 @@ pacman::p_load(rio,
                )
 ```
 
-::: {.callout-tip appearance="minimal"}
+::: {.callout-tip}
 ## Tải thư viện
 
 Nếu các bạn chưa có các packages này, bạn có thể tải xuống từ CRAN R bằng cú pháp: \``` install.packages(*"name_of_package"*)` ``
@@ -104,6 +128,7 @@ month_df<-product_demand %>%
 Sau đó, chúng ta tải dữ liệu vào R. Nếu bạn nào chưa có bạn có thể ấn vào nút tải phía dưới này để tải dữ liệu về thực hành.
 
 ```{r}
+#| echo: false
 library(downloadthis)
 product_demand %>%
   download_this(
@@ -118,21 +143,25 @@ product_demand %>%
 
 # Phân tích cơ bản:
 
-Bộ dữ liệu gồm có **2160 sản phẩm khác nhau** và **4 kho hàng** khác nhau.
+Bộ dữ liệu gồm có **2160 sản phẩm khác nhau** và **4 kho hàng** khác nhau. Dữ liệu khá phức tạp nên vì mục đích học tập, mình sẽ xem như chỉ có 1 sản phẩm và chúng ta sẽ làm dự đoán cho 4 nhà kho.
 
 ```{r}
 #Some informations of this dataset:
-## Number of product:
-length(unique(product_demand$Product_Code)) 
-## Number of warehosue:
-length(unique(product_demand$Warehouse)) 
+library(glue)
+
+# Calculate unique counts
+num_products <- length(unique(product_demand$Product_Code))
+num_warehouses <- length(unique(product_demand$Warehouse))
+
+# Print summary with glue
+output <- glue(
+  "=== Dataset Summary ===\n",
+  "Number of unique products: {num_products}\n",
+  "Number of unique warehouses: {num_warehouses}\n"
+)
+
+cat(output)
 ```
-
-::: {.callout-warning appearance="minimal"}
-## Lưu ý
-
-Vậy nếu bạn là Supply Chain Manager của công ty này, bạn cần lập plan cho cả 4 nhà kho này !!!
-:::
 
 Đầu tiên, chúng ta sẽ muốn biết về xu hướng tiêu dùng trong 5 năm từ 2012 đến 2016 ở tất cả các kho và từng kho riêng lẻ. Sau đó chúng ta kết hợp hai đồ thị trong 1 đồ thị theo hàm `cowplot::plot_grid`
 
@@ -226,4 +255,4 @@ ggplot(data = Demand_weekday,
 
 Như biểu đồ trên, ta có thể thấy người tiêu dùng thường đi vào đầu tuần và cuối tuần, có xu hướng giảm dần vào giữa tuần hay khoảng thứ 4 hoặc thứ 5.
 
-Vậy tiếp theo ta sẽ vào phần phân tích ở trang [Mô hình ARIMA](Forecasting.qmd).
+Vậy tiếp theo ta sẽ vào phần phân tích và xây dựng mô hình ở trang [Mô hình ARIMA](Forecasting.qmd).

@@ -87,7 +87,7 @@ Theo nghiên cứu của [@johna.miller2024],họ nhắc đến mô hình SARIMA
 
 Thực tế, mô hình mà R đề xuất trên bằng hàm `auto.arima()` cũng đã bao gồm thành phần *seasonal* nên ta có thể xem mô hình trên SARIMA.
 
-![Hình 5: Stationary and non-stationary series](img/SARIMAX.png){fig-align="center"}
+![Hình 7: SARIMA VS ARIMA ](img/SARIMAX.png){fig-align="center"}
 
 Dưới đây là ví dụ về mô hình SARIMA và cách để code trong R.
 
@@ -124,7 +124,7 @@ Sau đó ta xây dựng mô hình như các bước cũ:
 #| warning: false
 #| message: false
 #Forecast by training model:
-model_training2<-Arima(demand_training,,
+model_training2<-Arima(demand_training,
              xreg = income[1:length(demand_training)],
              order = c(3,1,3),
              seasonal = list(order = c(1,1,0),
@@ -163,13 +163,13 @@ legend("topleft",
 
 Và sau đó, ta sẽ sử dụng model đó để dự đoán cho tương lai. Nhìn biểu đồ ta dễ dàng kết luận mô hình không tốt. Nguyên do là tương quan giữa biến `income` và `demand_training` quá thấp, chỉ số tương quan chỉ có `r round(cor(income[1:length(demand_training)],demand_training),3)`.
 
-## Thực hành trong R:
+# Phương pháp thủ công:
 
-### Lựa chọn mô hình thủ công:
+## Lựa chọn mô hình thủ công:
 
 Thực tế, ta thấy mô hình do R đề xuất bằng hàm `auto.arima` có vẻ "overfitting" - nghĩa là mô hình tốt quá, *cover* hết các trường hợp nhưng có nguy cơ không cho dự đoán tốt vì dữ liệu trong tương lai biến động.
 
-Vì vậy, ta cần xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên [How can I select the best SARIMA model](https://malouche.github.io/howto/sarima.html).
+Vì vậy, ta có thể xây dựng cách lựa chọn mô hình theo cách khác. Mình có kham khảo cách này trên [How can I select the best SARIMA model](https://malouche.github.io/howto/sarima.html).
 
 ```{r}
 #| warning: false
@@ -274,7 +274,7 @@ gt(gt) %>%
 
 ```
 
-### Đánh giá mô hình:
+## Đánh giá mô hình:
 
 Và cuối cùng là đánh giá mô hình vừa được chọn ARIMA(2,1,0)(0,1,0)\[12\] với dữ liệu thực tế từ đối tượng `demand_testing`.
 
@@ -308,7 +308,7 @@ legend("topleft",
        lwd = 2)
 ```
 
-### Kiểm định giả thuyết của mô hình:
+## Kiểm định giả thuyết của mô hình:
 
 Sau khi đã xây dựng mô hình, ta cần kiểm tra lại các giả thuyết như:
 
@@ -415,4 +415,78 @@ forecast:::plot.forecast(predict_fit,
      ylab = "Order demand")
 ```
 
-Vậy tiếp theo ta sẽ vào phần phân tích ở trang [Machine Learning](EnsembleML.qmd).
+Vậy chúng ta đã kết thúc bài post ngày hôm nay.
+
+Nếu bạn có câu hỏi hay thắc mắc nào, đừng ngần ngại liên hệ với mình qua Gmail. Bên cạnh đó, nếu bạn muốn xem lại các bài viết trước đây của mình, hãy nhấn vào hai nút dưới đây để truy cập trang **Rpubs** hoặc mã nguồn trên **Github**. Rất vui được đồng hành cùng bạn, hẹn gặp lại! 😄😄😄
+
+```{=html}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/svgs/rstudio.svg">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; }
+        .container { max-width: 400px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        label { display: block; margin: 10px 0 5px; }
+        input[type="email"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        .github-button, .rpubs-button { margin-top: 20px; text-align: center; }
+        .github-button button, .rpubs-button button { background-color: #333; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; width: 100%; }
+        .github-button button:hover, .rpubs-button button:hover { background-color: #555; }
+        .rpubs-button button { background-color: #75AADB; }
+        .rpubs-button button:hover { background-color: #5A9BC2; }
+        .rpubs-icon { margin-right: 5px; width: 20px; vertical-align: middle; filter: brightness(0) invert(1); }
+        .error-message { color: red; font-size: 0.9em; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Contact Me</h2>
+        <form id="emailForm">
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" name="email" required aria-label="Email Address">
+            <div class="error-message" id="error-message" style="display: none;">Please enter a valid email address.</div>
+            <button type="submit">Send Email</button>
+        </form>
+        <div class="github-button">
+            <button>
+                <a href="https://github.com/Loccx78vn" target="_blank" style="color: white; text-decoration: none;">
+                    <i class="fab fa-github"></i> View Code on GitHub
+                </a>
+            </button>
+        </div>
+        <div class="rpubs-button">
+            <button>
+                <a href="https://rpubs.com/loccx" target="_blank" style="color: white; text-decoration: none;">
+                    <img src="https://cdn.jsdelivr.net/npm/simple-icons@v6.0.0/icons/rstudio.svg" alt="RStudio icon" class="rpubs-icon"> Visit my RPubs
+                </a>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('emailForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value;
+            const errorMessage = document.getElementById('error-message');
+
+            // Simple email validation regex
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailPattern.test(email)) {
+                errorMessage.style.display = 'none'; // Hide error message
+                const yourEmail = 'loccaoxuan103@gmail.com'; // Your email
+                const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${yourEmail}&su=Help%20Request%20from%20${encodeURIComponent(email)}`;
+                window.open(gmailLink, '_blank'); // Open in new tab
+            } else {
+                errorMessage.style.display = 'block'; // Show error message
+            }
+        });
+    </script>
+</body>
+</html>
+```
