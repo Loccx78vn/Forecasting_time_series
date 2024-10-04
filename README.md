@@ -23,3 +23,5 @@ Time series analysis involves techniques for analyzing time-ordered data points 
 
 # Conclusion:
 I hope you can enjoy the pratice and hope you have a great day!!! See you soon in another future topic.
+
+!["ARIMA and SARIMA model"](img/readme.png)
